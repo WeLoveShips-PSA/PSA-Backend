@@ -27,7 +27,7 @@ password varchar(11),
 roles varchar(11),
 user_name varchar(11),
 primary key (id)
-)
+);
 ```
 
 5. Run following command to insert first user
