@@ -7,9 +7,10 @@ $mvn boot-spring:run
 
 How to connect to local mysql database
 1. Open MYSQL workbench
-2. Enter following to create a database 
+2. Enter following to create a database and use it
 ```bash
 CREATE DATABASE ${any name you like};
+USE ${any name you like};
 ```
 3. Enter the following in PSABackend/resources/application.properties
 ```bash
