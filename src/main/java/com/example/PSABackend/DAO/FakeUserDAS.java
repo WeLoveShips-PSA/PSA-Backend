@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@Repository("pregres")
 public class FakeUserDAS implements UserDAO{
     private static List<User> DB = new ArrayList<User>();
 

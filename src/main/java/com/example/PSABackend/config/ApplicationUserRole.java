@@ -1,7 +1,9 @@
 package com.example.PSABackend.config;
 
-import java.util.Set;
 import com.google.common.collect.Sets;
+
+import java.util.Set;
+
 import static com.example.PSABackend.config.ApplicationUserPermission.*;
 
 public enum ApplicationUserRole {
