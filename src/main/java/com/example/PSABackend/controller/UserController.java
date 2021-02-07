@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping
-    @RequestMapping(path = "/get/all")
+    @RequestMapping(path = "/getall")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
