@@ -4,6 +4,7 @@ public class Student {
 
     private final Integer studentId;
     private String studentName;
+    private String thing;
 
     public Student(Integer studentId, String studentName) {
         this.studentId = studentId;
