@@ -1,6 +1,8 @@
 package com.example.PSABackend.controller;
 
 
+import com.example.PSABackend.DAO.PortNetConnectorDAO;
+import com.example.PSABackend.PortNetConnector;
 import com.example.PSABackend.classes.Student;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,8 @@ public class StudentManagementController {
 
     @GetMapping(path = "all")
     public List<Student> getSTUDENTS() {
+//        PortNetConnector.getUpdate("2021-01-26", "2021-01-26");
+        PortNetConnector.updateVessel();
         return STUDENTS;
     }
 
