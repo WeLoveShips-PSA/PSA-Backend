@@ -18,7 +18,7 @@ import java.util.UUID;
 // @Table(name = "users")
 public class User {
     // @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Integer id;
-    private UUID id;
+    private final UUID id;
     @NotBlank
     private String password;
     @NotBlank
@@ -27,7 +27,8 @@ public class User {
     private String user_name;
     @NotBlank
     private String email; // email added
-    //Should add company
+    @NotBlank
+    private Company companyId;
 
     public User(@JsonProperty("id") UUID id, @JsonProperty("password") String password, @JsonProperty("roles") String roles, @JsonProperty("user_name") String user_name, @JsonProperty("email") String email) {
         this.id = id;
@@ -35,6 +36,9 @@ public class User {
         this.roles = roles;
         this.user_name = user_name;
         this.email = email;
+        // this.company = new Company()
+        // this.company = CompanyDAO.getCompany(companyName)
+        // means we assume no companyNames are unique
     }
 // private Company company; // need store which company they are from
 
@@ -55,5 +59,9 @@ public class User {
     }
 
     public String getEmail() {return email; }
+
+    public String toString() {
+        return String.format("%s %s %s %s", id.toString(), password, user_name, email);
+    }
 }
 

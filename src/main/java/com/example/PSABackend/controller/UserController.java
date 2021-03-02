@@ -41,12 +41,6 @@ public class UserController {
                 .orElse(null);
     }
 
-    @DeleteMapping
-    @RequestMapping(path = "/del/{id}")
-    public void deleteUserByID(@PathVariable("id") UUID id) {
-        userService.deleteUser(id);
-    }
-
     @PutMapping
     @RequestMapping(path = "/upd/{id}")
     public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @RequestBody User userToUpdate) {
