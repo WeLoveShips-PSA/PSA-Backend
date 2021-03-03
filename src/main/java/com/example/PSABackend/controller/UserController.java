@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping(path = "user")
@@ -46,4 +47,20 @@ public class UserController {
     public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @RequestBody User userToUpdate) {
         userService.updateUser(id, userToUpdate);
     }
+
+    @PostMapping
+    @RequestMapping(path = "/login")
+    public boolean userLogin(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        String password = body.get("password").toString();
+        System.out.println( username + " " + password );
+        return userService.userLogin(username, password);
+    }
+
+//    @PostMapping
+
+//    @RequestMapping(path = "/changepassword")
+//    public void changeUserPassword(@PathVariable("id") UUID id,@Valid @NonNull @RequestBody User userToUpdate) {
+//        userService.changeUserPassword(id, userToUpdate);
+//    }
 }

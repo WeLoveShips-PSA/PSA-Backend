@@ -36,4 +36,8 @@ public class UserService {
     public int updateUser(UUID id, User newUser) {
         return userDAO.updateUserById(id, newUser);
     }
+
+    public boolean userLogin(String username, String password) { return userDAO.userLogin(username, password); }
+
+    // public int changeUserPassword(UUID id, User newUser) { return userDAO.changeUserPassword(id, newUser); }
 }

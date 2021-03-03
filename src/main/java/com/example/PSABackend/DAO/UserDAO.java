@@ -22,4 +22,6 @@ public interface UserDAO {
     int deleteUserById(UUID id);
 
     int updateUserById(UUID id, User user);
+
+    boolean userLogin(String username, String password);
 }

@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import javax.swing.text.html.Option;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +53,11 @@ public class FakeUserDAS implements UserDAO{
             }
         }
 
+        if (checkEmailExists(userEmail)) {
+            System.out.println("Email got already, make new one");
+            return 0;
+        }
+
         if (!validEmail) {
             System.out.println(user);
             return 0;
@@ -76,14 +78,32 @@ public class FakeUserDAS implements UserDAO{
             System.out.println(e);
             return 0;
         }
-        /*DB.add(new User(id, user.getPassword(), user.getRoles(), user.getUser_name(), user.getEmail()));
-        return 1;*/
         return 1;
     }
 
     @Override
     public List<User> selectAllUsers() {
-        return DB;
+        String getAllUserQuery = "SELECT * FROM USER";
+        ArrayList<User> userList = new ArrayList<User>();
+
+        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+             PreparedStatement stmt = conn.prepareStatement(getAllUserQuery);) {
+            ResultSet rs = stmt.executeQuery(getAllUserQuery);
+            while(rs.next()) {
+                UUID id = UUID.fromString(rs.getString("UUID"));
+                String password = rs.getString("password");
+                String user_name = rs.getString("name");
+                String email = rs.getString("email");
+
+                userList.add(new User(id, password, "", user_name, email));
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        for (User user: userList) {
+            System.out.println(user);
+        }
+        return userList;
     }
 
     @Override
@@ -118,12 +138,43 @@ public class FakeUserDAS implements UserDAO{
                 .orElse(0);
     }
 
-//    public ArrayList<String> getAllEmails() {
-//        ArrayList<String> emailList = new ArrayList<String>();
-//
-//        String getEmailListQuery =
-//
-//        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
-//             PreparedStatement stmt = conn.prepareStatement(getEmailListQuery);)
-//    }
+    @Override
+    public boolean userLogin(String username, String password) {
+        String getPasswordQuery = String.format("SELECT password FROM user where name = '%s'", username);
+
+        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+        PreparedStatement stmt = conn.prepareStatement(getPasswordQuery);) {
+            ResultSet rs = stmt.executeQuery(getPasswordQuery);
+            if (rs.next()) {
+                String correctPassword = rs.getString("password");
+                if (password == correctPassword) {
+                    return true;
+                } else {
+                    System.out.println("wrong password");
+                    return false;
+                }
+            } else {
+                System.out.println("no account with username");
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return false;
+    }
+
+    public boolean checkEmailExists(String userEmail) {
+        String getEmailListQuery = String.format("SELECT email from user where email = '%s'", userEmail);
+
+        boolean emailExist = false;
+        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+             PreparedStatement stmt = conn.prepareStatement(getEmailListQuery);) {
+            ResultSet rs = stmt.executeQuery(getEmailListQuery);
+            if (rs != null) {
+                emailExist = true;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return emailExist;
+    }
 }
