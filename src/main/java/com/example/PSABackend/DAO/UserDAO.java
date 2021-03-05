@@ -3,25 +3,28 @@ package com.example.PSABackend.DAO;
 import com.example.PSABackend.classes.User;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface UserDAO {
 
-    int addUser(UUID id, User user); // if the user is given an id
+    boolean addUser(User user); // if the user is given an id
 
-    default int addUser(User user) {
-        UUID id = UUID.randomUUID(); // generates our own UUID
-        return addUser(id, user);
-    }
+//    default boolean addUser(User user) {
+//        UUID id = UUID.randomUUID(); // generates our own UUID
+//        return add;
+//    }
 
     List<User> selectAllUsers();
 
-    Optional<User> selectUserById(UUID id);
+    User selectUserById(String username);
 
-    int deleteUserById(UUID id);
-
-    int updateUserById(UUID id, User user);
+//    int deleteUserById(UUID id);
+//
+//    int updateUserById(UUID id, User user);
 
     boolean userLogin(String username, String password);
+
+    boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset);
+
+    boolean resetUserPassword(String username);
 }

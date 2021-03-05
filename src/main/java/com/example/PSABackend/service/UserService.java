@@ -17,7 +17,7 @@ public class UserService {
     @Autowired
     public UserService(@Qualifier("pregres") UserDAO userDAO) { this.userDAO = userDAO; }
 
-    public int addUser(User user) {
+    public boolean addUser(User user) {
         return userDAO.addUser(user);
     }
 
@@ -25,19 +25,26 @@ public class UserService {
         return userDAO.selectAllUsers();
     }
 
-    public Optional<User> getUserById(UUID id) {
-        return userDAO.selectUserById(id);
+    public User getUserById(String username) {
+        return userDAO.selectUserById(username);
     }
 
-    public int deleteUser(UUID id) {
-        return userDAO.deleteUserById(id);
-    }
+//    public int deleteUser(UUID id) {
+//        return userDAO.deleteUserById(id);
+//    }
 
-    public int updateUser(UUID id, User newUser) {
-        return userDAO.updateUserById(id, newUser);
-    }
+//    public int updateUser(UUID id, User newUser) {
+//        return userDAO.updateUserById(id, newUser);
+//    }
 
     public boolean userLogin(String username, String password) { return userDAO.userLogin(username, password); }
 
+    public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) {
+        return userDAO.changeUserPassword(username, oldPassword, newPassword, reset);
+    }
+
+    public boolean resetUserPassword(String username) {
+        return userDAO.resetUserPassword(username);
+    }
     // public int changeUserPassword(UUID id, User newUser) { return userDAO.changeUserPassword(id, newUser); }
 }

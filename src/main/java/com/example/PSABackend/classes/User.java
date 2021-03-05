@@ -1,25 +1,13 @@
 package com.example.PSABackend.classes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.persistence.*;
-
-
-
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
-import java.util.UUID;
-
 // @Entity // This tells Hibernate to make a table out of this class
 // @Table(name = "users")
 public class User {
-    // @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Integer id;
-    private final UUID id;
-    @NotBlank
+// @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Integer id;
+//    private final UUID id;
+//    @NotBlank
     private String password;
     @NotBlank
     private String roles;
@@ -30,8 +18,7 @@ public class User {
     @NotBlank
     private Company companyId;
 
-    public User(@JsonProperty("id") UUID id, @JsonProperty("password") String password, @JsonProperty("roles") String roles, @JsonProperty("user_name") String user_name, @JsonProperty("email") String email) {
-        this.id = id;
+    public User(@JsonProperty("password") String password, @JsonProperty("roles") String roles, @JsonProperty("user_name") String user_name, @JsonProperty("email") String email) {
         this.password = password;
         this.roles = roles;
         this.user_name = user_name;
@@ -40,15 +27,12 @@ public class User {
         // this.company = CompanyDAO.getCompany(companyName)
         // means we assume no companyNames are unique
     }
-// private Company company; // need store which company they are from
-
-    public UUID getId() {
-        return id;
-    }
 
     public String getPassword() {
         return password;
     }
+
+    public void setPassword(String password) { this.password = password; }
 
     public String getRoles() {
         return roles;
@@ -61,7 +45,7 @@ public class User {
     public String getEmail() {return email; }
 
     public String toString() {
-        return String.format("%s %s %s %s", id.toString(), password, user_name, email);
+        return String.format("%s %s %s", password, user_name, email);
     }
 }
 

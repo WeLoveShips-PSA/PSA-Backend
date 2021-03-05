@@ -3,13 +3,11 @@ package com.example.PSABackend.DAO;
 import com.example.PSABackend.classes.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.apache.commons.lang3.RandomStringUtils;
 
-import javax.swing.text.html.Option;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Repository("pregres")
 public class FakeUserDAS implements UserDAO{
@@ -42,7 +40,7 @@ public class FakeUserDAS implements UserDAO{
 
     // UUID id, Integer active, String password, String roles, String user_name, String email
     @Override
-    public int addUser(UUID id, User user) {
+    public boolean addUser(User user) {
         boolean validEmail = false;
         String[] emails = allowedEmails.split(",");
         String userEmail = user.getEmail();
@@ -55,47 +53,48 @@ public class FakeUserDAS implements UserDAO{
 
         if (checkEmailExists(userEmail)) {
             System.out.println("Email got already, make new one");
-            return 0;
+            return false;
         }
 
         if (!validEmail) {
-            System.out.println(user);
-            return 0;
+            System.out.println("Email is not allowed");
+            return false;
         }
 
-        String addUserQuery = "INSERT INTO user(UUiD, name, password, email) VALUES (?,?,?,?)";
+        String addUserQuery = "INSERT INTO user(name, password, email) VALUES (?,?,?)";
 
-        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addUserQuery);) {
 
-            stmt.setString(1, id.toString());
-            stmt.setString(2, user.getUser_name());
-            stmt.setString(3, user.getPassword());
-            stmt.setString(4, user.getEmail());
+            stmt.setString(1, user.getUser_name());
+            stmt.setString(2, user.getPassword());
+            stmt.setString(3, user.getEmail());
             stmt.executeUpdate();
 
         } catch (SQLException e) {
             System.out.println(e);
-            return 0;
+            return false;
         }
-        return 1;
+        return true;
     }
+
 
     @Override
     public List<User> selectAllUsers() {
         String getAllUserQuery = "SELECT * FROM USER";
         ArrayList<User> userList = new ArrayList<User>();
 
-        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getAllUserQuery);) {
             ResultSet rs = stmt.executeQuery(getAllUserQuery);
             while(rs.next()) {
-                UUID id = UUID.fromString(rs.getString("UUID"));
+                // UUID id = UUID.fromString(rs.getString("UUID"));
+                // UUID id = UUID.fromString(rs.getString("UUID"));
                 String password = rs.getString("password");
                 String user_name = rs.getString("name");
                 String email = rs.getString("email");
 
-                userList.add(new User(id, password, "", user_name, email));
+                userList.add(new User(password, "", user_name, email));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -107,47 +106,63 @@ public class FakeUserDAS implements UserDAO{
     }
 
     @Override
-    public Optional<User> selectUserById(UUID id) {
-        return DB.stream()
-                .filter(user -> user.getId().equals(id))
-                .findFirst();
-    }
+    public User selectUserById(String username) {
+        String getUserQuery = String.format("SELECT * FROM user where name = '%s'", username);
+        User user = null;
 
-    @Override
-    public int deleteUserById(UUID id) {
-        Optional<User> userToDelete = selectUserById(id);
-        if (userToDelete.isEmpty()) {
-            return 0;
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(getUserQuery);) {
+            ResultSet rs = stmt.executeQuery(getUserQuery);
+            if (rs.next()) {
+                String name = rs.getString("name");
+                String password = rs.getString("password");
+                String email = rs.getString("email");
+
+                user = new User(password, "", name, email);
+            } else {
+                System.out.println("no account with username");
+            }
+        } catch (SQLException e){
+            System.out.println(e);
         }
-        DB.remove((userToDelete.get()));
-        return 1;
+        return user;
     }
 
-    @Override
-    //TODO
-    public int updateUserById(UUID id, User newUser) {
-        return selectUserById(id)
-                .map(user -> {
-                    int indexOfUserToUpdate= DB.indexOf(user);
-                    if (indexOfUserToUpdate >= 0) { // means we got a user to delete
-                        DB.set(indexOfUserToUpdate, new User(id, newUser.getPassword(), newUser.getRoles(), newUser.getUser_name(), newUser.getEmail()));
-                        return 1;
-                    }
-                    return 0;
-                })
-                .orElse(0);
-    }
+//    @Override
+//    public int deleteUserById(UUID id) {
+//        Optional<User> userToDelete = selectUserById(id);
+//        if (userToDelete.isEmpty()) {
+//            return 0;
+//        }
+//        DB.remove((userToDelete.get()));
+//        return 1;
+//    }
+
+//    @Override
+//    //TODO
+//    public int updateUserById(UUID id, User newUser) {
+//        return selectUserById(id)
+//                .map(user -> {
+//                    int indexOfUserToUpdate= DB.indexOf(user);
+//                    if (indexOfUserToUpdate >= 0) { // means we got a user to delete
+//                        DB.set(indexOfUserToUpdate, new User(id, newUser.getPassword(), newUser.getRoles(), newUser.getUser_name(), newUser.getEmail()));
+//                        return 1;
+//                    }
+//                    return 0;
+//                })
+//                .orElse(0);
+//    }
 
     @Override
     public boolean userLogin(String username, String password) {
         String getPasswordQuery = String.format("SELECT password FROM user where name = '%s'", username);
 
-        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
         PreparedStatement stmt = conn.prepareStatement(getPasswordQuery);) {
             ResultSet rs = stmt.executeQuery(getPasswordQuery);
             if (rs.next()) {
                 String correctPassword = rs.getString("password");
-                if (password == correctPassword) {
+                if (password.equals(correctPassword)) {
                     return true;
                 } else {
                     System.out.println("wrong password");
@@ -162,14 +177,57 @@ public class FakeUserDAS implements UserDAO{
         return false;
     }
 
+    @Override
+    public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) {
+
+
+        if (!reset && !userLogin(username, oldPassword)) {
+            return false;
+        }
+
+        if (newPassword.length() > 15) {
+            return false;
+        }
+
+        User oldUser = selectUserById(username);
+        if (oldUser == null) { return false; }
+
+        oldUser.setPassword(newPassword);
+
+        String changePasswordQuery = String.format("DELETE FROM user WHERE name = '%s'", username);
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(changePasswordQuery);) {
+            stmt.executeUpdate(changePasswordQuery);
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+
+        return addUser(oldUser);
+    }
+
+    public boolean resetUserPassword(String username) {
+        String newPassword = RandomStringUtils.randomAlphanumeric(15);
+
+        if(changeUserPassword(username, "", newPassword, true)) {
+            // TO DO
+            System.out.println("New password has been sent to your email");
+            return true;
+        }
+        return false;
+    }
+
     public boolean checkEmailExists(String userEmail) {
         String getEmailListQuery = String.format("SELECT email from user where email = '%s'", userEmail);
 
         boolean emailExist = false;
-        try (Connection conn = DriverManager.getConnection(dbURL, username, password);
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getEmailListQuery);) {
             ResultSet rs = stmt.executeQuery(getEmailListQuery);
-            if (rs != null) {
+            if (rs.next()) {
+                System.out.println("Got email");
                 emailExist = true;
             }
         } catch (SQLException e) {
@@ -177,4 +235,6 @@ public class FakeUserDAS implements UserDAO{
         }
         return emailExist;
     }
+
+
 }
