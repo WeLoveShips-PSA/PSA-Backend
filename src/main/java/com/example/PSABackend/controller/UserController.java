@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @RequestMapping(path = "user")
 @RestController // This means that this class is a Controller
@@ -35,21 +35,41 @@ public class UserController {
     }
 
     @GetMapping
-    @RequestMapping(path = "/get/{id}")
-    public User getUserById(@PathVariable("id") UUID id) {
-        return userService.getUserById(id)
-                .orElse(null);
+    @RequestMapping(path = "/get/{username}")
+    public User getUserById(@PathVariable("id") String username) {
+        return userService.getUserById(username);
     }
 
-    @DeleteMapping
-    @RequestMapping(path = "/del/{id}")
-    public void deleteUserByID(@PathVariable("id") UUID id) {
-        userService.deleteUser(id);
+//    @PutMapping
+//    @RequestMapping(path = "/upd/{id}")
+//    public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @RequestBody User userToUpdate) {
+//        userService.updateUser(id, userToUpdate);
+//    }
+
+    @PostMapping
+    @RequestMapping(path = "/login")
+    public boolean userLogin(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        String password = body.get("password").toString();
+        System.out.println(username + " " + password);
+        return userService.userLogin(username, password);
     }
 
-    @PutMapping
-    @RequestMapping(path = "/upd/{id}")
-    public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @RequestBody User userToUpdate) {
-        userService.updateUser(id, userToUpdate);
+    @PostMapping
+    @RequestMapping(path = "/changepassword")
+    public boolean changeUserPassword(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        String oldPassword = body.get("oldPassword").toString();
+        String newPassword = body.get("newPassword").toString();
+        System.out.println(username + " " + oldPassword + " " + newPassword);
+        return userService.changeUserPassword(username, oldPassword, newPassword, false);
     }
+
+    @PostMapping
+    @RequestMapping(path = "resetpassword")
+    public boolean resetUserPassword(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        return userService.resetUserPassword(username);
+    }
+
 }
