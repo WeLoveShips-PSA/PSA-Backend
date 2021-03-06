@@ -8,13 +8,13 @@ import javax.mail.internet.*;
 
 public class Emailer {
 
-    public static void main(String[] args) {
-        try {
-            System.out.println(sendEmail("rxtay.2020@sis.smu.edu.sg")); //recipient email
-        } catch (Exception e){
-            System.out.println("Error 404: Email not found");
-        }
-    }
+//    public static void main(String[] args) {
+//        try {
+//            System.out.println(sendEmail("rxtay.2020@sis.smu.edu.sg")); //recipient email
+//        } catch (Exception e){
+//            System.out.println("Error 404: Email not found");
+//        }
+//    }
 
     //alert_type decides what kind of message is sent to the email
     public static String sendEmail(String recipient) throws AddressException, MessagingException, IOException {
