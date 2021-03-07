@@ -9,6 +9,8 @@ import org.springframework.context.event.EventListener;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 public class PortNetConnectorDAO {
     private static String dbURL;
@@ -75,33 +77,53 @@ public class PortNetConnectorDAO {
         }
     }
 
-    public static void insertIndividualVessels(JsonObject vessel){
-        String[] params = {};
+    public static void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs123", "root", "Password1")){
+            String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+            PreparedStatement replaceStatement = conn.prepareStatement(replace);
+            String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
+            , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"};
+            for(int i = 1; i<= params.length; i++){
+                replaceStatement.setString(i, vessel.get(params[i-1]).toString());
+            }
+            replaceStatement.setString(10, abbrVslM);
+            replaceStatement.setString(11, inVoyN);
+            replaceStatement.executeUpdate();
+        }catch(SQLException ex){
+            ex.printStackTrace();
+        }
     }
 
 
-    public static ArrayList<String> getAllShipName(){
-        ArrayList<String> queryList = new ArrayList<>();
+    public static ArrayList<HashMap<String, String>> getAllShipName(){
+        HashMap<String, String> queryMap = new HashMap<>();
+        ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
         try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs123", "root", "Password1")){
-            String query = "SELECT fullVsim, invoyn FROM VESSEL";
+            String query = "SELECT fullVsiM, invoyN FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()) {
-                String fullVsim = rs.getString("fullVsim");
-                String invoyn = rs.getString("invoyn");
-                fullVsim = fullVsim.replaceAll("\\s+", "");
-                invoyn = invoyn.replaceAll("\\s+", "");
+                String fullVsIM = rs.getString("fullVsIM");
+                String inVoyN = rs.getString("inVoyN");
+                String abbrVslM = rs.getString("abbrVslM");
+                fullVsIM = fullVsIM.replaceAll("\\s+", "");
+                inVoyN = inVoyN.replaceAll("\\s+", "");
                 StringBuilder queryParams = new StringBuilder();
-                queryParams.append(fullVsim);
-                queryParams.append(invoyn);
+                queryParams.append(fullVsIM);
+                queryParams.append(inVoyN);
                 System.out.println(queryParams);
-                queryList.add(queryParams.toString());
+                queryMap.put("vsl_voy", queryParams.toString());
+                queryMap.put("abbrVslM", abbrVslM);
+                queryMap.put("inVoyN", inVoyN);
+//                String[] res = {queryParams.toString(), abbrVslM, inVoyN};
+                queryList.add(queryMap);
             }
         }catch(SQLException e){
             e.printStackTrace();
         }
         return queryList;
+//        return queryList;
     }
 
 }
