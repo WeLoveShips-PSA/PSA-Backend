@@ -14,7 +14,7 @@ import java.util.*;
 import java.sql.*;
 
 @Component
-public class PortNetConnector {
+public class  PortNetConnector {
 
     private static String apiKey;
 
@@ -40,6 +40,7 @@ public class PortNetConnector {
 
         if (response.getStatusCode() == HttpStatus.OK) {
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            System.out.println(jsonObject.toString());
             JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
             PortNetConnectorDAO.insert(vesselArray);
         }
@@ -59,7 +60,12 @@ public class PortNetConnector {
             thing.append(url);
             thing.append(v);
             ResponseEntity<String> response = restTemplate.exchange(thing.toString(), HttpMethod.GET, entity, String.class);
-            System.out.println(response.getBody());
+            JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
+            if(vesselArray != null) {
+                JsonObject actualVessel = (JsonObject) vesselArray.get(0);
+                PortNetConnectorDAO.insertIndividualVessels(actualVessel);
+            }
         }
     }
 

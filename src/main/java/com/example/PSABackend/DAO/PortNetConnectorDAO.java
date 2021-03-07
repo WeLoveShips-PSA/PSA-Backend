@@ -39,11 +39,11 @@ public class PortNetConnectorDAO {
                 PreparedStatement queryStatement = conn.prepareStatement(query);
                 System.out.println(vesselObject);
                 String abbr = vesselObject.get("abbrVslM").toString();
-                abbr = abbr.substring(1,abbr.length()-1);
+                abbr = abbr.replace("\"", "");
                 String voy = vesselObject.get("inVoyN").toString();
-                voy = voy.substring(1,voy.length()-1);
+                voy = voy.replace("\"", "");
                 String bthg = vesselObject.get("unbthgDt").toString();
-                bthg = bthg.substring(1,bthg.length()-1);
+                bthg = bthg.replace("\"", "");
                 queryStatement.setString(1, abbr);
                 queryStatement.setString(2, voy);
                 queryStatement.setString(3, bthg);
@@ -63,7 +63,7 @@ public class PortNetConnectorDAO {
                 String[] arr = {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
                 for(int i = 0; i<arr.length; i++){
                     String str = vesselObject.get(arr[i]).toString();
-                    str = str.substring(1,str.length()-1);
+                    str = str.replace("\"", "");
                     replaceStatement.setString(i+1, str);
                 }
 
@@ -74,6 +74,11 @@ public class PortNetConnectorDAO {
             }
         }
     }
+
+    public static void insertIndividualVessels(JsonObject vessel){
+        String[] params = {};
+    }
+
 
     public static ArrayList<String> getAllShipName(){
         ArrayList<String> queryList = new ArrayList<>();
