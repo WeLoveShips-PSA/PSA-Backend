@@ -36,19 +36,16 @@ public class PortNetConnectorDAO {
         for(JsonElement e: vesselArray){
             JsonObject vesselObject = e.getAsJsonObject();
 
-            try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs123", "root", "Password1")){
-                String query = "SELECT * FROM VESSEL WHERE (abbrVsim = ? AND inVoyn = ? AND unbthgDt = ?)";
+            try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
+                String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
                 PreparedStatement queryStatement = conn.prepareStatement(query);
                 System.out.println(vesselObject);
                 String abbr = vesselObject.get("abbrVslM").toString();
                 abbr = abbr.replace("\"", "");
                 String voy = vesselObject.get("inVoyN").toString();
                 voy = voy.replace("\"", "");
-                String bthg = vesselObject.get("unbthgDt").toString();
-                bthg = bthg.replace("\"", "");
                 queryStatement.setString(1, abbr);
                 queryStatement.setString(2, voy);
-                queryStatement.setString(3, bthg);
                 System.out.println(queryStatement.toString());
 
                 ResultSet rs = queryStatement.executeQuery();
@@ -78,7 +75,7 @@ public class PortNetConnectorDAO {
     }
 
     public static void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs123", "root", "Password1")){
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
             String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement replaceStatement = conn.prepareStatement(replace);
             String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
@@ -96,14 +93,15 @@ public class PortNetConnectorDAO {
 
 
     public static ArrayList<HashMap<String, String>> getAllShipName(){
-        HashMap<String, String> queryMap = new HashMap<>();
+
         ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs123", "root", "Password1")){
-            String query = "SELECT fullVsiM, invoyN FROM VESSEL";
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
+            String query = "SELECT fullVsIM, invoyN, abbrVslM FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()) {
+                HashMap<String, String> queryMap = new HashMap<>();
                 String fullVsIM = rs.getString("fullVsIM");
                 String inVoyN = rs.getString("inVoyN");
                 String abbrVslM = rs.getString("abbrVslM");
