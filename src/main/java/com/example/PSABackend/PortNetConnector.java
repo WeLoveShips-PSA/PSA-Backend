@@ -14,7 +14,7 @@ import java.util.*;
 import java.sql.*;
 
 @Component
-public class PortNetConnector {
+public class  PortNetConnector {
 
     private static String apiKey;
 
@@ -23,6 +23,7 @@ public class PortNetConnector {
         PortNetConnector.apiKey = value;
     }
 
+    // Calls the vessel api to get all the berthing time and status of the vessels
     public static void getUpdate(String dateFrom, String dateTo) {
         String url = "https://api.portnet.com/vsspp/pp/bizfn/berthingSchedule/retrieveByBerthingDate/v1.2";
         RestTemplate restTemplate = new RestTemplate();
@@ -40,26 +41,38 @@ public class PortNetConnector {
 
         if (response.getStatusCode() == HttpStatus.OK) {
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            System.out.println(jsonObject.toString());
             JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
+            // Inserts the vessel information into the vessel table
             PortNetConnectorDAO.insert(vesselArray);
         }
     }
 
+    // Calls the api for the individual vessels and calls PortNetConnectorDAO.insertIndividualVessels
+    // to update the individual vessels in the database
     public static void updateVessel(){
         String url = "https://api.portnet.com/extapi/vessels/predictedbtr/?vslvoy=";
         String getQuery = "";
-        ArrayList<String> queryArray = new ArrayList<>();
+        ArrayList<HashMap<String, String>> queryArray = new ArrayList<>();
+        HashMap<String, String> queryMap = new HashMap<>();
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Apikey", apiKey);
         HttpEntity entity= new HttpEntity(headers);
+
+        // PortNetConnectorDAO.getAllShipName() returns an array of hasmaps containing the
+        // Jsonobject of the vessel, and the abbrvslm and invoyn of the vessel
         queryArray = PortNetConnectorDAO.getAllShipName();
-        for(String v: queryArray){
+        for(HashMap<String, String> v: queryArray){
+            // The structure of v is such that these are the keys 0: vsl_voy, 1: abbrVslM, 2: inVoyN
             StringBuilder thing = new StringBuilder();
             thing.append(url);
-            thing.append(v);
+            thing.append(v.get("vsl_voy"));
             ResponseEntity<String> response = restTemplate.exchange(thing.toString(), HttpMethod.GET, entity, String.class);
-            System.out.println(response.getBody());
+            JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            if(jsonObject.get("Error") == null) {
+                PortNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"));
+            }
         }
     }
 
