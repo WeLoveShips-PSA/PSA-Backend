@@ -68,16 +68,9 @@ public class  PortNetConnector {
             StringBuilder thing = new StringBuilder();
             thing.append(url);
             thing.append(v.get("vsl_voy"));
-//            System.out.println(v.get("vsl_voy"));
-//            System.out.println(v.get("abbrVslM"));
             ResponseEntity<String> response = restTemplate.exchange(thing.toString(), HttpMethod.GET, entity, String.class);
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
-            System.out.println(response.getBody());
             if(jsonObject.get("Error") == null) {
-//                JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
-//                JsonObject actualVessel = (JsonObject) vesselArray.get(0);
-//                 Inserts the individual vessel information into the vessel_extra table
-                System.out.println(jsonObject.toString());
                 PortNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"));
             }
         }

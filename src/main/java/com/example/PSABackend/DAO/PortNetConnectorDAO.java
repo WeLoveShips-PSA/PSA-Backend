@@ -65,8 +65,6 @@ public class PortNetConnectorDAO {
                     str = str.replace("\"", "");
                     replaceStatement.setString(i+1, str);
                 }
-
-//                System.out.println(replaceStatement.toString());
                 replaceStatement.executeUpdate();
             }catch(SQLException ex){
                 ex.printStackTrace();
@@ -81,7 +79,11 @@ public class PortNetConnectorDAO {
             String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
             , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"};
             for(int i = 1; i<= params.length; i++){
-                replaceStatement.setString(i, vessel.get(params[i-1]).toString());
+                String value = vessel.get(params[i-1]).toString();
+                if(value.charAt(0) == '"'){
+                    value = value.replace("\"", "");
+                }
+                replaceStatement.setString(i, value);
             }
             replaceStatement.setString(10, abbrVslM);
             replaceStatement.setString(11, inVoyN);
