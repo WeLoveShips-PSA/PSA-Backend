@@ -36,7 +36,7 @@ public class PortNetConnectorDAO {
         for(JsonElement e: vesselArray){
             JsonObject vesselObject = e.getAsJsonObject();
 
-            try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
+            try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
                 String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
                 PreparedStatement queryStatement = conn.prepareStatement(query);
                 System.out.println(vesselObject);
@@ -97,7 +97,7 @@ public class PortNetConnectorDAO {
     public static ArrayList<HashMap<String, String>> getAllShipName(){
 
         ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
             String query = "SELECT fullVsIM, invoyN, abbrVslM FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);

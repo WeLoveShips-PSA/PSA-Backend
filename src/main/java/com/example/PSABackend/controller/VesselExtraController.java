@@ -10,20 +10,15 @@ import java.util.ArrayList;
 @RequestMapping(path = "vessel_extra")
 @RestController
 public class VesselExtraController {
-    private final VesselExtraService vesselExtraService;
-
-    @Autowired
-    public VesselExtraController (VesselExtraService vesselExtraService) {this.vesselExtraService = vesselExtraService;}
-
     @GetMapping
     @RequestMapping("/getall")
     public ArrayList<JSONObject> getAllVesselExtra (){
-        return vesselExtraService.getAllVesselExtra();
+        return VesselExtraService.getAllVesselExtra();
     }
 
     @PostMapping
     @RequestMapping("/get/{vslvoy}")
     public JSONObject getVesselExtra (@PathVariable("vslvoy") String vslVoy){
-        return vesselExtraService.getVesselExtraByVSLVoy(vslVoy);
+        return VesselExtraService.getVesselExtraByVSLVoy(vslVoy);
     }
 }

@@ -26,10 +26,10 @@ public class VesselExtraDAS {
     @Value("${spring.datasource.password}")
     public void setdbPass(String value) { VesselExtraDAS.password = value; }
 
-    public ArrayList<HashMap<String, String>> selectAllExtraVessels(){
+    public static ArrayList<HashMap<String, String>> selectAllExtraVessels(){
         ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")) {
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "C289cdf456!")) {
             String query = "SELECT * FROM VESSEL_EXTRA";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -65,7 +65,7 @@ public class VesselExtraDAS {
         return queryList;
     }
 
-    public HashMap<String, String> selectExtraVesselByVSLVoy (String VSLVoy){
+    public static HashMap<String, String> selectExtraVesselByVSLVoy (String VSLVoy){
         HashMap<String, String> queryVesselExtra = new HashMap<>();
 
         try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")) {
