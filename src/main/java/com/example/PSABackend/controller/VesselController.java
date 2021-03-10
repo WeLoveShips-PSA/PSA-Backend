@@ -13,11 +13,6 @@ import java.util.Map;
 @RequestMapping(path = "vessel")
 @RestController
 public class VesselController {
-    //create a controller to send json of all vessels
-    //create another controller for all vessels to send json of favorited vessels
-    //get all vessels - get request
-    //get liked vessels - post request that requires user information
-
     //frontend will send date parameters to controller and need to retrieve vessels arriving between the dates specified
     //frontend will give me vsl_voy, i return object vessel_extra
 
