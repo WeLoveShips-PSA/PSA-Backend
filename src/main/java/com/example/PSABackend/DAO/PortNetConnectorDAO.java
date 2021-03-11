@@ -36,7 +36,7 @@ public class PortNetConnectorDAO {
         for(JsonElement e: vesselArray){
             JsonObject vesselObject = e.getAsJsonObject();
 
-            try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
+            try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102", "root", "password")){
                 String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
                 PreparedStatement queryStatement = conn.prepareStatement(query);
                 System.out.println(vesselObject);
@@ -73,7 +73,7 @@ public class PortNetConnectorDAO {
     }
 
     public static void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "password")){
             String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement replaceStatement = conn.prepareStatement(replace);
             String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
@@ -97,7 +97,7 @@ public class PortNetConnectorDAO {
     public static ArrayList<HashMap<String, String>> getAllShipName(){
 
         ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102", "root", "password")){
             String query = "SELECT fullVsIM, invoyN, abbrVslM FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -118,6 +118,65 @@ public class PortNetConnectorDAO {
                 queryMap.put("inVoyN", inVoyN);
 //                String[] res = {queryParams.toString(), abbrVslM, inVoyN};
                 queryList.add(queryMap);
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        return queryList;
+//        return queryList;
+    }
+
+    public static comparing
+
+
+    public static compare_date(JsonObject vesselObject){
+
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102", "root", "password")){
+            String query = "SELECT fullVsIM, unbthgDt FROM VESSEL";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            String result_set_fullVsIM=rs.getString("fullVsIM");
+            String object_fullVsIM=vesselObject.get("fullVsim").toString();
+            String result_set_unbthgDt=rs.getString("unbthgDt");
+            String object_unbthgDt=vesselObject.get("unbthgDt").toString();
+
+            if(result_set_fullVsIM.equals(object_fullVsIM)){
+                if( !(result_set_unbthgDt.equals(object_unbthgDt)){
+
+                }
+            }
+            while(rs.next()) {
+                HashMap<String, String> queryMap = new HashMap<>();
+                String unbthgDt= rs.getString("unbthgDt");
+
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        return queryList;
+//        return queryList;
+    }
+
+    public static compare_terminal(JsonObject vesselObject){
+
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102", "root", "password")){
+            String query = "SELECT fullVsIM, unbthgDt FROM VESSEL";
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            String result_set_fullVsIM=rs.getString("fullVsIM");
+            String object_fullVsIM=vesselObject.get("fullVsim").toString();
+            String result_set_unbthgDt=rs.getString("unbthgDt");
+            String object_unbthgDt=vesselObject.get("unbthgDt").toString();
+
+            if(result_set_fullVsIM.equals(object_fullVsIM)){
+                if( !(result_set_unbthgDt.equals(object_unbthgDt)){
+
+                }
+            }
+            while(rs.next()) {
+                HashMap<String, String> queryMap = new HashMap<>();
+                String unbthgDt= rs.getString("unbthgDt");
+
             }
         }catch(SQLException e){
             e.printStackTrace();
