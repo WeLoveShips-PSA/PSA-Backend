@@ -4,6 +4,7 @@ import com.example.PSABackend.classes.LikedVessel;
 import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
 import com.example.PSABackend.service.UserService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
@@ -86,7 +87,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(path = "get-favourite")
-    public List<LikedVessel> getFavourite(@RequestBody Map<String, Object> body) {
+    public List<JSONObject> getFavourite(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         return userService.getFavourite(username);
     }
@@ -101,7 +102,7 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(path = "get-subscribed")
-    public List<SubscribedVessel> getSubscribed(@RequestBody Map<String, Object> body) {
+    public List<JSONObject> getSubscribed(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         return userService.getSubscribed(username);
     }
