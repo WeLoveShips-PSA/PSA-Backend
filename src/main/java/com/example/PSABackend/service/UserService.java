@@ -4,6 +4,7 @@ import com.example.PSABackend.DAO.UserDAO;
 import com.example.PSABackend.classes.LikedVessel;
 import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
+import com.example.PSABackend.classes.Vessel;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -56,14 +57,14 @@ public class UserService {
     public boolean addFavourite(String username, String abbrVsim, String inVoyn)
     { return userDAO.addFavourite(username, abbrVsim, inVoyn) ; }
 
-    public ArrayList<JSONObject> getFavourite(String username) {
+    public ArrayList<Vessel> getFavourite(String username) {
         return userDAO.getFavourite(username);
     }
 
     public boolean addSubscribed(String username, String abbrVsim, String inVoyn)
     { return userDAO.addSubscribed(username, abbrVsim, inVoyn) ; }
 
-    public ArrayList<JSONObject> getSubscribed(String username) {
+    public ArrayList<Vessel> getSubscribed(String username) {
         return userDAO.getSubscribed(username);
     }
 }

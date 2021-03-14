@@ -3,11 +3,11 @@ package com.example.PSABackend.DAO;
 import com.example.PSABackend.classes.LikedVessel;
 import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.example.PSABackend.classes.Vessel;
+import com.example.PSABackend.service.VesselService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.json.JSONObject;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -242,19 +242,19 @@ public class FakeUserDAS implements UserDAO{
     }
 
     @Override
-    public boolean addFavourite(String username, String abbrVsim, String inVoyn) {
+    public boolean addFavourite(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null){
             System.out.println("No such user");
             return false;
         }
 
-        String addFavouritesQuery = String.format("INSERT INTO liked_vessel(username, abbrVsim, inVoyn) VALUES (?,?,?)");
+        String addFavouritesQuery = String.format("INSERT INTO liked_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)");
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
         PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
             stmt.setString(1, username);
-            stmt.setString(2, abbrVsim);
-            stmt.setString(3, inVoyn);
+            stmt.setString(2, abbrVslM);
+            stmt.setString(3, inVoyN);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -266,12 +266,12 @@ public class FakeUserDAS implements UserDAO{
     }
 
     @Override
-    public ArrayList<JSONObject> getFavourite(String username) {
+    public ArrayList<Vessel> getFavourite(String username) {
         ArrayList<LikedVessel> likedVesselsList = new ArrayList<LikedVessel>();
-        ArrayList<JSONObject> likedJSONList = new ArrayList<JSONObject>();
+        ArrayList<Vessel> likedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
             System.out.println("No such user");
-            return likedJSONList;
+            return likedList;
         }
         String getFavouriteQuery = String.format("SELECT * FROM liked_vessel WHERE username = '%s'", username);
 
@@ -280,37 +280,37 @@ public class FakeUserDAS implements UserDAO{
             ResultSet rs = stmt.executeQuery(getFavouriteQuery);
 
             while(rs.next()) {
-                String abbrVsim = rs.getString("abbrVsim");
-                String inVoyn = rs.getString("inVoyn");
+                String abbrVslM = rs.getString("abbrVslM");
+                String inVoyN = rs.getString("inVoyN");
 
-                likedVesselsList.add(new LikedVessel(abbrVsim, inVoyn));
+                likedVesselsList.add(new LikedVessel(abbrVslM, inVoyN));
             }
 
         } catch (SQLException e) {
             System.out.println(e);
-            return likedJSONList;
+            return likedList;
         }
         for (LikedVessel s: likedVesselsList) {
-            likedVesselsList.add(likedVesselsList.getVesselById(s.getAbbrVsim(), s.getInVoyn()));
+            likedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
 
-        return likedJSONList;
+        return likedList;
     }
 
     @Override
-    public boolean addSubscribed(String username, String abbrVsim, String inVoyn) {
+    public boolean addSubscribed(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null){
             System.out.println("No such user");
             return false;
         }
 
-        String addFavouritesQuery = String.format("INSERT INTO subscribed_vessel(username, abbrVsim, inVoyn) VALUES (?,?,?)");
+        String addFavouritesQuery = String.format("INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)");
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
             stmt.setString(1, username);
-            stmt.setString(2, abbrVsim);
-            stmt.setString(3, inVoyn);
+            stmt.setString(2, abbrVslM);
+            stmt.setString(3, inVoyN);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -322,12 +322,12 @@ public class FakeUserDAS implements UserDAO{
     }
 
     @Override
-    public ArrayList<JSONObject> getSubscribed(String username) {
+    public ArrayList<Vessel> getSubscribed(String username) {
         ArrayList<SubscribedVessel> subscribedVesselsList = new ArrayList<SubscribedVessel>();
-        ArrayList<JSONObject> subscribedJSONList = new ArrayList<JSONObject>();
+        ArrayList<Vessel> subscribedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
             System.out.println("No such user");
-            return subscribedJSONList;
+            return subscribedList;
         }
         String getFavouriteQuery = String.format("SELECT * FROM subscribed_vessel WHERE username = '%s'", username);
 
@@ -336,22 +336,22 @@ public class FakeUserDAS implements UserDAO{
             ResultSet rs = stmt.executeQuery(getFavouriteQuery);
 
             while(rs.next()) {
-                String abbrVsim = rs.getString("abbrVsim");
-                String inVoyn = rs.getString("inVoyn");
+                String abbrVslM = rs.getString("abbrVslM");
+                String inVoyN = rs.getString("inVoyN");
 
-                subscribedVesselsList.add(new SubscribedVessel(abbrVsim, inVoyn));
+                subscribedVesselsList.add(new SubscribedVessel(abbrVslM, inVoyN));
             }
 
         } catch (SQLException e) {
             System.out.println(e);
-            return subscribedJSONList;
+            return subscribedList;
         }
 
-//        for (SubscribedVessel s: subscribedVesselsList) {
-//            subscribedJSONList.add(VesselService.getVesselById(s.getAbbrVsim(), s.getInVoyn()));
-//        }
+        for (SubscribedVessel s: subscribedVesselsList) {
+            subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
+        }
 
 
-        return subscribedJSONList;
+        return subscribedList;
     }
 }

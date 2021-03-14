@@ -3,6 +3,7 @@ package com.example.PSABackend.controller;
 import com.example.PSABackend.classes.LikedVessel;
 import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
+import com.example.PSABackend.classes.Vessel;
 import com.example.PSABackend.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,14 +81,14 @@ public class UserController {
     @RequestMapping(path = "add-favourite")
     public boolean addFavourite(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
-        String abbrVsim = body.get("abbrVsim").toString();
-        String inVoyn = body.get("inVoyn").toString();
+        String abbrVsim = body.get("abbrVslM").toString();
+        String inVoyn = body.get("inVoyN").toString();
         return userService.addFavourite(username, abbrVsim, inVoyn);
     }
 
     @PostMapping
     @RequestMapping(path = "get-favourite")
-    public List<JSONObject> getFavourite(@RequestBody Map<String, Object> body) {
+    public List<Vessel> getFavourite(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         return userService.getFavourite(username);
     }
@@ -95,14 +96,14 @@ public class UserController {
     @RequestMapping(path = "add-subscribed")
     public boolean addSubscribed(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
-        String abbrVsim = body.get("abbrVsim").toString();
-        String inVoyn = body.get("inVoyn").toString();
+        String abbrVsim = body.get("abbrVslM").toString();
+        String inVoyn = body.get("inVoyN").toString();
         return userService.addSubscribed(username, abbrVsim, inVoyn);
     }
 
     @PostMapping
     @RequestMapping(path = "get-subscribed")
-    public List<JSONObject> getSubscribed(@RequestBody Map<String, Object> body) {
+    public List<Vessel> getSubscribed(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         return userService.getSubscribed(username);
     }

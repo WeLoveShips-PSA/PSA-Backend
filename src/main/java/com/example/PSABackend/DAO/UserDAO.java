@@ -3,6 +3,7 @@ package com.example.PSABackend.DAO;
 import com.example.PSABackend.classes.LikedVessel;
 import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
+import com.example.PSABackend.classes.Vessel;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -34,9 +35,9 @@ public interface UserDAO {
 
     boolean addFavourite(String username, String abbrVsim, String inVoyn);
 
-    ArrayList<JSONObject> getFavourite(String username);
+    ArrayList<Vessel> getFavourite(String username);
 
     boolean addSubscribed(String username, String abbrVsim, String inVoyn);
 
-    ArrayList<JSONObject> getSubscribed(String username);
+    ArrayList<Vessel> getSubscribed(String username);
 }
