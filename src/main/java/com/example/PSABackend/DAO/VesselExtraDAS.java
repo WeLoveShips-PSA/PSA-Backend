@@ -3,6 +3,7 @@ package com.example.PSABackend.DAO;
 import com.example.PSABackend.classes.Vessel;
 import com.example.PSABackend.classes.VesselExtra;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 //shaun
+@Component
 public class VesselExtraDAS {
     private static String dbURL;
     private static String username;
@@ -31,7 +33,7 @@ public class VesselExtraDAS {
     public static ArrayList<VesselExtra> selectAllExtraVessels(){
         ArrayList<VesselExtra> queryList = new ArrayList<>();
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             String query = "SELECT * FROM VESSEL_EXTRA";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -72,7 +74,7 @@ public class VesselExtraDAS {
     public static VesselExtra selectExtraVesselByVSLVoy (String VSLVoy){
         VesselExtra vesselExtra = null;
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             String query = "SELECT * FROM VESSEL_EXTRA WHERE (VSL_VOY = ?)";
             PreparedStatement queryStatement = conn.prepareStatement(query);
             queryStatement.setString(1, VSLVoy);
