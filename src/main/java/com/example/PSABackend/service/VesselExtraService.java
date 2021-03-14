@@ -2,7 +2,6 @@ package com.example.PSABackend.service;
 
 import com.example.PSABackend.DAO.VesselExtraDAS;
 import com.example.PSABackend.classes.VesselExtra;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

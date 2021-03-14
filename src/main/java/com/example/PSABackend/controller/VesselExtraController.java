@@ -2,7 +2,6 @@ package com.example.PSABackend.controller;
 
 import com.example.PSABackend.classes.VesselExtra;
 import com.example.PSABackend.service.VesselExtraService;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

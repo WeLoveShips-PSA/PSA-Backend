@@ -20,8 +20,8 @@ public class StudentManagementController {
 
     @GetMapping(path = "all")
     public List<Student> getSTUDENTS() {
-        PortNetConnector.getUpdate("2021-01-26", "2021-01-26");
-//        PortNetConnector.updateVessel();
+        PortNetConnector.getUpdate("2021-03-14", "2021-03-17");
+        PortNetConnector.updateVessel();
         return STUDENTS;
     }
 

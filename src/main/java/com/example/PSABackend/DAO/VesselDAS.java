@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-//shaun
 public class VesselDAS {
     private static String dbURL;
     private static String username;
@@ -27,16 +26,10 @@ public class VesselDAS {
     @Value("${spring.datasource.password}")
     public void setdbPass(String value) { VesselDAS.password = value; }
 
-    //database already contains vessel information through PortNetConnectorDAO
-    //use vesseldao to retrieve the information from the database
-    //make it so that it retrieves ALL vessels from database
-    //could refer to fakeuserDAS/companyDAS for reference
-    // work in order of vessel->vessel_extra->vesseldao->vesselservice->vesselcontroller
-
     public static ArrayList<Vessel> selectAllVessels(){
         ArrayList<Vessel> queryList = new ArrayList<>();
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
             String query = "SELECT * FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -76,7 +69,7 @@ public class VesselDAS {
 
     public static Vessel selectVesselById(String abbrVslM, String inVoyN){
         Vessel vessel = null;
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
             String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
             PreparedStatement queryStatement = conn.prepareStatement(query);
             queryStatement.setString(1, abbrVslM);

@@ -31,7 +31,7 @@ public class VesselExtraDAS {
     public static ArrayList<VesselExtra> selectAllExtraVessels(){
         ArrayList<VesselExtra> queryList = new ArrayList<>();
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
             String query = "SELECT * FROM VESSEL_EXTRA";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -72,13 +72,13 @@ public class VesselExtraDAS {
     public static VesselExtra selectExtraVesselByVSLVoy (String VSLVoy){
         VesselExtra vesselExtra = null;
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
             String query = "SELECT * FROM VESSEL_EXTRA WHERE (VSL_VOY = ?)";
             PreparedStatement queryStatement = conn.prepareStatement(query);
             queryStatement.setString(1, VSLVoy);
             System.out.println(queryStatement.toString());
-            ResultSet rs = queryStatement.executeQuery(query);
 
+            ResultSet rs = queryStatement.executeQuery();
 
             //"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
             //            , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"
