@@ -1,5 +1,7 @@
 package com.example.PSABackend.controller;
 
+import com.example.PSABackend.classes.LikedVessel;
+import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
 import com.example.PSABackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping
-    @RequestMapping(path = "/getall")
+    @RequestMapping(path = "/get-all")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
@@ -56,7 +59,7 @@ public class UserController {
     }
 
     @PostMapping
-    @RequestMapping(path = "/changepassword")
+    @RequestMapping(path = "/change-password")
     public boolean changeUserPassword(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         String oldPassword = body.get("oldPassword").toString();
@@ -66,10 +69,42 @@ public class UserController {
     }
 
     @PostMapping
-    @RequestMapping(path = "resetpassword")
+    @RequestMapping(path = "reset-password")
     public boolean resetUserPassword(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         return userService.resetUserPassword(username);
     }
+
+    @PostMapping
+    @RequestMapping(path = "add-favourite")
+    public boolean addFavourite(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        String abbrVsim = body.get("abbrVsim").toString();
+        String inVoyn = body.get("inVoyn").toString();
+        return userService.addFavourite(username, abbrVsim, inVoyn);
+    }
+
+    @PostMapping
+    @RequestMapping(path = "get-favourite")
+    public List<LikedVessel> getFavourite(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        return userService.getFavourite(username);
+    }
+    @PostMapping
+    @RequestMapping(path = "add-subscribed")
+    public boolean addSubscribed(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        String abbrVsim = body.get("abbrVsim").toString();
+        String inVoyn = body.get("inVoyn").toString();
+        return userService.addSubscribed(username, abbrVsim, inVoyn);
+    }
+
+    @PostMapping
+    @RequestMapping(path = "get-subscribed")
+    public List<SubscribedVessel> getSubscribed(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        return userService.getSubscribed(username);
+    }
+
 
 }

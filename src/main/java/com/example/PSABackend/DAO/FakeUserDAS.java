@@ -1,5 +1,7 @@
 package com.example.PSABackend.DAO;
 
+import com.example.PSABackend.classes.LikedVessel;
+import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -32,7 +34,7 @@ public class FakeUserDAS implements UserDAO{
     }
 
     @Value("${spring.users.allowed}")
-    public void setdAllowedEmails(String value) {
+    public void setdbAllowedEmails(String value) {
         FakeUserDAS.allowedEmails = value;
     }
 
@@ -46,6 +48,8 @@ public class FakeUserDAS implements UserDAO{
         String userEmail = user.getEmail();
 
         for (int i = 0; i < emails.length; i++) {
+            System.out.println(userEmail);
+            System.out.println(emails[i]);
             if (userEmail.endsWith(emails[i])) {
                 validEmail = true;
             }
@@ -179,8 +183,6 @@ public class FakeUserDAS implements UserDAO{
 
     @Override
     public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) {
-
-
         if (!reset && !userLogin(username, oldPassword)) {
             return false;
         }
@@ -208,6 +210,7 @@ public class FakeUserDAS implements UserDAO{
         return addUser(oldUser);
     }
 
+    @Override
     public boolean resetUserPassword(String username) {
         String newPassword = RandomStringUtils.randomAlphanumeric(15);
 
@@ -236,5 +239,105 @@ public class FakeUserDAS implements UserDAO{
         return emailExist;
     }
 
+    @Override
+    public boolean addFavourite(String username, String abbrVsim, String inVoyn) {
+        if (selectUserById(username) == null){
+            System.out.println("No such user");
+            return false;
+        }
 
+        String addFavouritesQuery = String.format("INSERT INTO liked_vessel(username, abbrVsim, inVoyn) VALUES (?,?,?)");
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+        PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
+            stmt.setString(1, username);
+            stmt.setString(2, abbrVsim);
+            stmt.setString(3, inVoyn);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public ArrayList<LikedVessel> getFavourite(String username) {
+        ArrayList<LikedVessel> likedVesselsList = new ArrayList<LikedVessel>();
+        if (selectUserById(username) == null) {
+            System.out.println("No such user");
+            return likedVesselsList;
+        }
+        String getFavouriteQuery = String.format("SELECT * FROM liked_vessel WHERE username = '%s'", username);
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(getFavouriteQuery);) {
+            ResultSet rs = stmt.executeQuery(getFavouriteQuery);
+
+            while(rs.next()) {
+                String abbrVsim = rs.getString("abbrVsim");
+                String inVoyn = rs.getString("inVoyn");
+
+                likedVesselsList.add(new LikedVessel(abbrVsim, inVoyn));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return likedVesselsList;
+        }
+        return likedVesselsList;
+    }
+
+    @Override
+    public boolean addSubscribed(String username, String abbrVsim, String inVoyn) {
+        if (selectUserById(username) == null){
+            System.out.println("No such user");
+            return false;
+        }
+
+        String addFavouritesQuery = String.format("INSERT INTO subscribed_vessel(username, abbrVsim, inVoyn) VALUES (?,?,?)");
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
+            stmt.setString(1, username);
+            stmt.setString(2, abbrVsim);
+            stmt.setString(3, inVoyn);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public ArrayList<SubscribedVessel> getSubscribed(String username) {
+        ArrayList<SubscribedVessel> SubscribedVesselsList = new ArrayList<SubscribedVessel>();
+        if (selectUserById(username) == null) {
+            System.out.println("No such user");
+            return SubscribedVesselsList;
+        }
+        String getFavouriteQuery = String.format("SELECT * FROM subscribed_vessel WHERE username = '%s'", username);
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(getFavouriteQuery);) {
+            ResultSet rs = stmt.executeQuery(getFavouriteQuery);
+
+            while(rs.next()) {
+                String abbrVsim = rs.getString("abbrVsim");
+                String inVoyn = rs.getString("inVoyn");
+
+                SubscribedVesselsList.add(new SubscribedVessel(abbrVsim, inVoyn));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return SubscribedVesselsList;
+        }
+        return SubscribedVesselsList;
+    }
 }

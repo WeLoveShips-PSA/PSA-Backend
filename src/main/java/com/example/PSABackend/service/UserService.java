@@ -1,11 +1,15 @@
 package com.example.PSABackend.service;
 
 import com.example.PSABackend.DAO.UserDAO;
+import com.example.PSABackend.classes.LikedVessel;
+import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,4 +51,18 @@ public class UserService {
         return userDAO.resetUserPassword(username);
     }
     // public int changeUserPassword(UUID id, User newUser) { return userDAO.changeUserPassword(id, newUser); }
+
+    public boolean addFavourite(String username, String abbrVsim, String inVoyn)
+    { return userDAO.addFavourite(username, abbrVsim, inVoyn) ; }
+
+    public ArrayList<LikedVessel> getFavourite(String username) {
+        return userDAO.getFavourite(username);
+    }
+
+    public boolean addSubscribed(String username, String abbrVsim, String inVoyn)
+    { return userDAO.addSubscribed(username, abbrVsim, inVoyn) ; }
+
+    public ArrayList<SubscribedVessel> getSubscribed(String username) {
+        return userDAO.getSubscribed(username);
+    }
 }

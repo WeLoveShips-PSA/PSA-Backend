@@ -1,7 +1,10 @@
 package com.example.PSABackend.DAO;
 
+import com.example.PSABackend.classes.LikedVessel;
+import com.example.PSABackend.classes.SubscribedVessel;
 import com.example.PSABackend.classes.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,4 +30,12 @@ public interface UserDAO {
     boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset);
 
     boolean resetUserPassword(String username);
+
+    boolean addFavourite(String username, String abbrVsim, String inVoyn);
+
+    ArrayList<LikedVessel> getFavourite(String username);
+
+    boolean addSubscribed(String username, String abbrVsim, String inVoyn);
+
+    ArrayList<SubscribedVessel> getSubscribed(String username);
 }

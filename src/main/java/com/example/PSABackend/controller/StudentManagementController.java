@@ -1,7 +1,6 @@
 package com.example.PSABackend.controller;
 
 
-import com.example.PSABackend.DAO.PortNetConnectorDAO;
 import com.example.PSABackend.PortNetConnector;
 import com.example.PSABackend.classes.Student;
 import org.springframework.beans.factory.annotation.Autowired;

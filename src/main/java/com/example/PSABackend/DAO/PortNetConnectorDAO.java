@@ -167,11 +167,10 @@ public class PortNetConnectorDAO {
                 // Adding the map into an array list to eventually send to the function
                 queryList.add(queryMap);
             }
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return queryList;
 //        return queryList;
     }
-
 }
