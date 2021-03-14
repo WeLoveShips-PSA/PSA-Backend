@@ -1,28 +1,28 @@
 package com.example.PSABackend.classes;
 
 public class SubscribedVessel {
-    private String abbrVsim;
-    private String inVoyn;
+    private String abbrVslM;
+    private String inVoyN;
 
-    public SubscribedVessel(String abbrVsim, String inVoyn) {
-        this.abbrVsim = abbrVsim;
-        this.inVoyn = inVoyn;
+    public SubscribedVessel(String abbrVslM, String inVoyN) {
+        this.abbrVslM = abbrVslM;
+        this.inVoyN = inVoyN;
     }
 
-    public String getAbbrVsim() {
-        return abbrVsim;
+    public String getAbbrVslM() {
+        return abbrVslM;
     }
 
-    public void setAbbrVsim(String abbrVsim) {
-        this.abbrVsim = abbrVsim;
+    public void setAbbrVslM(String abbrVsim) {
+        this.abbrVslM = abbrVsim;
     }
 
-    public String getInVoyn() {
-        return inVoyn;
+    public String getInVoyN() {
+        return inVoyN;
     }
 
-    public void setInVoyn(String inVoyn) {
-        this.inVoyn = inVoyn;
+    public void setInVoyN(String iinVoyN) {
+        this.inVoyN = inVoyN;
     }
 }
 
