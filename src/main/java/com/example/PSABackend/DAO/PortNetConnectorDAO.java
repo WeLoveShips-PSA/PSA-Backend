@@ -73,7 +73,7 @@ public class PortNetConnectorDAO {
     }
 
     public static void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/cs102", "root", "Password1")){
+        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
             String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement replaceStatement = conn.prepareStatement(replace);
             String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"

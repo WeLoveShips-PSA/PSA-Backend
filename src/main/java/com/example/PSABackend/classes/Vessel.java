@@ -18,10 +18,10 @@ public class Vessel {
 
     private final String bthgDt;
     private final String unbthgDt;
-    private final String berthN;
+    private final String berthNo;
     private final String status;
 
-    public Vessel(@NotBlank String fullVslM, @NotBlank String abbrVslM, @NotBlank String inVoyN, @NotBlank String fullInVoyN, @NotBlank String outVoyN, String bthgDt, String unbthgDt, String berthN, String status) {
+    public Vessel(@NotBlank String fullVslM, @NotBlank String abbrVslM, @NotBlank String inVoyN, @NotBlank String fullInVoyN, @NotBlank String outVoyN, String bthgDt, String unbthgDt, String berthNo, String status) {
         this.fullVslM = fullVslM;
         this.abbrVslM = abbrVslM;
         this.inVoyN = inVoyN;
@@ -29,7 +29,7 @@ public class Vessel {
         this.outVoyN = outVoyN;
         this.bthgDt = bthgDt;
         this.unbthgDt = unbthgDt;
-        this.berthN = berthN;
+        this.berthNo = berthNo;
         this.status = status;
     }
 
@@ -57,9 +57,7 @@ public class Vessel {
         return unbthgDt;
     }
 
-    public String getBerthN() {
-        return berthN;
-    }
+    public String getBerthNo() { return berthNo; }
 
     public String getStatus() {
         return status;
