@@ -2,12 +2,14 @@ package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.Vessel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Component
 public class VesselDAS {
     private static String dbURL;
     private static String username;
@@ -29,7 +31,7 @@ public class VesselDAS {
     public static ArrayList<Vessel> selectAllVessels(){
         ArrayList<Vessel> queryList = new ArrayList<>();
 
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             String query = "SELECT * FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -69,7 +71,7 @@ public class VesselDAS {
 
     public static Vessel selectVesselById(String abbrVslM, String inVoyN){
         Vessel vessel = null;
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")) {
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
             PreparedStatement queryStatement = conn.prepareStatement(query);
             queryStatement.setString(1, abbrVslM);

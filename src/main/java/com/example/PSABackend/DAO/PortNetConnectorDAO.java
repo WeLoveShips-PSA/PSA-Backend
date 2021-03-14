@@ -6,12 +6,15 @@ import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
+import javax.sound.sampled.Port;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+@Component
 public class PortNetConnectorDAO {
     private static String dbURL;
     private static String username;
@@ -32,11 +35,17 @@ public class PortNetConnectorDAO {
         PortNetConnectorDAO.password = value;
     }
 
-    public static void insert(JsonArray vesselArray){
+//    public PortNetConnectorDAO(String dbURL, String username, String password){
+//        this.dbURL = dbURL;
+//        this.username = username;
+//        this.password = password;
+//    }
+
+    public void insert(JsonArray vesselArray){
         for(JsonElement e: vesselArray){
             JsonObject vesselObject = e.getAsJsonObject();
 
-            try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
+            try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
                 String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
                 PreparedStatement queryStatement = conn.prepareStatement(query);
                 System.out.println(vesselObject);
@@ -72,8 +81,8 @@ public class PortNetConnectorDAO {
         }
     }
 
-    public static void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
+    public void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
             String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement replaceStatement = conn.prepareStatement(replace);
             String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
@@ -94,10 +103,10 @@ public class PortNetConnectorDAO {
     }
 
 
-    public static ArrayList<HashMap<String, String>> getAllShipName(){
+    public ArrayList<HashMap<String, String>> getAllShipName(){
 
         ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/cs102?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false", "root", "C289cdf456!")){
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
             String query = "SELECT fullVsIM, invoyN, abbrVslM FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);

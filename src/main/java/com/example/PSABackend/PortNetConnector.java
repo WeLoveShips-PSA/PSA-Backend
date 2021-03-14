@@ -4,6 +4,7 @@ import com.example.PSABackend.DAO.PortNetConnectorDAO;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
@@ -14,17 +15,21 @@ import java.util.*;
 import java.sql.*;
 
 @Component
-public class  PortNetConnector {
-
-    private static String apiKey;
+public class PortNetConnector {
 
     @Value("${portnet.apikey}")
-    public void setApiKey(String value) {
-        PortNetConnector.apiKey = value;
-    }
+    private String apiKey;
+    @Value("${portnet.database}")
+    private String dbURL;
+    @Value("${spring.datasource.username}")
+    private String username;
+    @Value("${spring.datasource.password}")
+    private String password;
+//    PortNetConnectorDAO portNetConnectorDAO = new PortNetConnectorDAO(dbURL, username, password);
 
     // Calls the vessel api to get all the berthing time and status of the vessels
-    public static void getUpdate(String dateFrom, String dateTo) {
+    public void getUpdate(String dateFrom, String dateTo) {
+        PortNetConnectorDAO portNetConnectorDAO = new PortNetConnectorDAO();
         String url = "https://api.portnet.com/vsspp/pp/bizfn/berthingSchedule/retrieveByBerthingDate/v1.2";
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -44,13 +49,14 @@ public class  PortNetConnector {
             System.out.println(jsonObject.toString());
             JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
             // Inserts the vessel information into the vessel table
-            PortNetConnectorDAO.insert(vesselArray);
+            portNetConnectorDAO.insert(vesselArray);
         }
     }
 
     // Calls the api for the individual vessels and calls PortNetConnectorDAO.insertIndividualVessels
     // to update the individual vessels in the database
-    public static void updateVessel(){
+    public void updateVessel(){
+        PortNetConnectorDAO portNetConnectorDAO = new PortNetConnectorDAO();
         String url = "https://api.portnet.com/extapi/vessels/predictedbtr/?vslvoy=";
         String getQuery = "";
         ArrayList<HashMap<String, String>> queryArray = new ArrayList<>();
@@ -62,7 +68,7 @@ public class  PortNetConnector {
 
         // PortNetConnectorDAO.getAllShipName() returns an array of hasmaps containing the
         // Jsonobject of the vessel, and the abbrvslm and invoyn of the vessel
-        queryArray = PortNetConnectorDAO.getAllShipName();
+        queryArray = portNetConnectorDAO.getAllShipName();
         for(HashMap<String, String> v: queryArray){
             // The structure of v is such that these are the keys 0: vsl_voy, 1: abbrVslM, 2: inVoyN
             StringBuilder thing = new StringBuilder();
@@ -71,13 +77,13 @@ public class  PortNetConnector {
             ResponseEntity<String> response = restTemplate.exchange(thing.toString(), HttpMethod.GET, entity, String.class);
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             if(jsonObject.get("Error") == null) {
-                PortNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"));
+                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"));
             }
         }
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    public static void daily(){
+    public void daily(){
         LocalDate localDate = LocalDate.now();
         String todaydate = localDate.toString();
         System.out.println(todaydate);
@@ -85,7 +91,7 @@ public class  PortNetConnector {
     }
 
     @Scheduled(cron = "0 0 0 * * *")
-    public static void nextWeek(){
+    public void nextWeek(){
         LocalDate localDate = LocalDate.now();
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
@@ -93,7 +99,7 @@ public class  PortNetConnector {
     }
 
     @Scheduled(cron = "* * 1 * * *")
-    public static void hourly(){
+    public void hourly(){
 
     }
 }
