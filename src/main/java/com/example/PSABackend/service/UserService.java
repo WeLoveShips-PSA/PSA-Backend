@@ -29,6 +29,10 @@ public class UserService {
         return userDAS.delUser(username, password);
     }
 
+    public boolean delUser(String username, String password) {
+        return userDAO.delUser(username, password);
+    }
+
     public List<User> getAllUsers() {
         return userDAS.selectAllUsers();
     }
