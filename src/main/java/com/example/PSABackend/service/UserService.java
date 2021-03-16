@@ -30,7 +30,7 @@ public class UserService {
     }
 
     public boolean delUser(String username, String password) {
-        return userDAO.delUser(username, password);
+        return userDAS.delUser(username, password);
     }
 
     public List<User> getAllUsers() {
