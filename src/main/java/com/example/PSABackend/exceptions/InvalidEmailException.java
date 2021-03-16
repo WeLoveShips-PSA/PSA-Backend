@@ -1,4 +1,4 @@
-package com.example.PSABackend.classes;
+package com.example.PSABackend.exceptions;
 
 import javax.naming.AuthenticationException;
 

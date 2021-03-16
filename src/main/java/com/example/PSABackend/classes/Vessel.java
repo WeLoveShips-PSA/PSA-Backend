@@ -1,8 +1,13 @@
 package com.example.PSABackend.classes;
 
-import javax.validation.constraints.NotBlank;
+import org.apache.tomcat.jni.Local;
 
-public class Vessel {
+import javax.validation.constraints.NotBlank;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+public class Vessel implements Comparable<Vessel>{
 
     // {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
     @NotBlank
@@ -16,19 +21,22 @@ public class Vessel {
     @NotBlank
     private final String outVoyN;
 
-    private final String bthgDt;
-    private final String unbthgDt;
+    private final LocalDateTime bthgDt;
+    private final LocalDateTime unbthgDt;
     private final String berthNo;
     private final String status;
 
+
+
     public Vessel(@NotBlank String fullVslM, @NotBlank String abbrVslM, @NotBlank String inVoyN, @NotBlank String fullInVoyN, @NotBlank String outVoyN, String bthgDt, String unbthgDt, String berthNo, String status) {
+        SimpleDateFormat formatter=new SimpleDateFormat("YYYY-MM-DD''HH:mm:ss");
         this.fullVslM = fullVslM;
         this.abbrVslM = abbrVslM;
         this.inVoyN = inVoyN;
         this.fullInVoyN = fullInVoyN;
         this.outVoyN = outVoyN;
-        this.bthgDt = bthgDt;
-        this.unbthgDt = unbthgDt;
+        this.bthgDt = LocalDateTime.parse(bthgDt);
+        this.unbthgDt = LocalDateTime.parse(unbthgDt);
         this.berthNo = berthNo;
         this.status = status;
     }
@@ -49,11 +57,11 @@ public class Vessel {
 
     public String getOutVoyN(){return outVoyN;}
 
-    public String getBthgDt() {
+    public LocalDateTime getBthgDt() {
         return bthgDt;
     }
 
-    public String getUnbthgDt() {
+    public LocalDateTime getUnbthgDt() {
         return unbthgDt;
     }
 
@@ -63,7 +71,8 @@ public class Vessel {
         return status;
     }
 
-
-
-    // RuiXian 123
+    @Override
+    public int compareTo(Vessel o) {
+        return this.bthgDt.compareTo(o.getBthgDt());
+    }
 }

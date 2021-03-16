@@ -1,6 +1,8 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.*;
+import com.example.PSABackend.exceptions.InvalidEmailException;
+import com.example.PSABackend.exceptions.UserAlreadyExistAuthenticationException;
 import com.example.PSABackend.service.VesselService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,10 +12,12 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-@Repository("pregres")
-public class UserDAS implements UserDAO{
+@Repository
+public class UserDAS {
     private static String dbURL;
     private static String username;
     private static String password;
@@ -42,8 +46,8 @@ public class UserDAS implements UserDAO{
     private static List<User> DB = new ArrayList<User>();
 
     // UUID id, Integer active, String password, String roles, String user_name, String email
-    @Override
-    public boolean addUser(User user) throws UserAlreadyExistAuthenticationException, InvalidEmailException{
+    //@Override
+    public boolean addUser(User user) throws UserAlreadyExistAuthenticationException, InvalidEmailException {
         boolean validEmail = false;
         String[] emails = allowedEmails.split(",");
         String userEmail = user.getEmail();
@@ -85,7 +89,7 @@ public class UserDAS implements UserDAO{
         return true;
     }
 
-    @Override
+    //@Override
     public boolean delUser(String username, String password) {
         if (!userLogin(username, password)) {
             return false;
@@ -105,7 +109,7 @@ public class UserDAS implements UserDAO{
     }
 
 
-    @Override
+    //@Override
     public List<User> selectAllUsers() {
         String getAllUserQuery = "SELECT * FROM USER";
         ArrayList<User> userList = new ArrayList<User>();
@@ -131,7 +135,7 @@ public class UserDAS implements UserDAO{
         return userList;
     }
 
-    @Override
+    //@Override
     public User selectUserById(String username) {
         String getUserQuery = String.format("SELECT * FROM user where name = '%s'", username);
         User user = null;
@@ -155,7 +159,7 @@ public class UserDAS implements UserDAO{
         return user;
     }
 
-//    @Override
+//    //@Override
 //    public int deleteUserById(UUID id) {
 //        Optional<User> userToDelete = selectUserById(id);
 //        if (userToDelete.isEmpty()) {
@@ -165,7 +169,7 @@ public class UserDAS implements UserDAO{
 //        return 1;
 //    }
 
-//    @Override
+//    //@Override
 //    //TODO
 //    public int updateUserById(UUID id, User newUser) {
 //        return selectUserById(id)
@@ -180,7 +184,7 @@ public class UserDAS implements UserDAO{
 //                .orElse(0);
 //    }
 
-    @Override
+    //@Override
     public boolean userLogin(String username, String password) {
         String getPasswordQuery = String.format("SELECT password FROM user where name = '%s'", username);
 
@@ -201,7 +205,7 @@ public class UserDAS implements UserDAO{
         return false;
     }
 
-    @Override
+    //@Override
     public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) {
         if (!reset && !userLogin(username, oldPassword)) {
             return false;
@@ -237,7 +241,7 @@ public class UserDAS implements UserDAO{
         }
     }
 
-    @Override
+    //@Override
     public boolean resetUserPassword(String username) {
         String newPassword = RandomStringUtils.randomAlphanumeric(15);
 
@@ -282,7 +286,7 @@ public class UserDAS implements UserDAO{
         return emailExist;
     }
 
-    @Override
+    //@Override
     public boolean addFavourite(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null) {
             return false;
@@ -304,7 +308,7 @@ public class UserDAS implements UserDAO{
         return true;
     }
 
-    @Override
+    //@Override
     public boolean delFavourite(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null){
             return false;
@@ -327,15 +331,15 @@ public class UserDAS implements UserDAO{
         return true;
     }
 
-    @Override
-    public ArrayList<Vessel> getFavourite(String username) {
+    //@Override
+    public ArrayList<Vessel> getFavourite(String username, String sort, String order) {
         ArrayList<LikedVessel> likedVesselsList = new ArrayList<LikedVessel>();
         ArrayList<Vessel> likedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
             return likedList;
         }
-        String getFavouriteQuery = String.format("SELECT * FROM liked_vessel WHERE username = '%s'", username);
 
+        String getFavouriteQuery = String.format("SELECT * FROM liked_vessel WHERE username = '%s' ORDER BY abbrVslM asc", username);
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getFavouriteQuery);) {
             ResultSet rs = stmt.executeQuery(getFavouriteQuery);
@@ -355,16 +359,17 @@ public class UserDAS implements UserDAO{
             likedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
 
+        sortVesselList(likedList, sort, order);
         return likedList;
     }
 
-    @Override
+    //@Override
     public boolean addSubscribed(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null){
             return false;
         }
 
-        String addFavouritesQuery = String.format("INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)");
+        String addFavouritesQuery = String.format("INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN)");
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
@@ -381,7 +386,7 @@ public class UserDAS implements UserDAO{
         return true;
     }
 
-    @Override
+    //@Override
     public boolean delSubscribed(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null){
             return false;
@@ -404,8 +409,8 @@ public class UserDAS implements UserDAO{
         return true;
     }
 
-    @Override
-    public ArrayList<Vessel> getSubscribed(String username) {
+    //@Override
+    public ArrayList<Vessel> getSubscribed(String username, String sort, String order) {
         ArrayList<SubscribedVessel> subscribedVesselsList = new ArrayList<SubscribedVessel>();
         ArrayList<Vessel> subscribedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
@@ -432,7 +437,23 @@ public class UserDAS implements UserDAO{
         for (SubscribedVessel s: subscribedVesselsList) {
             subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
+        sortVesselList(subscribedList, sort, order);
 
         return subscribedList;
+    }
+
+    public void sortVesselList(ArrayList<Vessel> list, String sort, String order) {
+        Comparator<Vessel> compareByDate = Comparator.comparing(Vessel::getBthgDt).thenComparing(Vessel::getFullVslM);
+        Comparator<Vessel> compareByName = Comparator.comparing(Vessel::getFullVslM).thenComparing(Vessel::getBthgDt);
+
+        if (sort.equals("date") && order.equals("asc")) {
+            Collections.sort(list, compareByDate);
+        } else if (sort.equals("date") && order.equals("desc")) {
+            Collections.sort(list, compareByDate.reversed());
+        } else if (sort.equals("name") && order.equals("asc")) {
+            Collections.sort(list, compareByName);
+        } else {
+            Collections.sort(list, compareByName.reversed());
+        }
     }
 }

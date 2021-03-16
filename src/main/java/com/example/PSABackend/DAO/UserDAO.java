@@ -1,11 +1,11 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.*;
-import org.json.JSONObject;
+import com.example.PSABackend.exceptions.InvalidEmailException;
+import com.example.PSABackend.exceptions.UserAlreadyExistAuthenticationException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public interface UserDAO {
 
