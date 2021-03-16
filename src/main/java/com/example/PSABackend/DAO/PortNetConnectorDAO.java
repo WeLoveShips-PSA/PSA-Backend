@@ -36,11 +36,6 @@ public class PortNetConnectorDAO {
         PortNetConnectorDAO.password = value;
     }
 
-//    public PortNetConnectorDAO(String dbURL, String username, String password){
-//        this.dbURL = dbURL;
-//        this.username = username;
-//        this.password = password;
-//    }
 
     public void insert(JsonArray vesselArray){
         for(JsonElement e: vesselArray){
@@ -56,7 +51,6 @@ public class PortNetConnectorDAO {
                 voy = voy.replace("\"", "");
                 queryStatement.setString(1, abbr);
                 queryStatement.setString(2, voy);
-                System.out.println(queryStatement.toString());
 
                 ResultSet rs = queryStatement.executeQuery();
 
@@ -88,7 +82,7 @@ public class PortNetConnectorDAO {
         }
     }
 
-    public void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN){
+    public void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN, String vsl_voy){
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
             String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement replaceStatement = conn.prepareStatement(replace);
@@ -103,13 +97,11 @@ public class PortNetConnectorDAO {
                 replaceStatement.setString(i, value);
             }
 
-            String vsl_voy = vessel.get("VSL_VOY").toString();
             String query = "SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = " + vsl_voy;
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
             if(rs.next() && rs.getDouble("speed") > 0.0){
-                System.out.println(rs.getDouble("speed"));
                 if(rs.getDouble("speed") < speed){
                     replaceStatement.setString(10, "1");
                 }else{
@@ -135,27 +127,44 @@ public class PortNetConnectorDAO {
 
         ArrayList<HashMap<String, String>> queryList = new ArrayList<>();
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
+            // Getting date which is 3 days from now
             LocalDate localDate = LocalDate.now().plusDays(3);
+
+            // Making the SQL query which gets vessel coming 3 days from now
             String query = "SELECT fullVsIM, invoyN, abbrVslM FROM VESSEL WHERE BTRDT <= " + "'" + localDate.toString() + "'";
             System.out.println(query);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()) {
+
+                // Puts fullVsIM, inVoyN, abbrVslM into a map so that updateVessel function in
+                // PortnetConnector can use the information to insert vesselExtra information into
+                // the database, and formulate vsl_voy to call the second api
+
+                // Not the best way to do this, but it is what it is
+
                 HashMap<String, String> queryMap = new HashMap<>();
                 String fullVsIM = rs.getString("fullVsIM");
                 String inVoyN = rs.getString("inVoyN");
                 String abbrVslM = rs.getString("abbrVslM");
+
+                // Removing all spaces and slashes from invoyn and abbrvslm
                 fullVsIM = fullVsIM.replaceAll("\\s+", "");
-                inVoyN = inVoyN.replaceAll("\\s+", "");
+                inVoyN = inVoyN.replaceAll("\\s+|/", "");
+
+                // Formulating vsl_voy for updateVessel method in PortnetConnector
                 StringBuilder queryParams = new StringBuilder();
                 queryParams.append(fullVsIM);
                 queryParams.append(inVoyN);
                 System.out.println(queryParams);
+
+                // Putting the stuffs into a map
                 queryMap.put("vsl_voy", queryParams.toString());
                 queryMap.put("abbrVslM", abbrVslM);
                 queryMap.put("inVoyN", inVoyN);
-//                String[] res = {queryParams.toString(), abbrVslM, inVoyN};
+
+                // Adding the map into an array list to eventually send to the function
                 queryList.add(queryMap);
             }
         }catch(SQLException e){
