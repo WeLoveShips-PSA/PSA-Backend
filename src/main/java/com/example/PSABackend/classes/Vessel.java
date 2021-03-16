@@ -32,6 +32,7 @@ public class Vessel implements Comparable<Vessel>{
 
 
     public Vessel(@NotBlank String fullVslM, @NotBlank String abbrVslM, @NotBlank String inVoyN, @NotBlank String fullInVoyN, @NotBlank String outVoyN, String bthgDt, String unbthgDt, String berthNo, String status) {
+        SimpleDateFormat formatter=new SimpleDateFormat("YYYY-MM-DD''HH:mm:ss");
         this.fullVslM = fullVslM;
         this.abbrVslM = abbrVslM;
         this.inVoyN = inVoyN;
