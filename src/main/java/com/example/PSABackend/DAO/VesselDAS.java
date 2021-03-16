@@ -32,7 +32,8 @@ public class VesselDAS {
         ArrayList<Vessel> queryList = new ArrayList<>();
 
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = "SELECT * FROM VESSEL";
+            String query = "SELECT FULLVSIM, vessel.abbrVslM, vessel.inVoyN, fullInVoyN, outVoyN, btrDt, unbthgDt, " +
+                    "berthN, status, abbrTerminalM, avg_speed  FROM VESSEL";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 

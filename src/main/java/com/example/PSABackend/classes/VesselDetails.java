@@ -14,6 +14,7 @@ public class VesselDetails {
     private final String berthTime;
     private final String berthNo;
     private final String status;
+//    private final boolean isIncreasing;
 
     public VesselDetails(@NotBlank String vesselName, @NotBlank String incVoyNo, String outVoyNo, String avgSpeed, String maxSpeed, String distanceToGo, String berthTime, String berthNo, String status) {
         this.vesselName = vesselName;
@@ -25,6 +26,7 @@ public class VesselDetails {
         this.berthTime = berthTime;
         this.berthNo = berthNo;
         this.status = status;
+//        this.isIncreasing = isIncreasing;
     }
 
     public String getVesselName() {
@@ -44,6 +46,10 @@ public class VesselDetails {
     public String getMaxSpeed() {
         return maxSpeed;
     }
+//
+//    public VesselSpeed getVesselSpeed() {
+//        return vesselSpeed;
+//    }
 
     public String getDistanceToGo() {
         return distanceToGo;
