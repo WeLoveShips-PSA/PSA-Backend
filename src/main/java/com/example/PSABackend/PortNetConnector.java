@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.*;
 import java.sql.*;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class PortNetConnector {
@@ -64,12 +65,24 @@ public class PortNetConnector {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Apikey", apiKey);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity entity= new HttpEntity(headers);
 
         // PortNetConnectorDAO.getAllShipName() returns an array of hasmaps containing the
         // Jsonobject of the vessel, and the abbrvslm and invoyn of the vessel
         queryArray = portNetConnectorDAO.getAllShipName();
+        int i = 0;
         for(HashMap<String, String> v: queryArray){
+
+            // Program waits for 1 second
+            try{
+                TimeUnit.SECONDS.sleep(1);
+                System.out.println(++i);
+            }catch(InterruptedException e){
+                e.printStackTrace();
+            }
+
             // The structure of v is such that these are the keys 0: vsl_voy, 1: abbrVslM, 2: inVoyN
             StringBuilder thing = new StringBuilder();
             thing.append(url);
