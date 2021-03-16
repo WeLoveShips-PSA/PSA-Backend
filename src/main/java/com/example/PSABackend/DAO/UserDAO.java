@@ -1,9 +1,6 @@
 package com.example.PSABackend.DAO;
 
-import com.example.PSABackend.classes.LikedVessel;
-import com.example.PSABackend.classes.SubscribedVessel;
-import com.example.PSABackend.classes.User;
-import com.example.PSABackend.classes.Vessel;
+import com.example.PSABackend.classes.*;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -12,8 +9,9 @@ import java.util.UUID;
 
 public interface UserDAO {
 
-    boolean addUser(User user); // if the user is given an id
+    boolean addUser(User user) throws UserAlreadyExistAuthenticationException, InvalidEmailException; // if the user is given an id
 
+    boolean delUser(String username, String password);
 //    default boolean addUser(User user) {
 //        UUID id = UUID.randomUUID(); // generates our own UUID
 //        return add;
@@ -35,9 +33,13 @@ public interface UserDAO {
 
     boolean addFavourite(String username, String abbrVsim, String inVoyn);
 
+    boolean delFavourite(String username, String abbrVsim, String inVoyn);
+
     ArrayList<Vessel> getFavourite(String username);
 
     boolean addSubscribed(String username, String abbrVsim, String inVoyn);
+
+    boolean delSubscribed(String username, String abbrVsim, String inVoyn);
 
     ArrayList<Vessel> getSubscribed(String username);
 }

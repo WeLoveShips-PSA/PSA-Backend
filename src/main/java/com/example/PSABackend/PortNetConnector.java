@@ -20,7 +20,7 @@ public class PortNetConnector {
 
     @Value("${portnet.apikey}")
     private String apiKey;
-    @Value("${portnet.database}")
+    @Value("${spring.datasource.url}")
     private String dbURL;
     @Value("${spring.datasource.username}")
     private String username;

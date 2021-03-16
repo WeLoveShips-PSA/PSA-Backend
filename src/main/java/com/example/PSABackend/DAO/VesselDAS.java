@@ -39,7 +39,9 @@ public class VesselDAS {
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()){
+//                HashMap<String, String> queryMap = new HashMap<>();
                 String fullVslM = rs.getString("fullVslM");
+                String abbrVslM = rs.getString("abbrVslM");
                 String inVoyN = rs.getString("inVoyN");
                 String outVoyN = rs.getString("outVoyN");
                 LocalDateTime bthgDt= rs.getTimestamp("btrDt").toLocalDateTime();
@@ -73,7 +75,7 @@ public class VesselDAS {
 
             ResultSet rs = queryStatement.executeQuery();
 
-            String fullVsIM = null;
+            String fullVslM = null;
             String fullInVoyN = null;
             String outVoyN = null;
             String bthgDt = null;
@@ -82,7 +84,7 @@ public class VesselDAS {
             String status = null;
 
             if(rs.next()) {
-                fullVsIM = rs.getString("fullVsIM");
+                fullVslM = rs.getString("fullVslM");
                 //            String abbrVslM = rs.getString("abbrVslM");
                 //            String inVoyN = rs.getString("inVoyN");
                 fullInVoyN = rs.getString("fullInVoyN");
@@ -93,7 +95,7 @@ public class VesselDAS {
                 status = rs.getString("status");
             }
 
-            vessel = new Vessel(fullVsIM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
+            vessel = new Vessel(fullVslM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
         } catch (SQLException e){
             e.printStackTrace();
         }

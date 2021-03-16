@@ -1,10 +1,7 @@
 package com.example.PSABackend.service;
 
 import com.example.PSABackend.DAO.UserDAO;
-import com.example.PSABackend.classes.LikedVessel;
-import com.example.PSABackend.classes.SubscribedVessel;
-import com.example.PSABackend.classes.User;
-import com.example.PSABackend.classes.Vessel;
+import com.example.PSABackend.classes.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,8 +20,12 @@ public class UserService {
     @Autowired
     public UserService(@Qualifier("pregres") UserDAO userDAO) { this.userDAO = userDAO; }
 
-    public boolean addUser(User user) {
+    public boolean addUser(User user) throws UserAlreadyExistAuthenticationException, InvalidEmailException {
         return userDAO.addUser(user);
+    }
+
+    public boolean delUser(String username, String password) {
+        return userDAO.delUser(username, password);
     }
 
     public List<User> getAllUsers() {
@@ -57,12 +58,19 @@ public class UserService {
     public boolean addFavourite(String username, String abbrVsim, String inVoyn)
     { return userDAO.addFavourite(username, abbrVsim, inVoyn) ; }
 
+    public boolean delFavourite(String username, String abbrVsim, String inVoyn)
+    { return userDAO.delFavourite(username, abbrVsim, inVoyn) ; }
+
     public ArrayList<Vessel> getFavourite(String username) {
         return userDAO.getFavourite(username);
     }
 
     public boolean addSubscribed(String username, String abbrVsim, String inVoyn)
     { return userDAO.addSubscribed(username, abbrVsim, inVoyn) ; }
+
+    public boolean delSubscribed(String username, String abbrVsim, String inVoyn)
+    { return userDAO.delSubscribed(username, abbrVsim, inVoyn) ; }
+
 
     public ArrayList<Vessel> getSubscribed(String username) {
         return userDAO.getSubscribed(username);

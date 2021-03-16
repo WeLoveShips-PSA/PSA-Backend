@@ -1,11 +1,10 @@
 package com.example.PSABackend.DAO;
 
-import com.example.PSABackend.classes.LikedVessel;
-import com.example.PSABackend.classes.SubscribedVessel;
-import com.example.PSABackend.classes.User;
-import com.example.PSABackend.classes.Vessel;
+import com.example.PSABackend.classes.*;
 import com.example.PSABackend.service.VesselService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Repository;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -14,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository("pregres")
-public class FakeUserDAS implements UserDAO{
+public class UserDAS implements UserDAO{
     private static String dbURL;
     private static String username;
     private static String password;
@@ -22,29 +21,29 @@ public class FakeUserDAS implements UserDAO{
 
     @Value("${spring.datasource.url}")
     public void setdbURL(String value) {
-        FakeUserDAS.dbURL = value;
+        UserDAS.dbURL = value;
     }
 
     @Value("${spring.datasource.username}")
     public void setdbUser(String value) {
-        FakeUserDAS.username = value;
+        UserDAS.username = value;
     }
 
     @Value("${spring.datasource.password}")
     public void setdbPass(String value) {
-        FakeUserDAS.password = value;
+        UserDAS.password = value;
     }
 
     @Value("${spring.users.allowed}")
     public void setdbAllowedEmails(String value) {
-        FakeUserDAS.allowedEmails = value;
+        UserDAS.allowedEmails = value;
     }
 
     private static List<User> DB = new ArrayList<User>();
 
     // UUID id, Integer active, String password, String roles, String user_name, String email
     @Override
-    public boolean addUser(User user) {
+    public boolean addUser(User user) throws UserAlreadyExistAuthenticationException, InvalidEmailException{
         boolean validEmail = false;
         String[] emails = allowedEmails.split(",");
         String userEmail = user.getEmail();
@@ -57,14 +56,16 @@ public class FakeUserDAS implements UserDAO{
             }
         }
 
+        if (checkUsernameExists(user.getUser_name())) {
+            throw new UserAlreadyExistAuthenticationException("Username is already taken.");
+        }
+
         if (checkEmailExists(userEmail)) {
-            System.out.println("Email got already, make new one");
-            return false;
+            throw new UserAlreadyExistAuthenticationException("Email is already used.");
         }
 
         if (!validEmail) {
-            System.out.println("Email is not allowed");
-            return false;
+            throw new InvalidEmailException("Email not allowed.");
         }
 
         String addUserQuery = "INSERT INTO user(name, password, email) VALUES (?,?,?)";
@@ -84,6 +85,25 @@ public class FakeUserDAS implements UserDAO{
         return true;
     }
 
+    @Override
+    public boolean delUser(String username, String password) {
+        if (!userLogin(username, password)) {
+            return false;
+        }
+
+        String delUserQuery = String.format("DELETE FROM user WHERE name = '%s'", username);
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(delUserQuery);) {
+            stmt.executeUpdate(delUserQuery);
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+    }
+
 
     @Override
     public List<User> selectAllUsers() {
@@ -100,7 +120,7 @@ public class FakeUserDAS implements UserDAO{
                 String user_name = rs.getString("name");
                 String email = rs.getString("email");
 
-                userList.add(new User(password, "", user_name, email));
+                userList.add(new User(password, user_name, email));
             }
         } catch (SQLException e) {
             System.out.println(e);
@@ -124,12 +144,13 @@ public class FakeUserDAS implements UserDAO{
                 String password = rs.getString("password");
                 String email = rs.getString("email");
 
-                user = new User(password, "", name, email);
+                user = new User(password,  name, email);
             } else {
-                System.out.println("no account with username");
+                throw new UsernameNotFoundException(String.format("%s not found", username));
             }
+
         } catch (SQLException e){
-            System.out.println(e);
+            throw new UsernameNotFoundException(String.format("%s not found", username)); // TODO find out what to do with this
         }
         return user;
     }
@@ -171,14 +192,11 @@ public class FakeUserDAS implements UserDAO{
                 if (password.equals(correctPassword)) {
                     return true;
                 } else {
-                    System.out.println("wrong password");
-                    return false;
+                    throw new BadCredentialsException("Password is incorrect");
                 }
-            } else {
-                System.out.println("no account with username");
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            throw new UsernameNotFoundException(String.format("%s not found", username));
         }
         return false;
     }
@@ -190,11 +208,12 @@ public class FakeUserDAS implements UserDAO{
         }
 
         if (newPassword.length() > 15) {
-            return false;
+            return false; // TODO passay password validator
+            // TODO throw a passwordvalidationexception
         }
 
         User oldUser = selectUserById(username);
-        if (oldUser == null) { return false; }
+        if (oldUser == null) { throw new UsernameNotFoundException(String.format("%s not found", username)); } // TODO catch this outside
 
         oldUser.setPassword(newPassword);
 
@@ -209,7 +228,13 @@ public class FakeUserDAS implements UserDAO{
             return false;
         }
 
-        return addUser(oldUser);
+        try {
+            addUser(oldUser);
+            return true;
+        } catch (UserAlreadyExistAuthenticationException | InvalidEmailException e) {
+            System.out.println("Delete query something wrong"); // TODO
+            return false;
+        }
     }
 
     @Override
@@ -218,10 +243,26 @@ public class FakeUserDAS implements UserDAO{
 
         if(changeUserPassword(username, "", newPassword, true)) {
             // TO DO
-            System.out.println("New password has been sent to your email");
+            // if (sendemail) {}
             return true;
         }
         return false;
+    }
+
+    public boolean checkUsernameExists(String username) {
+        String getEmailListQuery = String.format("SELECT email from user where name = '%s'", username);
+
+        boolean usernameExist = false;
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(getEmailListQuery);) {
+            ResultSet rs = stmt.executeQuery(getEmailListQuery);
+            if (rs.next()) {
+                usernameExist = true;
+            }
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
+        return usernameExist;
     }
 
     public boolean checkEmailExists(String userEmail) {
@@ -243,8 +284,7 @@ public class FakeUserDAS implements UserDAO{
 
     @Override
     public boolean addFavourite(String username, String abbrVslM, String inVoyN) {
-        if (selectUserById(username) == null){
-            System.out.println("No such user");
+        if (selectUserById(username) == null) {
             return false;
         }
 
@@ -252,6 +292,28 @@ public class FakeUserDAS implements UserDAO{
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
         PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
+            stmt.setString(1, username);
+            stmt.setString(2, abbrVslM);
+            stmt.setString(3, inVoyN);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean delFavourite(String username, String abbrVslM, String inVoyN) {
+        if (selectUserById(username) == null){
+            return false;
+        }
+
+        String delFavouritesQuery = String.format("DELETE FROM liked_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?");
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(delFavouritesQuery);) {
             stmt.setString(1, username);
             stmt.setString(2, abbrVslM);
             stmt.setString(3, inVoyN);
@@ -270,7 +332,6 @@ public class FakeUserDAS implements UserDAO{
         ArrayList<LikedVessel> likedVesselsList = new ArrayList<LikedVessel>();
         ArrayList<Vessel> likedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
-            System.out.println("No such user");
             return likedList;
         }
         String getFavouriteQuery = String.format("SELECT * FROM liked_vessel WHERE username = '%s'", username);
@@ -300,7 +361,6 @@ public class FakeUserDAS implements UserDAO{
     @Override
     public boolean addSubscribed(String username, String abbrVslM, String inVoyN) {
         if (selectUserById(username) == null){
-            System.out.println("No such user");
             return false;
         }
 
@@ -322,11 +382,33 @@ public class FakeUserDAS implements UserDAO{
     }
 
     @Override
+    public boolean delSubscribed(String username, String abbrVslM, String inVoyN) {
+        if (selectUserById(username) == null){
+            return false;
+        }
+
+        String delFavouritesQuery = String.format("DELETE FROM subscribed_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?");
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(delFavouritesQuery);) {
+            stmt.setString(1, username);
+            stmt.setString(2, abbrVslM);
+            stmt.setString(3, inVoyN);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
     public ArrayList<Vessel> getSubscribed(String username) {
         ArrayList<SubscribedVessel> subscribedVesselsList = new ArrayList<SubscribedVessel>();
         ArrayList<Vessel> subscribedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
-            System.out.println("No such user");
             return subscribedList;
         }
         String getFavouriteQuery = String.format("SELECT * FROM subscribed_vessel WHERE username = '%s'", username);
@@ -350,7 +432,6 @@ public class FakeUserDAS implements UserDAO{
         for (SubscribedVessel s: subscribedVesselsList) {
             subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
-
 
         return subscribedList;
     }
