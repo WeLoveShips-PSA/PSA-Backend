@@ -97,7 +97,7 @@ public class PortNetConnectorDAO {
                 replaceStatement.setString(i, value);
             }
 
-            String query = "SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = " + vsl_voy;
+            String query = String.format("SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = '%s'", vsl_voy);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
@@ -131,7 +131,7 @@ public class PortNetConnectorDAO {
             LocalDate localDate = LocalDate.now().plusDays(3);
 
             // Making the SQL query which gets vessel coming 3 days from now
-            String query = "SELECT fullVsIM, invoyN, abbrVslM FROM VESSEL WHERE BTRDT <= " + "'" + localDate.toString() + "'";
+            String query = "SELECT fullVsLM, invoyN, abbrVslM FROM VESSEL WHERE BTRDT <= " + "'" + localDate.toString() + "'";
             System.out.println(query);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -145,7 +145,7 @@ public class PortNetConnectorDAO {
                 // Not the best way to do this, but it is what it is
 
                 HashMap<String, String> queryMap = new HashMap<>();
-                String fullVsIM = rs.getString("fullVsIM");
+                String fullVsIM = rs.getString("fullVsLM");
                 String inVoyN = rs.getString("inVoyN");
                 String abbrVslM = rs.getString("abbrVslM");
 
