@@ -16,26 +16,26 @@ import java.util.Map;
 public class VesselDetailsController {
     //use first api bthDate to do so
 
-    @GetMapping
-    @RequestMapping(path = "/getall")
-    public ArrayList<VesselDetails> getAllVessels () {
-        return VesselDetailsService.getAllVesselDetails();
-    }
-
-    @PostMapping
-    @RequestMapping(path = "/getallbydate")
-    public ArrayList<VesselDetails> getAllVesselsByDate (@RequestBody Map<String, String> body) {
-        String dateFrom = body.get("dateFrom");
-        String dateTo = body.get("dateTo");
-        return VesselDetailsService.getAllVesselDetailsByDate(dateFrom, dateTo);
-    }
-    //just retrieve regular arraylist, but filter based on date object
-
-    @PostMapping
-    @RequestMapping(path = "/getvessel")
-    public VesselDetails getVesselById (@RequestBody Map<String, String> body) {
-        String abbrVslM = body.get("abbrVslM");
-        String inVoyN = body.get("inVoyN");
-        return VesselDetailsService.getVesselDetailsById(abbrVslM, inVoyN);
-    }
+//    @GetMapping
+//    @RequestMapping(path = "/getall")
+//    public ArrayList<VesselDetails> getAllVessels () {
+//        return VesselDetailsService.getAllVesselDetails();
+//    }
+//
+//    @PostMapping
+//    @RequestMapping(path = "/getallbydate")
+//    public ArrayList<VesselDetails> getAllVesselsByDate (@RequestBody Map<String, String> body) {
+//        String dateFrom = body.get("dateFrom");
+//        String dateTo = body.get("dateTo");
+//        return VesselDetailsService.getAllVesselDetailsByDate(dateFrom, dateTo);
+//    }
+//    //just retrieve regular arraylist, but filter based on date object
+//
+//    @PostMapping
+//    @RequestMapping(path = "/getvessel")
+//    public VesselDetails getVesselById (@RequestBody Map<String, String> body) {
+//        String abbrVslM = body.get("abbrVslM");
+//        String inVoyN = body.get("inVoyN");
+//        return VesselDetailsService.getVesselDetailsById(abbrVslM, inVoyN);
+//    }
 }

@@ -1,62 +1,67 @@
 package com.example.PSABackend.classes;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 public class VesselDetails {
     @NotBlank
     private final String vesselName;
     @NotBlank
-    private final String incVoyNo;
-    private final String outVoyNo;
-    private final String avgSpeed; //consider making an avgspeed object
-    private final String maxSpeed;
-    private final String distanceToGo;
-    private final String berthTime;
+    private final String inVoyN;
+    private final String outVoyN;
+    private final double avgSpeed; //consider making an avgspeed object
+    private final int maxSpeed;
+    private final int distanceToGo;
+    private final LocalDateTime berthTime;
+    private final LocalDateTime unBerthTime;
     private final String berthNo;
     private final String status;
-//    private final boolean isIncreasing;
+    private final boolean isIncreasing;
 
-    public VesselDetails(@NotBlank String vesselName, @NotBlank String incVoyNo, String outVoyNo, String avgSpeed, String maxSpeed, String distanceToGo, String berthTime, String berthNo, String status) {
+    public VesselDetails(@NotBlank String vesselName, @NotBlank String inVoyN, String outVoyN, double avgSpeed, int maxSpeed, int distanceToGo, LocalDateTime berthTime, LocalDateTime unBerthTime, String berthNo, String status, boolean isIncreasing) {
         this.vesselName = vesselName;
-        this.incVoyNo = incVoyNo;
-        this.outVoyNo = outVoyNo;
+        this.inVoyN = inVoyN;
+        this.outVoyN = outVoyN;
         this.avgSpeed = avgSpeed;
         this.maxSpeed = maxSpeed;
         this.distanceToGo = distanceToGo;
         this.berthTime = berthTime;
+        this.unBerthTime = unBerthTime;
         this.berthNo = berthNo;
         this.status = status;
-//        this.isIncreasing = isIncreasing;
+        this.isIncreasing = isIncreasing;
     }
 
     public String getVesselName() {
         return vesselName;
     }
 
-    public String getIncVoyNo() {
-        return incVoyNo;
+    public String getInVoyN() {
+        return inVoyN;
     }
 
-    public String getOutVoyNo() {
-        return outVoyNo;
+    public String getOutVoyN() {
+        return outVoyN;
     }
 
-    public String getAvgSpeed() { return avgSpeed; }
+    public double getAvgSpeed() {
+        return avgSpeed;
+    }
 
-    public String getMaxSpeed() {
+    public int getMaxSpeed() {
         return maxSpeed;
     }
-//
-//    public VesselSpeed getVesselSpeed() {
-//        return vesselSpeed;
-//    }
 
-    public String getDistanceToGo() {
+    public int getDistanceToGo() {
         return distanceToGo;
     }
 
-    public String getBerthTime() {
+    public LocalDateTime getBerthTime() {
         return berthTime;
+    }
+
+    public LocalDateTime getUnBerthTime() {
+        return unBerthTime;
     }
 
     public String getBerthNo() {
@@ -65,5 +70,9 @@ public class VesselDetails {
 
     public String getStatus() {
         return status;
+    }
+
+    public boolean isIncreasing() {
+        return isIncreasing;
     }
 }
