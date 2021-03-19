@@ -67,11 +67,9 @@ public class VesselDAS {
     public static Vessel selectVesselById(String abbrVslM, String inVoyN){
         Vessel vessel = null;
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
+            String query = String.format("SELECT * FROM VESSEL WHERE abbrVslM = '%s' AND inVoyN = '%s'", abbrVslM, inVoyN);
             PreparedStatement queryStatement = conn.prepareStatement(query);
-            queryStatement.setString(1, abbrVslM);
-            queryStatement.setString(2, inVoyN);
-            System.out.println(queryStatement.toString());
+
 
             ResultSet rs = queryStatement.executeQuery();
 

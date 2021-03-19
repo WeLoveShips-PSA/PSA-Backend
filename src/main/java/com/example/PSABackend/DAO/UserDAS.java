@@ -7,6 +7,7 @@ import com.example.PSABackend.service.VesselService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Repository;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -53,8 +54,6 @@ public class UserDAS {
         String userEmail = user.getEmail();
 
         for (int i = 0; i < emails.length; i++) {
-            System.out.println(userEmail);
-            System.out.println(emails[i]);
             if (userEmail.endsWith(emails[i])) {
                 validEmail = true;
             }
@@ -72,9 +71,9 @@ public class UserDAS {
             throw new InvalidEmailException("Email not allowed.");
         }
 
-        String addUserQuery = "INSERT INTO user(name, password, email) VALUES (?,?,?)";
+        String addUserQuery = "INSERT INTO user(username, hashed_password, email) VALUES (?,?,?)";
 
-        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+        try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addUserQuery);) {
 
             stmt.setString(1, user.getUser_name());
@@ -83,7 +82,6 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
             return false;
         }
         return true;
@@ -95,15 +93,15 @@ public class UserDAS {
             return false;
         }
 
-        String delUserQuery = String.format("DELETE FROM user WHERE name = '%s'", username);
+        String delUserQuery = "DELETE FROM user WHERE username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(delUserQuery);) {
+            stmt.setString(1, username);
             stmt.executeUpdate(delUserQuery);
             return true;
 
         } catch (SQLException e) {
-            System.out.println(e);
             return false;
         }
     }
@@ -116,12 +114,12 @@ public class UserDAS {
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getAllUserQuery);) {
-            ResultSet rs = stmt.executeQuery(getAllUserQuery);
+            ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
                 // UUID id = UUID.fromString(rs.getString("UUID"));
                 // UUID id = UUID.fromString(rs.getString("UUID"));
                 String password = rs.getString("password");
-                String user_name = rs.getString("name");
+                String user_name = rs.getString("username");
                 String email = rs.getString("email");
 
                 userList.add(new User(password, user_name, email));
@@ -129,22 +127,23 @@ public class UserDAS {
         } catch (SQLException e) {
             System.out.println(e);
         }
-        for (User user: userList) {
-            System.out.println(user);
-        }
+//        for (User user: userList) {
+//            System.out.println(user);
+//        }
         return userList;
     }
 
     //@Override
     public User selectUserById(String username) {
-        String getUserQuery = String.format("SELECT * FROM user where name = '%s'", username);
+        String getUserQuery = "SELECT * FROM user where username = ?";
         User user = null;
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getUserQuery);) {
-            ResultSet rs = stmt.executeQuery(getUserQuery);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                String name = rs.getString("name");
+                String name = rs.getString("username");
                 String password = rs.getString("password");
                 String email = rs.getString("email");
 
@@ -186,11 +185,12 @@ public class UserDAS {
 
     //@Override
     public boolean userLogin(String username, String password) {
-        String getPasswordQuery = String.format("SELECT password FROM user where name = '%s'", username);
+        String getPasswordQuery = "SELECT password FROM user where username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
         PreparedStatement stmt = conn.prepareStatement(getPasswordQuery);) {
-            ResultSet rs = stmt.executeQuery(getPasswordQuery);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 String correctPassword = rs.getString("password");
                 if (password.equals(correctPassword)) {
@@ -221,10 +221,11 @@ public class UserDAS {
 
         oldUser.setPassword(newPassword);
 
-        String changePasswordQuery = String.format("DELETE FROM user WHERE name = '%s'", username);
+        String changePasswordQuery = "DELETE FROM user WHERE username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(changePasswordQuery);) {
+            stmt.setString(1, username);
             stmt.executeUpdate(changePasswordQuery);
 
         } catch (SQLException e) {
@@ -246,7 +247,7 @@ public class UserDAS {
         String newPassword = RandomStringUtils.randomAlphanumeric(15);
 
         if(changeUserPassword(username, "", newPassword, true)) {
-            // TO DO
+            // TODO link emailer
             // if (sendemail) {}
             return true;
         }
@@ -254,12 +255,13 @@ public class UserDAS {
     }
 
     public boolean checkUsernameExists(String username) {
-        String getEmailListQuery = String.format("SELECT email from user where name = '%s'", username);
+        String getEmailListQuery = "SELECT email from user where username = ?";
 
         boolean usernameExist = false;
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getEmailListQuery);) {
-            ResultSet rs = stmt.executeQuery(getEmailListQuery);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 usernameExist = true;
             }
@@ -270,14 +272,14 @@ public class UserDAS {
     }
 
     public boolean checkEmailExists(String userEmail) {
-        String getEmailListQuery = String.format("SELECT email from user where email = '%s'", userEmail);
+        String getEmailListQuery = "SELECT email from user where email = ?";
 
         boolean emailExist = false;
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getEmailListQuery);) {
-            ResultSet rs = stmt.executeQuery(getEmailListQuery);
+            stmt.setString(1, userEmail);
+            ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                System.out.println("Got email");
                 emailExist = true;
             }
         } catch (SQLException e) {
@@ -292,7 +294,7 @@ public class UserDAS {
             return false;
         }
 
-        String addFavouritesQuery = String.format("INSERT INTO liked_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)");
+        String addFavouritesQuery = "INSERT INTO liked_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
         PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
@@ -314,7 +316,7 @@ public class UserDAS {
             return false;
         }
 
-        String delFavouritesQuery = String.format("DELETE FROM liked_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?");
+        String delFavouritesQuery = "DELETE FROM liked_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(delFavouritesQuery);) {
@@ -324,7 +326,6 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
             return false;
         }
 
@@ -333,29 +334,29 @@ public class UserDAS {
 
     //@Override
     public ArrayList<Vessel> getFavourite(String username, String sort, String order) {
-        ArrayList<LikedVessel> likedVesselsList = new ArrayList<LikedVessel>();
+        ArrayList<FavAndSubVessel> likedVesselsList = new ArrayList<FavAndSubVessel>();
         ArrayList<Vessel> likedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
             return likedList;
         }
 
-        String getFavouriteQuery = String.format("SELECT * FROM liked_vessel WHERE username = '%s' ORDER BY abbrVslM asc", username);
+        String getFavouriteQuery = "SELECT * FROM liked_vessel WHERE username = ? ORDER BY abbrVslM asc";
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getFavouriteQuery);) {
-            ResultSet rs = stmt.executeQuery(getFavouriteQuery);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
 
             while(rs.next()) {
                 String abbrVslM = rs.getString("abbrVslM");
                 String inVoyN = rs.getString("inVoyN");
 
-                likedVesselsList.add(new LikedVessel(abbrVslM, inVoyN));
+                likedVesselsList.add(new FavAndSubVessel(abbrVslM, inVoyN));
             }
 
         } catch (SQLException e) {
-            System.out.println(e);
             return likedList;
         }
-        for (LikedVessel s: likedVesselsList) {
+        for (FavAndSubVessel s: likedVesselsList) {
             likedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
 
@@ -369,17 +370,16 @@ public class UserDAS {
             return false;
         }
 
-        String addFavouritesQuery = String.format("INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN)");
+        String addSubscribedQuery = "INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
-             PreparedStatement stmt = conn.prepareStatement(addFavouritesQuery);) {
+             PreparedStatement stmt = conn.prepareStatement(addSubscribedQuery);) {
             stmt.setString(1, username);
             stmt.setString(2, abbrVslM);
             stmt.setString(3, inVoyN);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
             return false;
         }
 
@@ -392,17 +392,16 @@ public class UserDAS {
             return false;
         }
 
-        String delFavouritesQuery = String.format("DELETE FROM subscribed_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?");
+        String delSubscribedQuery = "DELETE FROM subscribed_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
-             PreparedStatement stmt = conn.prepareStatement(delFavouritesQuery);) {
+             PreparedStatement stmt = conn.prepareStatement(delSubscribedQuery);) {
             stmt.setString(1, username);
             stmt.setString(2, abbrVslM);
             stmt.setString(3, inVoyN);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
             return false;
         }
 
@@ -411,30 +410,30 @@ public class UserDAS {
 
     //@Override
     public ArrayList<Vessel> getSubscribed(String username, String sort, String order) {
-        ArrayList<SubscribedVessel> subscribedVesselsList = new ArrayList<SubscribedVessel>();
+        ArrayList<FavAndSubVessel> subscribedVesselsList = new ArrayList<FavAndSubVessel>();
         ArrayList<Vessel> subscribedList = new ArrayList<Vessel>();
         if (selectUserById(username) == null) {
             return subscribedList;
         }
-        String getFavouriteQuery = String.format("SELECT * FROM subscribed_vessel WHERE username = '%s'", username);
+        String getSubscribedQuery = "SELECT * FROM subscribed_vessel WHERE username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
-             PreparedStatement stmt = conn.prepareStatement(getFavouriteQuery);) {
-            ResultSet rs = stmt.executeQuery(getFavouriteQuery);
+             PreparedStatement stmt = conn.prepareStatement(getSubscribedQuery);) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
 
             while(rs.next()) {
                 String abbrVslM = rs.getString("abbrVslM");
                 String inVoyN = rs.getString("inVoyN");
 
-                subscribedVesselsList.add(new SubscribedVessel(abbrVslM, inVoyN));
+                subscribedVesselsList.add(new FavAndSubVessel(abbrVslM, inVoyN));
             }
 
         } catch (SQLException e) {
-            System.out.println(e);
             return subscribedList;
         }
 
-        for (SubscribedVessel s: subscribedVesselsList) {
+        for (FavAndSubVessel s: subscribedVesselsList) {
             subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
         sortVesselList(subscribedList, sort, order);

@@ -3,8 +3,10 @@ package com.example.PSABackend.classes;
 import org.apache.tomcat.jni.Local;
 
 import javax.validation.constraints.NotBlank;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class Vessel implements Comparable<Vessel>{
@@ -29,14 +31,13 @@ public class Vessel implements Comparable<Vessel>{
 
 
     public Vessel(@NotBlank String fullVslM, @NotBlank String abbrVslM, @NotBlank String inVoyN, @NotBlank String fullInVoyN, @NotBlank String outVoyN, String bthgDt, String unbthgDt, String berthNo, String status) {
-        SimpleDateFormat formatter=new SimpleDateFormat("YYYY-MM-DD''HH:mm:ss");
         this.fullVslM = fullVslM;
         this.abbrVslM = abbrVslM;
         this.inVoyN = inVoyN;
         this.fullInVoyN = fullInVoyN;
         this.outVoyN = outVoyN;
-        this.bthgDt = LocalDateTime.parse(bthgDt);
-        this.unbthgDt = LocalDateTime.parse(unbthgDt);
+        this.bthgDt = Timestamp.valueOf(bthgDt).toLocalDateTime();
+        this.unbthgDt = Timestamp.valueOf(unbthgDt).toLocalDateTime();
         this.berthNo = berthNo;
         this.status = status;
     }

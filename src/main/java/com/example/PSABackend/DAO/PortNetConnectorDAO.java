@@ -131,7 +131,7 @@ public class PortNetConnectorDAO {
             LocalDate localDate = LocalDate.now().plusDays(3);
 
             // Making the SQL query which gets vessel coming 3 days from now
-            String query = "SELECT fullVsLM, invoyN, abbrVslM FROM VESSEL WHERE BTRDT <= " + "'" + localDate.toString() + "'";
+            String query = "SELECT fullVslM, invoyN, abbrVslM FROM VESSEL WHERE BTRDT <= " + "'" + localDate.toString() + "'";
             System.out.println(query);
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -145,17 +145,17 @@ public class PortNetConnectorDAO {
                 // Not the best way to do this, but it is what it is
 
                 HashMap<String, String> queryMap = new HashMap<>();
-                String fullVsIM = rs.getString("fullVsLM");
+                String fullVslM = rs.getString("fullVslM");
                 String inVoyN = rs.getString("inVoyN");
                 String abbrVslM = rs.getString("abbrVslM");
 
                 // Removing all spaces and slashes from invoyn and abbrvslm
-                fullVsIM = fullVsIM.replaceAll("\\s+", "");
+                fullVslM = fullVslM.replaceAll("\\s+", "");
                 inVoyN = inVoyN.replaceAll("\\s+|/", "");
 
                 // Formulating vsl_voy for updateVessel method in PortnetConnector
                 StringBuilder queryParams = new StringBuilder();
-                queryParams.append(fullVsIM);
+                queryParams.append(fullVslM);
                 queryParams.append(inVoyN);
                 System.out.println(queryParams);
 

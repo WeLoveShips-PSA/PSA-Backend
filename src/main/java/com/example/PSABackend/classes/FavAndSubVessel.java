@@ -1,10 +1,10 @@
 package com.example.PSABackend.classes;
 
-public class LikedVessel {
+public class FavAndSubVessel {
     private String abbrVslM;
     private String inVoyN;
 
-    public LikedVessel(String abbrVslM, String inVoyN) {
+    public FavAndSubVessel(String abbrVslM, String inVoyN) {
         this.abbrVslM = abbrVslM;
         this.inVoyN = inVoyN;
     }
