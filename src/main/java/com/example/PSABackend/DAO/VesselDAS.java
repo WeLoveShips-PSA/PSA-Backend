@@ -1,10 +1,12 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.Vessel;
+import com.example.PSABackend.classes.VesselDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,38 +30,28 @@ public class VesselDAS {
     @Value("${spring.datasource.password}")
     public void setdbPass(String value) { VesselDAS.password = value; }
 
-    public static ArrayList<Vessel> selectAllVessels(){
-        ArrayList<Vessel> queryList = new ArrayList<>();
+    public static ArrayList<VesselDetails> selectAllVessels(){
+        ArrayList<VesselDetails> queryList = new ArrayList<>();
 
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = "SELECT FULLVSIM, vessel.abbrVslM, vessel.inVoyN, fullInVoyN, outVoyN, btrDt, unbthgDt, " +
-                    "berthN, status, abbrTerminalM, avg_speed  FROM VESSEL";
+            String query = "SELECT fullVslM, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()){
-//                HashMap<String, String> queryMap = new HashMap<>();
-                String fullVsIM = rs.getString("fullVsIM");
-                String abbrVslM = rs.getString("abbrVslM");
+                String fullVslM = rs.getString("fullVslM");
                 String inVoyN = rs.getString("inVoyN");
-                String fullInVoyN = rs.getString("fullInVoyN");
                 String outVoyN = rs.getString("outVoyN");
-                String bthgDt= rs.getString("btrDt");
-                String unbthgDt = rs.getString("unbthgDt");
+                LocalDateTime bthgDt= rs.getTimestamp("btrDt").toLocalDateTime();
+                LocalDateTime unbthgDt = rs.getTimestamp("unbthgDt").toLocalDateTime();
                 String berthN = rs.getString("berthN");
                 String status = rs.getString("status");
-                Vessel vessel = new Vessel(fullVsIM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
-                queryList.add(vessel);
-//                queryMap.put("fullVsIM", fullVsIM);
-//                queryMap.put("abbrVslM", abbrVslM);
-//                queryMap.put("inVoyN", inVoyN);
-//                queryMap.put("fullInVoyN", fullInVoyN);
-//                queryMap.put("outVoyN", outVoyN);
-//                queryMap.put("btrDt", bthgDt);
-//                queryMap.put("unbthgDt", unbthgDt);
-//                queryMap.put("berthN", berthN);
-//                queryMap.put("status", status);
-//                queryList.add(queryMap);
+                double avg_speed = rs.getDouble("avg_speed");
+                boolean is_increasing = rs.getBoolean("is_increasing");
+                int max_speed = rs.getInt("max_speed");
+                int distance_to_go = rs.getInt("distance_to_go");
+                VesselDetails vesselDetails = new VesselDetails(fullVslM, inVoyN, outVoyN, avg_speed, max_speed, distance_to_go, bthgDt, unbthgDt, berthN, status, is_increasing);
+                queryList.add(vesselDetails);
             }
         } catch (SQLException e){
             e.printStackTrace();
@@ -106,5 +98,38 @@ public class VesselDAS {
             e.printStackTrace();
         }
         return vessel;
+    }
+
+    public static ArrayList<VesselDetails> getVesselsByDate(LocalDateTime date){
+        ArrayList<VesselDetails> queryList = new ArrayList<>();
+
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
+            String query = String.format("SELECT fullVslM, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN WHERE date(btrDt) = '%s'", date.toString().split("T")[0]);
+//            System.out.println(query);
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            while(rs.next()){
+                String fullVslM = rs.getString("fullVslM");
+                String inVoyN = rs.getString("inVoyN");
+                String outVoyN = rs.getString("outVoyN");
+                LocalDateTime bthgDt= rs.getTimestamp("btrDt").toLocalDateTime();
+                LocalDateTime unbthgDt = rs.getTimestamp("unbthgDt").toLocalDateTime();
+                String berthN = rs.getString("berthN");
+                String status = rs.getString("status");
+                double avg_speed = rs.getDouble("avg_speed");
+                boolean is_increasing = rs.getBoolean("is_increasing");
+                int max_speed = rs.getInt("max_speed");
+                int distance_to_go = rs.getInt("distance_to_go");
+                VesselDetails vesselDetails = new VesselDetails(fullVslM, inVoyN, outVoyN, avg_speed, max_speed, distance_to_go, bthgDt, unbthgDt, berthN, status, is_increasing);
+                queryList.add(vesselDetails);
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+//        for(HashMap<String, String> m : queryList){
+//            System.out.println(m);
+//        }
+        return queryList;
     }
 }
