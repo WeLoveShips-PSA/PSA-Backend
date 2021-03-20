@@ -8,6 +8,9 @@ import javax.mail.internet.*;
 
 public class Emailer {
 
+    String msg;
+    User recipient;
+
     public static void main(String[] args) {
         try {
             System.out.println(sendEmail("rxtay.2020@sis.smu.edu.sg")); //recipient email
@@ -15,6 +18,8 @@ public class Emailer {
             System.out.println("Error 404: Email not found");
         }
     }
+
+
 
     //alert_type decides what kind of message is sent to the email
     //(original)
