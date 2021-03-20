@@ -71,6 +71,9 @@ public class Alert {
         System.out.println(new Alert());
     }
 
+    public static void main (String[] args) {
+        System.out.println(new Alert());
+    }
 
     public void addUsername(String username) {
         this.usernameList.add(username);
