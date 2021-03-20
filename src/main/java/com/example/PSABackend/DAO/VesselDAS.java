@@ -39,7 +39,9 @@ public class VesselDAS {
             ResultSet rs = stmt.executeQuery(query);
 
             while(rs.next()){
+//                HashMap<String, String> queryMap = new HashMap<>();
                 String fullVslM = rs.getString("fullVslM");
+                String abbrVslM = rs.getString("abbrVslM");
                 String inVoyN = rs.getString("inVoyN");
                 String outVoyN = rs.getString("outVoyN");
                 LocalDateTime bthgDt= rs.getTimestamp("btrDt").toLocalDateTime();
@@ -65,15 +67,13 @@ public class VesselDAS {
     public static Vessel selectVesselById(String abbrVslM, String inVoyN){
         Vessel vessel = null;
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
+            String query = String.format("SELECT * FROM VESSEL WHERE abbrVslM = '%s' AND inVoyN = '%s'", abbrVslM, inVoyN);
             PreparedStatement queryStatement = conn.prepareStatement(query);
-            queryStatement.setString(1, abbrVslM);
-            queryStatement.setString(2, inVoyN);
-            System.out.println(queryStatement.toString());
+
 
             ResultSet rs = queryStatement.executeQuery();
 
-            String fullVsIM = null;
+            String fullVslM = null;
             String fullInVoyN = null;
             String outVoyN = null;
             String bthgDt = null;
@@ -82,7 +82,7 @@ public class VesselDAS {
             String status = null;
 
             if(rs.next()) {
-                fullVsIM = rs.getString("fullVsIM");
+                fullVslM = rs.getString("fullVslM");
                 //            String abbrVslM = rs.getString("abbrVslM");
                 //            String inVoyN = rs.getString("inVoyN");
                 fullInVoyN = rs.getString("fullInVoyN");
@@ -93,7 +93,7 @@ public class VesselDAS {
                 status = rs.getString("status");
             }
 
-            vessel = new Vessel(fullVsIM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
+            vessel = new Vessel(fullVslM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
         } catch (SQLException e){
             e.printStackTrace();
         }

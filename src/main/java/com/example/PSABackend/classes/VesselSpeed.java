@@ -22,5 +22,4 @@ public class VesselSpeed {
     }
 
     private ArrayList<Double> list;
-
 }

@@ -1,7 +1,11 @@
 package com.example.PSABackend.classes;
 
+import org.apache.tomcat.jni.Local;
+
 import javax.validation.constraints.NotBlank;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class VesselDetails {
     @NotBlank
