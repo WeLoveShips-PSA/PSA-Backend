@@ -23,5 +23,4 @@ public class AlertDAO {
         }
         return out;
     }
-
 }

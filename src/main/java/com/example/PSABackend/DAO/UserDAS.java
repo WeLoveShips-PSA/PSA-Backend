@@ -71,7 +71,7 @@ public class UserDAS {
             throw new InvalidEmailException("Email not allowed.");
         }
 
-        String addUserQuery = "INSERT INTO user(username, hashed_password, email) VALUES (?,?,?)";
+        String addUserQuery = "INSERT INTO user(username, password, email) VALUES (?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addUserQuery);) {
@@ -82,6 +82,7 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
+            System.out.println(e);
             return false;
         }
         return true;

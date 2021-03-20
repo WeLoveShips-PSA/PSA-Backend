@@ -36,6 +36,8 @@ public class VesselController {
     @RequestMapping(path = "/getvesselsbydate")
     public ArrayList<VesselDetails> getVesselsByDate (@RequestBody Map<String, String> body) {
         String date = body.get("date");
+        //sort by
+        //order
         LocalDateTime dateTime = LocalDateTime.parse(date);
         return VesselDAS.getVesselsByDate(dateTime);
     }
