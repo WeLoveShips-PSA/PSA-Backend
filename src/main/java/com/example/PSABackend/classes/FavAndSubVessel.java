@@ -21,7 +21,7 @@ public class FavAndSubVessel {
         return inVoyN;
     }
 
-    public void setInVoyN(String iinVoyN) {
+    public void setInVoyN(String inVoyN) {
         this.inVoyN = inVoyN;
     }
 }
