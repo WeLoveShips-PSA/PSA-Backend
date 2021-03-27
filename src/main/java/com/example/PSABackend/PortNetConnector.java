@@ -65,7 +65,7 @@ public class PortNetConnector {
             // Inserts the vessel information into the vessel table
             portNetConnectorDAO.lookForChanges(vesselArray);
 
-//            portNetConnectorDAO.insert(vesselArray);
+            portNetConnectorDAO.insert(vesselArray);
 
         }
     }
@@ -98,7 +98,7 @@ public class PortNetConnector {
             // Program waits for 1 second
             try {
                 TimeUnit.SECONDS.sleep(1);
-                System.out.println(++i);
+//                System.out.println(++i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -107,12 +107,12 @@ public class PortNetConnector {
             StringBuilder queryParam = new StringBuilder();
             queryParam.append(url);
             queryParam.append(v.get("vsl_voy"));
-            System.out.println(queryParam.toString());
+//            System.out.println(queryParam.toString());
             ResponseEntity<String> response = restTemplate.exchange(queryParam.toString(), HttpMethod.GET, entity, String.class);
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
-            portNetConnectorDAO.lookForExtraChanges(jsonObject);
             if (jsonObject.get("Error") == null) {
-                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
+                portNetConnectorDAO.lookForExtraChanges(jsonObject);
+//                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
             }
         }
     }
