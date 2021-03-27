@@ -54,28 +54,58 @@ public class PortNetConnectorDAO {
 
                 ResultSet rs = queryStatement.executeQuery();
 
+
+
                 if(rs.next()){
-                    System.out.println("exist");
-                }else{
-                    System.out.println("Doesnt exist");
-                }
-
-                String replace = "REPLACE INTO VESSEL VALUES(?,?,?,?,?,?,?,?,?,?)";
-                PreparedStatement replaceStatement = conn.prepareStatement(replace);
-
-                //Loops through the param names for the vesselObject
-                String[] arr = {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
-                for(int i = 0; i<arr.length; i++){
-                    String str = vesselObject.get(arr[i]).toString();
-                    str = str.replace("\"", "");
-                    // Set datetime from json to format of mysql
-                    if(arr[i] == "bthgDt" || arr[i] == "unbthgDt"){
-                        String[] date_time = str.split("T");
-                        str = date_time[0] + " " + date_time[1];
+                    String[] arr = {"bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
+                    String update = "UPDATE INTO VESSEL SET bthgdt = ?, unbthgdt = ?, berthn = ?, status = ?, abbrterminalm = ? WHERE abbrvslm = ? and invoyn = ?";
+                    PreparedStatement updateStatement = conn.prepareStatement(update);
+                    for(int i = 0; i<arr.length; i++){
+                        String str = vesselObject.get(arr[i]).toString();
+                        str = str.replace("\"", "");
+                        // Set datetime from json to format of mysql
+                        if(arr[i] == "bthgDt" || arr[i] == "unbthgDt") {
+                            String[] date_time = str.split("T");
+                            str = date_time[0] + " " + date_time[1];
+                            updateStatement.setString(i + 1, str);
+                        }
+                        updateStatement.setString(arr.length+1, vesselObject.get("abbrVslM").toString());
+                        updateStatement.setString(arr.length+2, vesselObject.get("inVoyN").toString());
                     }
-                    replaceStatement.setString(i+1, str);
+                }else{
+                    String insert = "INSERT INTO VESSEL VALUES(?,?,?,?,?,?,?,?,?,?)";
+                    PreparedStatement insertStatement = conn.prepareStatement(insert);
+
+                    String[] arr = {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
+                    for(int i = 0; i<arr.length; i++){
+                        String str = vesselObject.get(arr[i]).toString();
+                        str = str.replace("\"", "");
+                        // Set datetime from json to format of mysql
+                        if(arr[i] == "bthgDt" || arr[i] == "unbthgDt"){
+                            String[] date_time = str.split("T");
+                            str = date_time[0] + " " + date_time[1];
+                        }
+                        insertStatement.setString(i+1, str);
+                    }
+                    insertStatement.executeUpdate();
                 }
-                replaceStatement.executeUpdate();
+
+//                String replace = "REPLACE INTO VESSEL VALUES(?,?,?,?,?,?,?,?,?,?)";
+//                PreparedStatement replaceStatement = conn.prepareStatement(replace);
+//
+//                //Loops through the param names for the vesselObject
+//                String[] arr = {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
+//                for(int i = 0; i<arr.length; i++){
+//                    String str = vesselObject.get(arr[i]).toString();
+//                    str = str.replace("\"", "");
+//                    // Set datetime from json to format of mysql
+//                    if(arr[i] == "bthgDt" || arr[i] == "unbthgDt"){
+//                        String[] date_time = str.split("T");
+//                        str = date_time[0] + " " + date_time[1];
+//                    }
+//                    replaceStatement.setString(i+1, str);
+//                }
+//                replaceStatement.executeUpdate();
             }catch(SQLException ex){
                 ex.printStackTrace();
             }
