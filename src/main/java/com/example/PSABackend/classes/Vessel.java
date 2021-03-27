@@ -11,6 +11,7 @@ import java.util.Date;
 
 public class Vessel implements Comparable<Vessel>{
 
+
     // {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
     @NotBlank
     private final String fullVslM;
@@ -75,5 +76,20 @@ public class Vessel implements Comparable<Vessel>{
     @Override
     public int compareTo(Vessel o) {
         return this.bthgDt.compareTo(o.getBthgDt());
+    }
+
+    @Override
+    public String toString() {
+        return "Vessel{" +
+                "fullVslM='" + fullVslM + '\'' +
+                ", abbrVslM='" + abbrVslM + '\'' +
+                ", inVoyN='" + inVoyN + '\'' +
+                ", fullInVoyN='" + fullInVoyN + '\'' +
+                ", outVoyN='" + outVoyN + '\'' +
+                ", bthgDt=" + bthgDt +
+                ", unbthgDt=" + unbthgDt +
+                ", berthNo='" + berthNo + '\'' +
+                ", status='" + status + '\'' +
+                '}';
     }
 }
