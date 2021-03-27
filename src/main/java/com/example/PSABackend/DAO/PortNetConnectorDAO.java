@@ -1,5 +1,6 @@
 package com.example.PSABackend.DAO;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -114,40 +115,87 @@ public class PortNetConnectorDAO {
 
     public void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN, String vsl_voy){
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
-            String replace = "REPLACE INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
-            PreparedStatement replaceStatement = conn.prepareStatement(replace);
-            double speed = 0;
-            String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
-            , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"};
-            for(int i = 1; i<= params.length; i++){
-                String value = vessel.get(params[i-1]).toString();
-                if(value.charAt(0) == '"'){
-                    value = value.replace("\"", "");
-                }
-                replaceStatement.setString(i, value);
-            }
-
-            String query = String.format("SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = '%s'", vsl_voy);
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
-            speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
-            if(rs.next() && rs.getDouble("speed") > 0.0){
-                if(rs.getDouble("speed") < speed){
-                    replaceStatement.setString(10, "1");
-                }else{
-                    replaceStatement.setString(10, "0");
-                }
-            }else{
-                replaceStatement.setString(10, "0");
-            }
-
-            replaceStatement.setString(11, abbrVslM);
-            replaceStatement.setString(12, inVoyN);
-            replaceStatement.executeUpdate();
-            String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
-            System.out.println(queryInsert);
+            String select = String.format("SELECT * FROM VESSEL_EXTRA WHERE VSL_VOY = '%s'",vsl_voy);
+            System.out.println(select);
             Statement stmt1 = conn.createStatement();
-            stmt1.executeUpdate(queryInsert);
+            ResultSet rs1 = stmt1.executeQuery(select);
+            if(rs1.next()){
+                String update = "UPDATE VESSEL_EXTRA SET AVG_SPEED = ?, DISTANCE_TO_GO=?,IS_PATCHING_ACTIVATED=?," +
+                        "MAX_SPEED=?,PATCHING_PREDICTED_BTR=?,PREDICTED_BTR=?,VESSEL_NAME=?,VOYAGE_CODE_INBOUND=?,VSL_VOY=?,IS_INCREASING=?" +
+                        "WHERE ABBRVSLM = ? AND INVOYN = ?";
+                PreparedStatement updateStatement = conn.prepareStatement(update);
+                double speed = 0;
+                String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
+                        , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"};
+                for(int i = 1; i<= params.length; i++){
+                    String value = vessel.get(params[i-1]).toString();
+                    if(value.charAt(0) == '"'){
+                        value = value.replace("\"", "");
+                    }
+                    updateStatement.setString(i, value);
+                }
+
+                String query = String.format("SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = '%s'", vsl_voy);
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
+                if(rs.next() && rs.getDouble("speed") > 0.0){
+                    if(rs.getDouble("speed") < speed){
+                        updateStatement.setString(10, "1");
+                    }else{
+                        updateStatement.setString(10, "0");
+                    }
+                }else{
+                    updateStatement.setString(10, "0");
+                }
+                updateStatement.setString(11, abbrVslM);
+                updateStatement.setString(12, inVoyN);
+                System.out.println(updateStatement.toString());
+                updateStatement.executeUpdate();
+
+                String queryInsert = "REPLACE INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
+                System.out.println(queryInsert);
+                Statement stmt2 = conn.createStatement();
+                stmt2.executeUpdate(queryInsert);
+
+            }else{
+                String replace = "INSERT INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+                PreparedStatement replaceStatement = conn.prepareStatement(replace);
+                double speed = 0;
+                String[] params = {"AVG_SPEED", "DISTANCE_TO_GO", "IS_PATCHING_ACTIVATED", "MAX_SPEED", "PATCHING_PREDICTED_BTR"
+                        , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"};
+                for(int i = 1; i<= params.length; i++){
+                    String value = vessel.get(params[i-1]).toString();
+                    if(value.charAt(0) == '"'){
+                        value = value.replace("\"", "");
+                    }
+                    replaceStatement.setString(i, value);
+                }
+                    replaceStatement.setString(10, "0");
+//                String query = String.format("SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = '%s'", vsl_voy);
+//                Statement stmt = conn.createStatement();
+//                ResultSet rs = stmt.executeQuery(query);
+//                speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
+//                if(rs.next() && rs.getDouble("speed") > 0.0){
+//                    if(rs.getDouble("speed") < speed){
+//                        replaceStatement.setString(10, "1");
+//                    }else{
+//                        replaceStatement.setString(10, "0");
+//                    }
+//                }else{
+//                    replaceStatement.setString(10, "0");
+//                }
+
+                replaceStatement.setString(11, abbrVslM);
+                replaceStatement.setString(12, inVoyN);
+                replaceStatement.executeUpdate();
+            }
+
+
+//            String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
+//            System.out.println(queryInsert);
+//            Statement stmt2 = conn.createStatement();
+//            stmt2.executeUpdate(queryInsert);
         }catch(SQLException ex){
             ex.printStackTrace();
         }
