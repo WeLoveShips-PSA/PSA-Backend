@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @RequestMapping(path = "user")
+@CrossOrigin
 @RestController // This means that this class is a Controller
 public class UserController {
 
@@ -79,7 +80,7 @@ public class UserController {
 
 //    @PutMapping
 //    @RequestMapping(path = "/upd/{id}")
-//    public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @RequestBody User userToUpdate) {
+//    public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @Re maquestBody User userToUpdate) {
 //        userService.updateUser(id, userToUpdate);
 //    }
 
