@@ -11,8 +11,9 @@ public class VesselExtra {
     private final String maxSpeed;
     private final String patchingPredictedBtr;
     private final String predictedBtr;
-    private final String vesselName;
+    private final String vesselName; // what is veselname??? abbrvslm?
     private final String voyageCodeInbound;
+
 
     public VesselExtra(String avgSpeed, String distanceToGo, String isPatchingActivated, String maxSpeed, String patchingPredictedBtr, String predictedBtr, String vesselName, String voyageCodeInbound, @NotBlank String vslVoy) {
         this.avgSpeed = avgSpeed;
@@ -24,6 +25,7 @@ public class VesselExtra {
         this.vesselName = vesselName;
         this.voyageCodeInbound = voyageCodeInbound;
         this.vslVoy = vslVoy;
+
     }
 
     public String getAvgSpeed() {
@@ -61,4 +63,6 @@ public class VesselExtra {
     public String getVslVoy() {
         return vslVoy;
     }
+
+
 }

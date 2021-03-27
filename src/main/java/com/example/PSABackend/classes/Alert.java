@@ -84,9 +84,7 @@ public class Alert {
         this.vesselName = vesselName;
     }
 
-    public void setInVoyN(String inVoyN) {
-        this.inVoyN = inVoyN;
-    }
+    public void setInVoyN(String inVoyN) { this.inVoyN = inVoyN; }
 
     public void setOutVoyN(String outVoyN) {
         this.outVoyN = outVoyN;
@@ -98,6 +96,10 @@ public class Alert {
 
     public void setNewMaxSpeed(int newMaxSpeed) {
         this.newMaxSpeed = newMaxSpeed;
+    }
+
+    public void setNewDistanceToGo(int newDistanceToGo) {
+        this.newDistanceToGo = newDistanceToGo;
     }
 
     public void setNewBerthTime(LocalDateTime newBerthTime) {

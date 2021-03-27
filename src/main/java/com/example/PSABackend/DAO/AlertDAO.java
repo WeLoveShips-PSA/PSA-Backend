@@ -23,4 +23,8 @@ public class AlertDAO {
         }
         return out;
     }
+
+    public ArrayList<Alert> getList(){
+        return alertList;
+    }
 }
