@@ -189,13 +189,14 @@ public class PortNetConnectorDAO {
                 replaceStatement.setString(11, abbrVslM);
                 replaceStatement.setString(12, inVoyN);
                 replaceStatement.executeUpdate();
+                String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
+                System.out.println(queryInsert);
+                Statement stmt2 = conn.createStatement();
+                stmt2.executeUpdate(queryInsert);
             }
 
 
-//            String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
-//            System.out.println(queryInsert);
-//            Statement stmt2 = conn.createStatement();
-//            stmt2.executeUpdate(queryInsert);
+
         }catch(SQLException ex){
             ex.printStackTrace();
         }
