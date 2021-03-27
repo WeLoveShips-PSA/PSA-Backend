@@ -65,7 +65,7 @@ public class PortNetConnector {
             // Inserts the vessel information into the vessel table
             portNetConnectorDAO.lookForChanges(vesselArray);
 
-            portNetConnectorDAO.insert(vesselArray);
+//            portNetConnectorDAO.insert(vesselArray);
 
         }
     }
