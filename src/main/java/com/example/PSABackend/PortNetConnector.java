@@ -41,7 +41,7 @@ public class PortNetConnector {
     private String password;
 
 
-    private AlertDAO alertDAO;
+    private AlertDAO alertDAO = new AlertDAO();
     private UserService userService;
     private Emailer emailer;
 
@@ -70,7 +70,8 @@ public class PortNetConnector {
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
             // Inserts the vessel information into the vessel table
-            portNetConnectorDAO.lookForChanges(vesselArray);
+            System.out.println("calling look For Changes");
+            portNetConnectorDAO.lookForChanges(vesselArray, alertDAO);
 
             portNetConnectorDAO.insert(vesselArray);
 
@@ -100,8 +101,9 @@ public class PortNetConnector {
         // Jsonobject of the vessel, and the abbrvslm and invoyn of the vessel
         queryArray = portNetConnectorDAO.getAllShipName();
         int i = 0;
+        int ind = 1;
         for (HashMap<String, String> v : queryArray) {
-
+            System.out.println("Looking for extra changes " + ind ++);
             // Program waits for 1 second
             try {
                 TimeUnit.SECONDS.sleep(1);
@@ -117,8 +119,10 @@ public class PortNetConnector {
 //            System.out.println(queryParam.toString());
             ResponseEntity<String> response = restTemplate.exchange(queryParam.toString(), HttpMethod.GET, entity, String.class);
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            System.out.println(jsonObject.toString());
             if (jsonObject.get("Error") == null) {
-                portNetConnectorDAO.lookForExtraChanges(jsonObject);
+                System.out.println("Did we even get here");
+                portNetConnectorDAO.lookForExtraChanges(jsonObject, alertDAO);
 //                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
             }
         }
