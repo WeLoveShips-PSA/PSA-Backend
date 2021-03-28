@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit;
 import com.google.gson.*;
 import java.time.format.DateTimeFormatter;
 import com.example.PSABackend.classes.VesselDetails;
+import com.example.PSABackend.classes.Emailer;
+import com.example.PSABackend.service.UserService;
+import com.example.PSABackend.classes.User;
 
 
 
@@ -37,6 +40,10 @@ public class PortNetConnector {
     @Value("${spring.datasource.password}")
     private String password;
 
+
+    private AlertDAO alertDAO;
+    private UserService userService;
+    private Emailer emailer;
 
 
 
@@ -117,8 +124,12 @@ public class PortNetConnector {
         }
     }
 
-        //CHANGES WITHIN VESSEL(ORDINARY)
 
+    public AlertDAO getAlertDAO(){
+        return alertDAO;
+    }
+
+        //CHANGES WITHIN VESSEL(ORDINARY)
 
 
 
@@ -128,6 +139,17 @@ public class PortNetConnector {
         String todaydate = localDate.toString();
         System.out.println(todaydate);
         getUpdate(todaydate, todaydate);
+        for(String username:alertDAO.getAlertUSERS()){
+
+            User user= userService.getUserById(username);
+            try {
+                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+        AlertDAO alertDAO=new AlertDAO();
+
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -136,6 +158,17 @@ public class PortNetConnector {
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
         getUpdate(todayDate, nextWeekDate);
+
+        for(String username:alertDAO.getAlertUSERS()){
+
+            User user= userService.getUserById(username);
+            try {
+                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        AlertDAO alertDAO=new AlertDAO();
     }
 
     @Scheduled(cron = "* * 1 * * *")

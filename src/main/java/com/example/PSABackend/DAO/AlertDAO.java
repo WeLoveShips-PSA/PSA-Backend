@@ -24,6 +24,21 @@ public class AlertDAO {
         return out;
     }
 
+    public ArrayList<String> getAlertUSERS(){
+        ArrayList<String> usersRequireAlert= new ArrayList<>();
+        for (Alert a: alertList) {
+            for (String u: a.getUsername()) {
+
+                if(!usersRequireAlert.contains(u)) {
+                    usersRequireAlert.add(u);
+                }
+
+
+            }
+        }
+        return usersRequireAlert;
+    }
+
     public ArrayList<Alert> getList(){
         return alertList;
     }
