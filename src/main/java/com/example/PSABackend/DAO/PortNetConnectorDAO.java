@@ -253,12 +253,12 @@ public class PortNetConnectorDAO {
                 String abbrVslM = rs.getString("abbrVslM");
 
                 // Removing all spaces and slashes from invoyn and abbrvslm
-                fullVslM = fullVslM.replaceAll("\\s+", "");
+                abbrVslM = abbrVslM.replaceAll("\\s+", "");
                 inVoyN = inVoyN.replaceAll("\\s+|/", "");
 
                 // Formulating vsl_voy for updateVessel method in PortnetConnector
                 StringBuilder queryParams = new StringBuilder();
-                queryParams.append(fullVslM);
+                queryParams.append(abbrVslM);
                 queryParams.append(inVoyN);
 
                 // Putting the stuffs into a map
@@ -415,7 +415,7 @@ public class PortNetConnectorDAO {
             double result_set_avg_speed=0.0;
             int result_set_distanceToGo= 0;
 
-            boolean hasPrevious
+            boolean hasPrevious;
             while (rs.next()) {  // is there another way to do this? given that there will only be one row returned
                 result_set_max_speed=Integer.parseInt(rs.getString("max_speed"));
                 result_set_avg_speed=Double.parseDouble(rs.getString("avg_speed"));

@@ -2,6 +2,7 @@ package com.example.PSABackend;
 
 import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.DAO.PortNetConnectorDAO;
+import com.example.PSABackend.DAO.VesselDAS;
 import com.example.PSABackend.classes.Alert;
 import com.example.PSABackend.classes.Vessel;
 import com.example.PSABackend.classes.VesselExtra;
@@ -162,6 +163,7 @@ public class PortNetConnector {
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
         getUpdate(todayDate, nextWeekDate);
+        VesselDAS.detectChangesVessel();
 
         for(String username:alertDAO.getAlertUSERS()){
 
@@ -177,6 +179,7 @@ public class PortNetConnector {
 
     @Scheduled(cron = "* * 1 * * *")
     public void hourly(){
-
+        updateVessel();
+        VesselDAS.detectChangesVessel();
     }
 }
