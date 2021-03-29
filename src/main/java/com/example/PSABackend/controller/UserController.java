@@ -45,6 +45,25 @@ public class UserController {
     }
 
     @PostMapping
+    @RequestMapping(path = "/config")
+    ResponseEntity<String> changeUserConfig(@RequestBody Map<String, Object> body) {
+        String username = body.get("username").toString();
+        boolean btrDtAlert = body.get("btrDtAlert").toString().equals("true");
+        boolean berthNAlert = body.get("berthNAlert").toString().equals("true");
+        boolean statusAlert = body.get("statusAlert").toString().equals("true");
+        boolean avgSpeedAlert = body.get("avgSpeedAlert").toString().equals("true");
+        boolean distanceToGoAlert = body.get("distanceToGoAlert").toString().equals("true");
+        boolean maxSpeedAlert = body.get("maxSpeedAlert").toString().equals("true");
+        try {
+            userService.changeUserConfig(username, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
+            return ResponseEntity.status(HttpStatus.OK).body("Configuration Changed Successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            //TODO
+        }
+    }
+
+    @PostMapping
     @RequestMapping(path = "/del")
     ResponseEntity<String> delUser(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();

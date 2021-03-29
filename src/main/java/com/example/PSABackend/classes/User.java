@@ -12,31 +12,25 @@ public class User {
     @NotBlank
     private String user_name;
     @NotBlank
-    private String email; // email added
-    // TODO
-//    @NotBlank
-//    private Company companyId;
-//    @NotBlank
-//    private boolean intervalNotiOptIn;
-//    @NotBlank
-//    private boolean beforeNotiOptIn;
-//    @NotBlank
-//    private int notificationInterval; // notification every x time
-//    @NotBlank
-//    private int notificationBefore; // noitfication x hours before ETA
+    private String email;
+
+    @NotBlank
+    private boolean btrDtAlert = false;
+    @NotBlank
+    private boolean berthNAlert = false;
+    @NotBlank
+    private boolean statusAlert = false;
+    @NotBlank
+    private boolean avgSpeedAlert = true;
+    @NotBlank
+    private boolean distanceToGoAlert = true;
+    @NotBlank
+    private boolean maxSpeedAlert = false;
 
     public User(@JsonProperty("password") String password, @JsonProperty("user_name") String user_name, @JsonProperty("email") String email) {
         this.password = password;
         this.user_name = user_name;
         this.email = email;
-//        this.notificationInterval = 1;
-//        this.notificationBefore = 3;
-//        this.intervalNotiOptIn = true;
-//        this.beforeNotiOptIn = true;
-
-        // this.company = new Company()
-        // this.company = CompanyDAO.getCompany(companyName)
-        // means we assume no companyNames are unique
     }
 
     public String getPassword() {
@@ -55,20 +49,52 @@ public class User {
         return String.format("%s %s %s", password, user_name, email);
     }
 
-//    public int getNotificationInterval() {
-//        return notificationInterval;
-//    }
-//
-//    public void setNotificationInterval(int notificationInterval) {
-//        this.notificationInterval = notificationInterval;
-//    }
-//
-//    public int getNotificationBefore() {
-//        return notificationBefore;
-//    }
-//
-//    public void setNotificationBefore(int notificationBefore) {
-//        this.notificationBefore = notificationBefore;
-//    }
+    public void setBtrDtAlert(boolean btrDtAlert) {
+        this.btrDtAlert = btrDtAlert;
+    }
+
+    public void setBerthNAlert(boolean berthNAlert) {
+        this.berthNAlert = berthNAlert;
+    }
+
+    public void setStatusAlert(boolean statusAlert) {
+        this.statusAlert = statusAlert;
+    }
+
+    public void setAvgSpeedAlert(boolean avgSpeedAlert) {
+        this.avgSpeedAlert = avgSpeedAlert;
+    }
+
+    public void setDistanceToGoAlert(boolean distanceToGoAlert) {
+        this.distanceToGoAlert = distanceToGoAlert;
+    }
+
+    public void setMaxSpeedAlert(boolean maxSpeedAlert) {
+        this.maxSpeedAlert = maxSpeedAlert;
+    }
+
+    public boolean isMaxSpeedAlert() {
+        return maxSpeedAlert;
+    }
+
+    public boolean isDistanceToGoAlert() {
+        return distanceToGoAlert;
+    }
+
+    public boolean isAvgSpeedAlert() {
+        return avgSpeedAlert;
+    }
+
+    public boolean isStatusAlert() {
+        return statusAlert;
+    }
+
+    public boolean isBerthNAlert() {
+        return berthNAlert;
+    }
+
+    public boolean isBtrDtAlert() {
+        return btrDtAlert;
+    }
 }
 

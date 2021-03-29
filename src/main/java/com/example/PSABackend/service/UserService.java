@@ -21,6 +21,9 @@ public class UserService {
         return userDAS.addUser(user);
     }
 
+    public boolean changeUserConfig(String username, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) {
+        return userDAS.changeUserConfig(username, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
+    }
     public boolean delUser(String username, String password) {
         return userDAS.delUser(username, password);
     }

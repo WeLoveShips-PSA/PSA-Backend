@@ -71,7 +71,7 @@ public class UserDAS {
             throw new InvalidEmailException("Email not allowed.");
         }
 
-        String addUserQuery = "INSERT INTO user(username, password, email) VALUES (?,?,?)";
+        String addUserQuery = "INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addUserQuery);) {
@@ -79,6 +79,40 @@ public class UserDAS {
             stmt.setString(1, user.getUser_name());
             stmt.setString(2, user.getPassword());
             stmt.setString(3, user.getEmail());
+            stmt.setString(4, String.valueOf(user.isBtrDtAlert()).equals("true") ? "0" : "1");
+            stmt.setString(5, String.valueOf(user.isBerthNAlert()).equals("true") ? "0" : "1");
+            stmt.setString(6, String.valueOf(user.isStatusAlert()).equals("true") ? "0" : "1");
+            stmt.setString(7, String.valueOf(user.isAvgSpeedAlert()).equals("true") ? "0" : "1");
+            stmt.setString(8, String.valueOf(user.isDistanceToGoAlert()).equals("true") ? "0" : "1");
+            stmt.setString(9, String.valueOf(user.isMaxSpeedAlert()).equals("true") ? "0" : "1");
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean changeUserConfig(String username, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) {
+        try {
+            selectUserById(username);
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException("Username not found. Cannot change user configurations.");
+        }
+
+        String changeUserConfigQuery = "UPDATE user SET btrDtAlert = ?, berthNAlert = ?, statusAlert = ?, avgSpeedAlert = ?, distanceToGoAlert = ?, maxSpeedAlert = ? WHERE username = ?";
+        try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(changeUserConfigQuery);) {
+
+            stmt.setString(1, String.valueOf(btrDtAlert).equals("true") ? "0" : "1")    ;
+            stmt.setString(2, String.valueOf(berthNAlert).equals("true") ? "0" : "1");
+            stmt.setString(3, String.valueOf(statusAlert).equals("true") ? "0" : "1");
+            stmt.setString(4, String.valueOf(avgSpeedAlert).equals("true") ? "0" : "1");
+            stmt.setString(5, String.valueOf(distanceToGoAlert).equals("true") ? "0" : "1");
+            stmt.setString(6, String.valueOf(maxSpeedAlert).equals("true") ? "0" : "1");
+            stmt.setString(7, username);
+            System.out.println(stmt);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -117,8 +151,6 @@ public class UserDAS {
              PreparedStatement stmt = conn.prepareStatement(getAllUserQuery);) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
-                // UUID id = UUID.fromString(rs.getString("UUID"));
-                // UUID id = UUID.fromString(rs.getString("UUID"));
                 String password = rs.getString("password");
                 String user_name = rs.getString("username");
                 String email = rs.getString("email");
@@ -159,30 +191,6 @@ public class UserDAS {
         return user;
     }
 
-//    //@Override
-//    public int deleteUserById(UUID id) {
-//        Optional<User> userToDelete = selectUserById(id);
-//        if (userToDelete.isEmpty()) {
-//            return 0;
-//        }
-//        DB.remove((userToDelete.get()));
-//        return 1;
-//    }
-
-//    //@Override
-//    //TODO
-//    public int updateUserById(UUID id, User newUser) {
-//        return selectUserById(id)
-//                .map(user -> {
-//                    int indexOfUserToUpdate= DB.indexOf(user);
-//                    if (indexOfUserToUpdate >= 0) { // means we got a user to delete
-//                        DB.set(indexOfUserToUpdate, new User(id, newUser.getPassword(), newUser.getRoles(), newUser.getUser_name(), newUser.getEmail()));
-//                        return 1;
-//                    }
-//                    return 0;
-//                })
-//                .orElse(0);
-//    }
 
     //@Override
     public boolean userLogin(String username, String password) {
