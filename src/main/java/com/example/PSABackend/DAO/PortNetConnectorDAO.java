@@ -52,6 +52,10 @@ public class PortNetConnectorDAO {
         for(JsonElement e: vesselArray){
             JsonObject vesselObject = e.getAsJsonObject();
 
+            if(Integer.parseInt(vesselObject.get("shiftSeqN").toString().replace("\"", "")) == 2){
+                continue;
+            }
+
             String query = "SELECT * FROM VESSEL WHERE (abbrVslM = ? AND inVoyN = ?)";
 
             try(Connection conn = DriverManager.getConnection(dbURL, username, password);
@@ -70,7 +74,7 @@ public class PortNetConnectorDAO {
 
                 if(rs.next()){
                     String[] arr = {"bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
-                    String update = "UPDATE INTO VESSEL SET bthgdt = ?, unbthgdt = ?, berthn = ?, status = ?, abbrterminalm = ? WHERE abbrvslm = ? and invoyn = ?";
+                    String update = "UPDATE VESSEL SET btrdt = ?, unbthgdt = ?, berthn = ?, status = ?, abbrterminalm = ? WHERE abbrvslm = ? and invoyn = ?";
                     PreparedStatement updateStatement = conn.prepareStatement(update);
                     for(int i = 0; i<arr.length; i++){
                         String str = vesselObject.get(arr[i]).toString();
@@ -79,11 +83,13 @@ public class PortNetConnectorDAO {
                         if(arr[i] == "bthgDt" || arr[i] == "unbthgDt") {
                             String[] date_time = str.split("T");
                             str = date_time[0] + " " + date_time[1];
-                            updateStatement.setString(i + 1, str);
                         }
-                        updateStatement.setString(arr.length+1, vesselObject.get("abbrVslM").toString());
-                        updateStatement.setString(arr.length+2, vesselObject.get("inVoyN").toString());
+                        updateStatement.setString(i + 1, str);
                     }
+                    updateStatement.setString(arr.length+1, vesselObject.get("abbrVslM").toString().replace("\"", ""));
+                    updateStatement.setString(arr.length+2, vesselObject.get("inVoyN").toString().replace("\"", ""));
+                    System.out.println(updateStatement.toString());
+                    updateStatement.executeUpdate();
                 }else{
                     String insert = "INSERT INTO VESSEL VALUES(?,?,?,?,?,?,?,?,?,?)";
                     PreparedStatement insertStatement = conn.prepareStatement(insert);
@@ -99,25 +105,9 @@ public class PortNetConnectorDAO {
                         }
                         insertStatement.setString(i+1, str);
                     }
+                    System.out.println(insertStatement.toString());
                     insertStatement.executeUpdate();
                 }
-
-//                String replace = "REPLACE INTO VESSEL VALUES(?,?,?,?,?,?,?,?,?,?)";
-//                PreparedStatement replaceStatement = conn.prepareStatement(replace);
-//
-//                //Loops through the param names for the vesselObject
-//                String[] arr = {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
-//                for(int i = 0; i<arr.length; i++){
-//                    String str = vesselObject.get(arr[i]).toString();
-//                    str = str.replace("\"", "");
-//                    // Set datetime from json to format of mysql
-//                    if(arr[i] == "bthgDt" || arr[i] == "unbthgDt"){
-//                        String[] date_time = str.split("T");
-//                        str = date_time[0] + " " + date_time[1];
-//                    }
-//                    replaceStatement.setString(i+1, str);
-//                }
-//                replaceStatement.executeUpdate();
             }catch(SQLException ex){
                 ex.printStackTrace();
             }
@@ -125,15 +115,15 @@ public class PortNetConnectorDAO {
     }
 
     public void insertIndividualVessels(JsonObject vessel, String abbrVslM, String inVoyN, String vsl_voy){
-        String selectQuery = "SELECT * FROM VESSEL_EXTRA WHERE VSL_VOY = ?";
-        try(Connection conn = DriverManager.getConnection(dbURL, username, password);
-            PreparedStatement stmt = conn.prepareStatement(selectQuery);){
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password)){
+            String selectQuery = "SELECT * FROM VESSEL_EXTRA WHERE VSL_VOY = ?";
+            PreparedStatement stmt = conn.prepareStatement(selectQuery);
 
             stmt.setString(1, vsl_voy);
             ResultSet rs1 = stmt.executeQuery();
             if(rs1.next()){
                 String update = "UPDATE VESSEL_EXTRA SET AVG_SPEED = ?, DISTANCE_TO_GO=?,IS_PATCHING_ACTIVATED=?," +
-                        "MAX_SPEED=?,PATCHING_PREDICTED_BTR=?,PREDICTED_BTR=?,VESSEL_NAME=?,VOYAGE_CODE_INBOUND=?,VSL_VOY=?,IS_INCREASING=?" +
+                        "MAX_SPEED=?,PATCHING_PREDICTED_BTR=?,PREDICTED_BTR=?,VESSEL_NAME=?,VOYAGE_CODE_INBOUND=?,IS_INCREASING=?" +
                         "WHERE ABBRVSLM = ? AND INVOYN = ?";
                 PreparedStatement updateStatement = conn.prepareStatement(update);
                 double speed = 0;
@@ -154,22 +144,22 @@ public class PortNetConnectorDAO {
                 speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
                 if(rs.next() && rs.getDouble("speed") > 0.0){
                     if(rs.getDouble("speed") < speed){
-                        updateStatement.setString(10, "1");
+                        updateStatement.setString(9, "1");
                     }else{
-                        updateStatement.setString(10, "0");
+                        updateStatement.setString(9, "0");
                     }
                 }else{
-                    updateStatement.setString(10, "0");
+                    updateStatement.setString(9, "0");
                 }
-                updateStatement.setString(11, abbrVslM);
-                updateStatement.setString(12, inVoyN);
+                updateStatement.setString(10, abbrVslM);
+                updateStatement.setString(11, inVoyN);
                 updateStatement.executeUpdate();
 
                 // String queryInsert = "REPLACE INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
-                String queryInsert = "REPLACE INTO VESSEL_SPEED VALUES(?, ?)";
+                String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(?, ?)";
                 PreparedStatement stmt3 = conn.prepareStatement(queryInsert);
                 String vessel_avg_speed = vessel.get("AVG_SPEED").toString().replace("\"", "");
-                String vessel_vsl_voy = vessel.get("VSL_VOY").toString();
+                String vessel_vsl_voy = vessel.get("VSL_VOY").toString().replace("\"", "");
 
                 stmt3.setString(1, vessel_avg_speed);
                 stmt3.setString(2, vessel_vsl_voy);
@@ -184,9 +174,7 @@ public class PortNetConnectorDAO {
                         , "PREDICTED_BTR", "VESSEL_NAME", "VOYAGE_CODE_INBOUND", "VSL_VOY"};
                 for(int i = 1; i<= params.length; i++){
                     String value = vessel.get(params[i-1]).toString();
-                    if(value.charAt(0) == '"'){
-                        value = value.replace("\"", "");
-                    }
+                    value = value.replace("\"", "");
                     replaceStatement.setString(i, value);
                 }
                     replaceStatement.setString(10, "0");
@@ -206,13 +194,14 @@ public class PortNetConnectorDAO {
 
                 replaceStatement.setString(11, abbrVslM);
                 replaceStatement.setString(12, inVoyN);
+                System.out.println(replaceStatement.toString());
                 replaceStatement.executeUpdate();
 //                String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
 
                 String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(?, ?)";
                 PreparedStatement stmt4 = conn.prepareStatement(queryInsert);
                 String vessel_avg_speed2 = vessel.get("AVG_SPEED").toString().replace("\"", "");
-                String vessel_vsl_voy2 = vessel.get("VSL_VOY").toString();
+                String vessel_vsl_voy2 = vessel.get("VSL_VOY").toString().replace("\"", "");
 
                 stmt4.setString(1, vessel_avg_speed2);
                 stmt4.setString(2, vessel_vsl_voy2);
@@ -253,12 +242,12 @@ public class PortNetConnectorDAO {
                 String abbrVslM = rs.getString("abbrVslM");
 
                 // Removing all spaces and slashes from invoyn and abbrvslm
-                abbrVslM = abbrVslM.replaceAll("\\s+", "");
+                fullVslM = fullVslM.replaceAll("\\s+", "");
                 inVoyN = inVoyN.replaceAll("\\s+|/", "");
 
                 // Formulating vsl_voy for updateVessel method in PortnetConnector
                 StringBuilder queryParams = new StringBuilder();
-                queryParams.append(abbrVslM);
+                queryParams.append(fullVslM);
                 queryParams.append(inVoyN);
 
                 // Putting the stuffs into a map
