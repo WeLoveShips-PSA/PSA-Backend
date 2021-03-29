@@ -44,7 +44,7 @@ public class Emailer {
 
         //content should be dependent on alert class
         //to be changed
-        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(userName));
+        msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
         msg.setSubject(head);
         msg.setContent(body, "text/html");
         msg.setSentDate(new Date());

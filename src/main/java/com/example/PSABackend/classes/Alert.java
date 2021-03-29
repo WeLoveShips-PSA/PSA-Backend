@@ -8,19 +8,23 @@ import java.util.ArrayList;
 
 public class Alert {
     @NotBlank
-    private String vesselName;
+    private String abbrVslM;
     @NotBlank
     private String inVoyN;
-    @NotBlank
-    private ArrayList<String> usernameList = new ArrayList<String>();
+
     private String outVoyN;
     private double newAvgSpeed; //consider making an avgspeed object
     private int newMaxSpeed;
     private int newDistanceToGo;
+
+
+
     private LocalDateTime newBerthTime;
     private LocalDateTime newUnBerthTime;
     private String newBerthNo;
     private String newStatus;
+
+
 
     public Alert() {
     }
@@ -62,7 +66,7 @@ public class Alert {
         }
 
         if (hasChange) {
-            return String.format("Below are the changes for vessel %s:\n %s", vesselName, alert);
+            return String.format("Below are the changes for vessel %s:\n %s", abbrVslM, alert);
         }
         return null;
     }
@@ -71,20 +75,40 @@ public class Alert {
         System.out.println(new Alert());
     }
 
-    public static void main (String[] args) {
-        System.out.println(new Alert());
+    public String getAbbrVslM() {
+        return abbrVslM;
     }
 
-    public void addUsername(String username) {
-        this.usernameList.add(username);
+    public int getNewMaxSpeed() {
+        return newMaxSpeed;
     }
 
-    public String getVesselName() {
-        return vesselName;
+    public int getNewDistanceToGo(){
+        return newDistanceToGo;
     }
 
-    public void setVesselName(String vesselName) {
-        this.vesselName = vesselName;
+    public double getNewAvgSpeed() {
+        return newAvgSpeed;
+    }
+
+    public LocalDateTime getNewBerthTime() {
+        return newBerthTime;
+    }
+
+    public String getNewBerthNo() {
+        return newBerthNo;
+    }
+
+    public String getNewStatus() {
+        return newStatus;
+    }
+    public String getInVoyN() {
+        return inVoyN;
+    }
+
+
+    public void setAbbrVslM(String abbrVslM) {
+        this.abbrVslM =abbrVslM;
     }
 
     public void setInVoyN(String inVoyN) { this.inVoyN = inVoyN; }
@@ -121,7 +145,5 @@ public class Alert {
         this.newStatus = newStatus;
     }
 
-    public ArrayList<String> getUsername() {
-        return usernameList;
-    }
+
 }

@@ -265,208 +265,208 @@ public class PortNetConnectorDAO {
 //        return queryList;
     }
 
-    public void lookForChanges(JsonArray vesselArray, AlertDAO alertDAO){
-        int ind = 1;
-        for(JsonElement element: vesselArray) {
-            try(Connection conn=DriverManager.getConnection(dbURL, username, password)){
-                    // check if can loop through the json array
-                JsonObject vesselObject= element.getAsJsonObject();
-//                Gson gson= new Gson();
-//                Vessel vesselObject= gson.fromJson(jsonvesselObject, Vessel.class);
-
-                String object_abbrVslm = vesselObject.get("abbrVslM").getAsString();
-                String object_inVoyn = vesselObject.get("inVoyN").getAsString();
-                // String query="Select unbthgDt, btrDt,berthN, status,outVoyN from VESSEL where" + "abbrVslm="+ object_abbrVslm + "inVoyn= " + object_inVoyn;
-                String query = "SELECT unbthgDt, btrDt, berthN, status, outVoyN from VESSEL where abbrVslM = ? and inVoyN = ?";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setString(1, object_abbrVslm);
-                stmt.setString(2, object_inVoyn);
-                ResultSet rs= stmt.executeQuery();
-                LocalDateTime result_set_btrDt=null;
-                LocalDateTime result_set_unbthgDt=null;
-                String result_set_berthN=null;
-                String result_set_status=null;
-                String result_set_outVoyN=null;
-
-                while (rs.next()) {// is there another way to do this? given that there will only be one row returned
-
-                    result_set_btrDt= rs.getTimestamp("btrDt").toLocalDateTime();
-                    result_set_unbthgDt=rs.getTimestamp("unbthgDt").toLocalDateTime();
-                    result_set_berthN=rs.getString("berthN");
-                    result_set_status=rs.getString("status");
-                    result_set_outVoyN=rs.getString("outVoyN");
-
-                }
-
-                //create vesselObject
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
-                String object_berthN = vesselObject.get("berthN").toString();
-                String object_status = vesselObject.get("status").toString();
-                String object_unbthgDt_string = vesselObject.get("unbthgDt").getAsString();
-                LocalDateTime object_unbthgDt = LocalDateTime.parse(object_unbthgDt_string, formatter);
-                String object_btrDt_string = vesselObject.get("bthgDt").getAsString();
-                LocalDateTime object_btrDt = LocalDateTime.parse(object_btrDt_string, formatter);
-
-
-
-                String  object_outVoyn= vesselObject.get("outVoyN").toString();//do we need to check change in outVoyn
-
-                if((!(result_set_unbthgDt.equals(object_unbthgDt)))
-                        ||(!(result_set_btrDt.equals(object_btrDt)))||
-                        (!(result_set_berthN.equals(object_berthN)))||
-                        (!(result_set_status.equals(object_status)))||
-                        (!(result_set_outVoyN.equals(object_outVoyn)))
-                ){
-                    Alert alert = new Alert();
-
-                    alert.setVesselName(object_abbrVslm);
-                    alert.setInVoyN(object_inVoyn);
-                    // DateTimeFormatter format= DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");// check database
-                    //Timestamp.valueOf(object_btrDt).toLocalDateTime();
-
-                    if (!(result_set_unbthgDt.equals(object_unbthgDt))) {
-                        alert.setNewBerthTime(object_unbthgDt);
-                    }
-
-                    if (!(result_set_btrDt.equals(object_btrDt))) {
-                        alert.setNewBerthTime(object_btrDt);
-                    }
-
-                    if (!(result_set_berthN.equals(object_berthN))) {
-                        alert.setNewBerthNo(object_berthN);
-                    }
-
-                    if (!(result_set_status.equals(object_status))) {
-                        alert.setNewStatus(object_status);
-                    }
-
-                    if (!(result_set_outVoyN.equals(object_outVoyn))) {
-                        alert.setOutVoyN(object_outVoyn);
-                    }
-
-
-
-
-//                    String query_users="Select username from subscribed_VESSEL where"+
-//                            "abbrVslm="+ object_abbrVslm + "inVoyn= "+ object_inVoyn;
-                    String query_users = "SELECT username FROM subscribed_vessel where abbrVslM = ? and inVoyN = ?";
-                    PreparedStatement stmt2 = conn.prepareStatement(query_users);
-
-                    stmt2.setString(1, object_abbrVslm);
-                    stmt2.setString(2, object_inVoyn);
-
-                    ResultSet rs_users= stmt2.executeQuery();
-                    while (rs_users.next()){
-                        String result_set_users=rs.getString("username");
-                        alert.addUsername(result_set_users);
-                    }
-
-                    alertDAO.getList().add(alert);
-
-                }
-
-
-
-                //add username query from subscribed vessel, using- return array list of users
-
-            }catch(Exception e){
-            //alert list
-                System.out.println(e.getMessage());
-            }
-
-        }
-    }
+//    public void lookForChanges(JsonArray vesselArray, AlertDAO alertDAO){
+//        int ind = 1;
+//        for(JsonElement element: vesselArray) {
+//            try(Connection conn=DriverManager.getConnection(dbURL, username, password)){
+//                    // check if can loop through the json array
+//                JsonObject vesselObject= element.getAsJsonObject();
+////                Gson gson= new Gson();
+////                Vessel vesselObject= gson.fromJson(jsonvesselObject, Vessel.class);
+//
+//                String object_abbrVslm = vesselObject.get("abbrVslM").getAsString();
+//                String object_inVoyn = vesselObject.get("inVoyN").getAsString();
+//                // String query="Select unbthgDt, btrDt,berthN, status,outVoyN from VESSEL where" + "abbrVslm="+ object_abbrVslm + "inVoyn= " + object_inVoyn;
+//                String query = "SELECT unbthgDt, btrDt, berthN, status, outVoyN from VESSEL where abbrVslM = ? and inVoyN = ?";
+//                PreparedStatement stmt = conn.prepareStatement(query);
+//                stmt.setString(1, object_abbrVslm);
+//                stmt.setString(2, object_inVoyn);
+//                ResultSet rs= stmt.executeQuery();
+//                LocalDateTime result_set_btrDt=null;
+//                LocalDateTime result_set_unbthgDt=null;
+//                String result_set_berthN=null;
+//                String result_set_status=null;
+//                String result_set_outVoyN=null;
+//
+//                while (rs.next()) {// is there another way to do this? given that there will only be one row returned
+//
+//                    result_set_btrDt= rs.getTimestamp("btrDt").toLocalDateTime();
+//                    result_set_unbthgDt=rs.getTimestamp("unbthgDt").toLocalDateTime();
+//                    result_set_berthN=rs.getString("berthN");
+//                    result_set_status=rs.getString("status");
+//                    result_set_outVoyN=rs.getString("outVoyN");
+//
+//                }
+//
+//                //create vesselObject
+//                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+//
+//                String object_berthN = vesselObject.get("berthN").toString();
+//                String object_status = vesselObject.get("status").toString();
+//                String object_unbthgDt_string = vesselObject.get("unbthgDt").getAsString();
+//                LocalDateTime object_unbthgDt = LocalDateTime.parse(object_unbthgDt_string, formatter);
+//                String object_btrDt_string = vesselObject.get("bthgDt").getAsString();
+//                LocalDateTime object_btrDt = LocalDateTime.parse(object_btrDt_string, formatter);
+//
+//
+//
+//                String  object_outVoyn= vesselObject.get("outVoyN").toString();//do we need to check change in outVoyn
+//
+//                if((!(result_set_unbthgDt.equals(object_unbthgDt)))
+//                        ||(!(result_set_btrDt.equals(object_btrDt)))||
+//                        (!(result_set_berthN.equals(object_berthN)))||
+//                        (!(result_set_status.equals(object_status)))||
+//                        (!(result_set_outVoyN.equals(object_outVoyn)))
+//                ){
+//                    Alert alert = new Alert();
+//
+//                    alert.setAbbrVslM(object_abbrVslm);
+//                    alert.setInVoyN(object_inVoyn);
+//                    // DateTimeFormatter format= DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");// check database
+//                    //Timestamp.valueOf(object_btrDt).toLocalDateTime();
+//
+//                    if (!(result_set_unbthgDt.equals(object_unbthgDt))) {
+//                        alert.setNewBerthTime(object_unbthgDt);
+//                    }
+//
+//                    if (!(result_set_btrDt.equals(object_btrDt))) {
+//                        alert.setNewBerthTime(object_btrDt);
+//                    }
+//
+//                    if (!(result_set_berthN.equals(object_berthN))) {
+//                        alert.setNewBerthNo(object_berthN);
+//                    }
+//
+//                    if (!(result_set_status.equals(object_status))) {
+//                        alert.setNewStatus(object_status);
+//                    }
+//
+//                    if (!(result_set_outVoyN.equals(object_outVoyn))) {
+//                        alert.setOutVoyN(object_outVoyn);
+//                    }
+//
+//
+//
+//
+////                    String query_users="Select username from subscribed_VESSEL where"+
+////                            "abbrVslm="+ object_abbrVslm + "inVoyn= "+ object_inVoyn;
+//                    String query_users = "SELECT username FROM subscribed_vessel where abbrVslM = ? and inVoyN = ?";
+//                    PreparedStatement stmt2 = conn.prepareStatement(query_users);
+//
+//                    stmt2.setString(1, object_abbrVslm);
+//                    stmt2.setString(2, object_inVoyn);
+//
+//                    ResultSet rs_users= stmt2.executeQuery();
+//                    while (rs_users.next()){
+//                        String result_set_users=rs.getString("username");
+//                        alert.addUsername(result_set_users);
+//                    }
+//
+//                    alertDAO.getList().add(alert);
+//
+//                }
+//
+//
+//
+//                //add username query from subscribed vessel, using- return array list of users
+//
+//            }catch(Exception e){
+//            //alert list
+//                System.out.println(e.getMessage());
+//            }
+//
+//        }
+//    }
 
 
 
     //CHANGES WITHIN VESSEL(EXTRA)
 
-    public void lookForExtraChanges(JsonObject vesselObject, AlertDAO alertDAO){
-        try(Connection conn = DriverManager.getConnection(dbURL,  username, password);){
-//            Gson gson= new Gson();
-//            VesselExtra vesselObject= gson.fromJson(jsonObject, VesselExtra.class);
-            String object_vsl_voy = vesselObject.get("VSL_VOY").toString();
-            String object_inVoyn = vesselObject.get("VOYAGE_CODE_INBOUND").toString();
-            String object_Vesselname= vesselObject.get("VESSEL_NAME").toString();
-            int object_max_speed = vesselObject.get("MAX_SPEED").getAsInt();
-            int object_distanceToGo= vesselObject.get("DISTANCE_TO_GO").getAsInt();
-            double object_avg_speed = vesselObject.get("AVG_SPEED").getAsDouble();
-
-            // String query="Select max_speed,avg_speed,distance_to_go from VESSEL where" + "vsl_voy="+ object_vsl_voy;
-            String query = "SELECT max_speed, avg_speed, distance_to_go FROM vessel_extra WHERE vsl_voy = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, object_vsl_voy);
-            ResultSet rs= stmt.executeQuery();
-
-
-            int result_set_max_speed=0;
-            double result_set_avg_speed=0.0;
-            int result_set_distanceToGo= 0;
-
-            boolean hasPrevious;
-            while (rs.next()) {  // is there another way to do this? given that there will only be one row returned
-                result_set_max_speed=Integer.parseInt(rs.getString("max_speed"));
-                result_set_avg_speed=Double.parseDouble(rs.getString("avg_speed"));
-                result_set_distanceToGo= Integer.parseInt(rs.getString("distance_to_go"));
-            }
-
-            boolean in_alertList=false;
-            for(Alert alert: alertDAO.getList()){
-
-               if(object_Vesselname.equals(alert.getVesselName())) {
-                    in_alertList=true;
-                   if(alert.getVesselName().equals(object_Vesselname)){
-                       if (result_set_avg_speed!= object_avg_speed) {
-                           alert.setNewAvgSpeed(object_avg_speed);
-                       }
-
-                       if (result_set_distanceToGo!=object_distanceToGo) {
-                           alert.setNewDistanceToGo(object_distanceToGo);
-                       }
-
-                       if (result_set_max_speed!=object_max_speed) {
-                           alert.setNewMaxSpeed(object_max_speed);
-                       }
-                       break;
-                   }
-
-               }
-
-            }
-
-            if(!in_alertList) {
-                Alert alert = new Alert();
-                boolean hasChange = false;
-                alert.setVesselName(object_Vesselname);
-                alert.setInVoyN(object_inVoyn);
-                if (result_set_avg_speed!= object_avg_speed) {
-                    alert.setNewAvgSpeed(object_avg_speed);
-                    hasChange = true;
-                }
-
-                if (result_set_distanceToGo!=object_distanceToGo) {
-                    alert.setNewDistanceToGo(object_distanceToGo);
-                    hasChange = true;
-                }
-
-                if (result_set_max_speed!=object_max_speed) {
-                    alert.setNewMaxSpeed(object_max_speed);
-                    hasChange = true;
-                }
-                if (hasChange == true) {
-                    alertDAO.getList().add(alert);
-                }
-
-            }
-
-
-
-
-        }catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
+//    public void lookForExtraChanges(JsonObject vesselObject, AlertDAO alertDAO){
+//        try(Connection conn = DriverManager.getConnection(dbURL,  username, password);){
+////            Gson gson= new Gson();
+////            VesselExtra vesselObject= gson.fromJson(jsonObject, VesselExtra.class);
+//            String object_vsl_voy = vesselObject.get("VSL_VOY").toString();
+//            String object_inVoyn = vesselObject.get("VOYAGE_CODE_INBOUND").toString();
+//            String object_Vesselname= vesselObject.get("VESSEL_NAME").toString();
+//            int object_max_speed = vesselObject.get("MAX_SPEED").getAsInt();
+//            int object_distanceToGo= vesselObject.get("DISTANCE_TO_GO").getAsInt();
+//            double object_avg_speed = vesselObject.get("AVG_SPEED").getAsDouble();
+//
+//            // String query="Select max_speed,avg_speed,distance_to_go from VESSEL where" + "vsl_voy="+ object_vsl_voy;
+//            String query = "SELECT max_speed, avg_speed, distance_to_go FROM vessel_extra WHERE vsl_voy = ?";
+//            PreparedStatement stmt = conn.prepareStatement(query);
+//            stmt.setString(1, object_vsl_voy);
+//            ResultSet rs= stmt.executeQuery();
+//
+//
+//            int result_set_max_speed=0;
+//            double result_set_avg_speed=0.0;
+//            int result_set_distanceToGo= 0;
+//
+//            boolean hasPrevious;
+//            while (rs.next()) {  // is there another way to do this? given that there will only be one row returned
+//                result_set_max_speed=Integer.parseInt(rs.getString("max_speed"));
+//                result_set_avg_speed=Double.parseDouble(rs.getString("avg_speed"));
+//                result_set_distanceToGo= Integer.parseInt(rs.getString("distance_to_go"));
+//            }
+//
+//            boolean in_alertList=false;
+//            for(Alert alert: alertDAO.getList()){
+//
+//               if(object_Vesselname.equals(alert.getVesselName())) {
+//                    in_alertList=true;
+//                   if(alert.getVesselName().equals(object_Vesselname)){
+//                       if (result_set_avg_speed!= object_avg_speed) {
+//                           alert.setNewAvgSpeed(object_avg_speed);
+//                       }
+//
+//                       if (result_set_distanceToGo!=object_distanceToGo) {
+//                           alert.setNewDistanceToGo(object_distanceToGo);
+//                       }
+//
+//                       if (result_set_max_speed!=object_max_speed) {
+//                           alert.setNewMaxSpeed(object_max_speed);
+//                       }
+//                       break;
+//                   }
+//
+//               }
+//
+//            }
+//
+//            if(!in_alertList) {
+//                Alert alert = new Alert();
+//                boolean hasChange = false;
+//                alert.setVesselName(object_Vesselname);
+//                alert.setInVoyN(object_inVoyn);
+//                if (result_set_avg_speed!= object_avg_speed) {
+//                    alert.setNewAvgSpeed(object_avg_speed);
+//                    hasChange = true;
+//                }
+//
+//                if (result_set_distanceToGo!=object_distanceToGo) {
+//                    alert.setNewDistanceToGo(object_distanceToGo);
+//                    hasChange = true;
+//                }
+//
+//                if (result_set_max_speed!=object_max_speed) {
+//                    alert.setNewMaxSpeed(object_max_speed);
+//                    hasChange = true;
+//                }
+//                if (hasChange == true) {
+//                    alertDAO.getList().add(alert);
+//                }
+//
+//            }
+//
+//
+//
+//
+//        }catch(Exception e){
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
 
 

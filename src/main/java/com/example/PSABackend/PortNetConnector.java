@@ -136,21 +136,21 @@ public class PortNetConnector {
 
 
     @Scheduled(cron = "0 0 0 * * *")
-    public void daily(){
+    public void daily() {
         LocalDate localDate = LocalDate.now();
         String todaydate = localDate.toString();
         System.out.println(todaydate);
         getUpdate(todaydate, todaydate);
-        for(String username:alertDAO.getAlertUSERS()){
-
-            User user= userService.getUserById(username);
-            try {
-                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
-            } catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-        AlertDAO alertDAO=new AlertDAO();
+//        for(String username:alertDAO.getAlertUSERS()){
+//
+//            User user= userService.getUserById(username);
+//            try {
+//                // emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+//            } catch(Exception e) {
+//                e.printStackTrace();
+//            }
+//    }
+//        AlertDAO alertDAO=new AlertDAO();
 
     }
 
@@ -160,23 +160,23 @@ public class PortNetConnector {
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
         getUpdate(todayDate, nextWeekDate);
-        VesselDAS.detectChangesVessel();
+        // VesselDAS.detectChangesVessel();
 
-        for(String username:alertDAO.getAlertUSERS()){
-
-            User user= userService.getUserById(username);
-            try {
-                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        for(String username:alertDAO.getAlertUSERS()){
+//
+//            User user= userService.getUserById(username);
+//            try {
+//                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         AlertDAO alertDAO=new AlertDAO();
     }
 
     @Scheduled(cron = "* * 1 * * *")
     public void hourly(){
         updateVessel();
-        VesselDAS.detectChangesVessel();
+        // VesselDAS.detectChangesVessel();
     }
 }

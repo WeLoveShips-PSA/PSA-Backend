@@ -1,6 +1,7 @@
 package com.example.PSABackend.controller;
 
 
+import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.PortNetConnector;
 import com.example.PSABackend.classes.Student;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.List;
 public class StudentManagementController {
     @Autowired
     PortNetConnector portNetConnector = new PortNetConnector();
+    AlertDAO alertDAO = new AlertDAO();
     private final List<Student> STUDENTS = Arrays.asList(
             new Student(1, "James Bond"),
             new Student(2, "Maria Jones"),
@@ -22,8 +24,9 @@ public class StudentManagementController {
 
     @GetMapping(path = "all")
     public List<Student> getSTUDENTS() {
-        portNetConnector.getUpdate("2021-03-29", "2021-04-01");
-        portNetConnector.updateVessel();
+//        portNetConnector.getUpdate("2021-01-01", "2021-01-01");
+//        portNetConnector.updateVessel();
+        alertDAO.getAlerts();
         return STUDENTS;
     }
 

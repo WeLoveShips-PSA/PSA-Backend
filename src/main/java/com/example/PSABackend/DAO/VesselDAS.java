@@ -1,8 +1,6 @@
 package com.example.PSABackend.DAO;
 
-import com.example.PSABackend.classes.User;
-import com.example.PSABackend.classes.Vessel;
-import com.example.PSABackend.classes.VesselDetails;
+import com.example.PSABackend.classes.*;
 import com.example.PSABackend.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -137,68 +135,95 @@ public class VesselDAS {
         return queryList;
     }
 
-    public static void detectChangesVessel() {
-        UserDAS userDas = new UserDAS();
-        ArrayList<User> allUsers = (ArrayList<User>) userDas.selectAllUsers();
-        for (User user : allUsers) {
-            try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-                String oldQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
-                        "from vessel_log l " +
-                        "inner join subscribed_vessel v " +
-                        "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
-                        "left outer join vessel_extra_log e " +
-                        "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-                        "where v.username = ? and " +
-                        "extract(hour from l.updatedate) = extract(hour from now()) " +
-                        "order by abbrvslm asc";
-                String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
-                        "from vessel l " +
-                        "inner join subscribed_vessel v " +
-                        "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
-                        "left outer join vessel_extra e " +
-                        "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-                        "where v.username = ? " +
-                        "order by abbrvslm asc";
-                PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
-                PreparedStatement newStatement = conn.prepareStatement(newQuery);
-                oldStatement.setString(1, user.getUser_name());
-                newStatement.setString(1, user.getUser_name());
+    public static List<Alert> detectChangesVessel(String username, List<FavAndSubVessel> subbedVesselList) {
+//        UserDAS userDas = new UserDAS();
+//        ArrayList<User> allUsers = (ArrayList<User>) userDas.selectAllUsers();
+//        for (User user : allUsers) {
+        List<Alert> alertList = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
+            String oldQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+                    "from vessel_log l " +
+                    "left outer join vessel_extra_log e " +
+                    "on e.abbrvslm = l.abbrvslm " +
+                    "and e.invoyn = l.invoyn " +
+                    "where l.abbrvslm = ? and l.invoyn = ? " +
+//                "and extract(hour from l.updatedate) = extract(hour from now()) " +
+                    "order by abbrvslm asc, l.updatedate desc limit 1";
+            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+                    "from vessel l " +
+                    "left outer join vessel_extra e " +
+                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
+                    "where l.abbrvslm  = ? and  l.invoyn = ? " +
+                    "order by abbrvslm asc";
+            PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
+            PreparedStatement newStatement = conn.prepareStatement(newQuery);
+//            String oldQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+//                    "from vessel_log l " +
+//                    "inner join subscribed_vessel v " +
+//                    "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
+//                    "left outer join vessel_extra_log e " +
+//                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
+//                    "where v.username = ? and " +
+//                    "extract(hour from l.updatedate) = extract(hour from now()) " +
+//                    "order by abbrvslm asc";
+//            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+//                    "from vessel l " +
+//                    "inner join subscribed_vessel v " +
+//                    "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
+//                    "left outer join vessel_extra e " +
+//                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
+//                    "where v.username = ? " +
+//                    "order by abbrvslm asc";
+//            PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
+//            PreparedStatement newStatement = conn.prepareStatement(newQuery);
+            for (FavAndSubVessel vesselPK : subbedVesselList) {
+
+
+                oldStatement.setString(1, vesselPK.getAbbrVslM());
+                oldStatement.setString(2, vesselPK.getInVoyN());
+                newStatement.setString(1, vesselPK.getAbbrVslM());
+                newStatement.setString(2, vesselPK.getInVoyN());
 
                 ResultSet oldrs = oldStatement.executeQuery();
                 ResultSet newrs = newStatement.executeQuery();
 
-                while (oldrs.next()) {
-                    while (newrs.next()) {
-                        if (newrs.getString("abbrvslm").equals(oldrs.getString("abbrvslm")) &&
-                                newrs.getString("invoyn").equals(oldrs.getString("invoyn"))) {
-
-                            if(!(newrs.getString("btrdt").equals(oldrs.getString("btrdt")))){
-                                // Write add to alert dao code
-                            }
-                            if(!(newrs.getString("berthn").equals(oldrs.getString("berthn")))){
-                                // Write add to alert dao code
-                            }
-                            if(!(newrs.getString("status").equals(oldrs.getString("status")))){
-                                // Write add to alert dao code
-                            }
-                            if(!(newrs.getString("avg_speed").equals(oldrs.getString("avg_speed")))){
-                                // Write add to alert dao code
-                            }
-                            if(!(newrs.getString("distance_to_go").equals(oldrs.getString("distance_to_go")))){
-                                // Write add to alert dao code
-                            }
-                            if(!(newrs.getString("max_speed").equals(oldrs.getString("max_speed")))){
-                                // Write add to alert dao code
-                            }
-                            newrs.beforeFirst();
-                            break;
-                        }
+                if (oldrs.next() && newrs.next()) {
+                    Alert alert = new Alert();
+                    alert.setAbbrVslM(vesselPK.getAbbrVslM());
+                    boolean hasChange = false;
+                    if (newrs.getString("btrdt") != null && !(newrs.getString("btrdt").equals(oldrs.getString("btrdt")))) {
+                        alert.setNewBerthTime(Timestamp.valueOf(newrs.getString("btrdt")).toLocalDateTime());
+                        hasChange = true;
+                    }
+                    if (newrs.getString("berthn") != null && !(newrs.getString("berthn").equals(oldrs.getString("berthn")))) {
+                        alert.setNewBerthNo(newrs.getString("berthn"));
+                        hasChange = true;
+                    }
+                    if (newrs.getString("status") != null && !(newrs.getString("status").equals(oldrs.getString("status")))) {
+                        alert.setNewStatus(newrs.getString("status"));
+                        hasChange = true;
+                    }
+                    if (newrs.getString("avg_speed") != null && !(newrs.getString("avg_speed").equals(oldrs.getString("avg_speed")))) {
+                        alert.setNewAvgSpeed(Double.parseDouble(newrs.getString("avg_speed")));
+                        hasChange = true;
+                    }
+                    if (newrs.getString("distance_to_go") != null && !(newrs.getString("distance_to_go").equals(oldrs.getString("distance_to_go")))) {
+                        alert.setNewDistanceToGo(Integer.parseInt(newrs.getString("distance_to_go")));
+                        hasChange = true;
+                    }
+                    if (newrs.getString("max_speed") != null && !(newrs.getString("max_speed").equals(oldrs.getString("max_speed")))) {
+                        alert.setNewMaxSpeed(Integer.parseInt(newrs.getString("max_speed")));
+                        hasChange = true;
+                    }
+                    if (hasChange) {
+                        alertList.add(alert);
                     }
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return alertList;
     }
 }
