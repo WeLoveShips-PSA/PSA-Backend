@@ -148,14 +148,17 @@ public class VesselDAS {
                         "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
                         "left outer join vessel_extra_log e " +
                         "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-                        "where v.username = ?";
+                        "where v.username = ? and " +
+                        "extract(hour from l.updatedate) = extract(hour from now()) " +
+                        "order by abbrvslm asc";
                 String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
                         "from vessel l " +
                         "inner join subscribed_vessel v " +
                         "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
                         "left outer join vessel_extra e " +
                         "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-                        "where v.username = ?";
+                        "where v.username = ? " +
+                        "order by abbrvslm asc";
                 PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
                 PreparedStatement newStatement = conn.prepareStatement(newQuery);
                 oldStatement.setString(1, user.getUser_name());
