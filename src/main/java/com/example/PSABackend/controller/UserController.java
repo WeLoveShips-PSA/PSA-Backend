@@ -73,8 +73,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password does not match.");
         }
         try {
-            userService.delUser(username, password);
-            return ResponseEntity.status(HttpStatus.OK).body("ok");
+            if(userService.delUser(username, password)) {
+                return ResponseEntity.status(HttpStatus.OK).body("ok");
+            }
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("not ok");
         } catch (UsernameNotFoundException | BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }

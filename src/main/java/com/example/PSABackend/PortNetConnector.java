@@ -2,6 +2,7 @@ package com.example.PSABackend;
 
 import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.DAO.PortNetConnectorDAO;
+import com.example.PSABackend.DAO.VesselDAS;
 import com.example.PSABackend.classes.Alert;
 import com.example.PSABackend.classes.Vessel;
 import com.example.PSABackend.classes.VesselExtra;
@@ -22,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 import com.google.gson.*;
 import java.time.format.DateTimeFormatter;
 import com.example.PSABackend.classes.VesselDetails;
+import com.example.PSABackend.classes.Emailer;
+import com.example.PSABackend.service.UserService;
+import com.example.PSABackend.classes.User;
 
 
 
@@ -37,6 +41,10 @@ public class PortNetConnector {
     @Value("${spring.datasource.password}")
     private String password;
 
+
+    private AlertDAO alertDAO = new AlertDAO();
+    private UserService userService;
+    private Emailer emailer;
 
 
 
@@ -63,7 +71,6 @@ public class PortNetConnector {
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             JsonArray vesselArray = (JsonArray) jsonObject.get("results").getAsJsonArray();
             // Inserts the vessel information into the vessel table
-            portNetConnectorDAO.lookForChanges(vesselArray);
 
             portNetConnectorDAO.insert(vesselArray);
 
@@ -93,12 +100,13 @@ public class PortNetConnector {
         // Jsonobject of the vessel, and the abbrvslm and invoyn of the vessel
         queryArray = portNetConnectorDAO.getAllShipName();
         int i = 0;
+        int ind = 1;
         for (HashMap<String, String> v : queryArray) {
-
+            System.out.println("Looking for extra changes " + ind ++);
             // Program waits for 1 second
             try {
                 TimeUnit.SECONDS.sleep(1);
-//                System.out.println(++i);
+                System.out.println(++i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -107,27 +115,43 @@ public class PortNetConnector {
             StringBuilder queryParam = new StringBuilder();
             queryParam.append(url);
             queryParam.append(v.get("vsl_voy"));
-//            System.out.println(queryParam.toString());
+            System.out.println(queryParam.toString());
             ResponseEntity<String> response = restTemplate.exchange(queryParam.toString(), HttpMethod.GET, entity, String.class);
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
+            System.out.println(jsonObject.toString());
             if (jsonObject.get("Error") == null) {
-                portNetConnectorDAO.lookForExtraChanges(jsonObject);
-//                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
+
+                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
             }
         }
+    }
+
+
+    public AlertDAO getAlertDAO(){
+        return alertDAO;
     }
 
         //CHANGES WITHIN VESSEL(ORDINARY)
 
 
 
-
     @Scheduled(cron = "0 0 0 * * *")
-    public void daily(){
+    public void daily() {
         LocalDate localDate = LocalDate.now();
         String todaydate = localDate.toString();
         System.out.println(todaydate);
         getUpdate(todaydate, todaydate);
+//        for(String username:alertDAO.getAlertUSERS()){
+//
+//            User user= userService.getUserById(username);
+//            try {
+//                // emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+//            } catch(Exception e) {
+//                e.printStackTrace();
+//            }
+//    }
+//        AlertDAO alertDAO=new AlertDAO();
+
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -136,10 +160,23 @@ public class PortNetConnector {
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
         getUpdate(todayDate, nextWeekDate);
+        // VesselDAS.detectChangesVessel();
+
+//        for(String username:alertDAO.getAlertUSERS()){
+//
+//            User user= userService.getUserById(username);
+//            try {
+//                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+        AlertDAO alertDAO=new AlertDAO();
     }
 
     @Scheduled(cron = "* * 1 * * *")
     public void hourly(){
-
+        updateVessel();
+        // VesselDAS.detectChangesVessel();
     }
 }

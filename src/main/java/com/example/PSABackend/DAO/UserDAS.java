@@ -133,7 +133,7 @@ public class UserDAS {
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(delUserQuery);) {
             stmt.setString(1, username);
-            stmt.executeUpdate(delUserQuery);
+            stmt.executeUpdate();
             return true;
 
         } catch (SQLException e) {
@@ -463,5 +463,45 @@ public class UserDAS {
         } else {
             Collections.sort(list, compareByName.reversed());
         }
+    }
+
+    public List<String> getUsernameList() {
+        String getUsernameQuery = "SELECT username FROM user";
+        List<String> usernameList = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(getUsernameQuery);) {
+            ResultSet rs = stmt.executeQuery();
+
+            while(rs.next()) {
+                String username = rs.getString("username");
+
+                usernameList.add(username);
+            }
+
+        } catch (SQLException e) {
+        }
+        return usernameList;
+    }
+
+    public List<FavAndSubVessel> getSubscribedVesselsPK(String username) {
+        ArrayList<FavAndSubVessel> subscribedVesselsList = new ArrayList<FavAndSubVessel>();
+        String getSubscribedQuery = "SELECT * FROM subscribed_vessel WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(getSubscribedQuery);) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            while(rs.next()) {
+                String abbrVslM = rs.getString("abbrVslM");
+                String inVoyN = rs.getString("inVoyN");
+
+                subscribedVesselsList.add(new FavAndSubVessel(abbrVslM, inVoyN));
+            }
+
+        } catch (SQLException e) {
+        }
+        return subscribedVesselsList;
     }
 }
