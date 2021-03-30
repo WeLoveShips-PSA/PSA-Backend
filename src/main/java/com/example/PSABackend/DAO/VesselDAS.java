@@ -102,6 +102,44 @@ public class VesselDAS {
         return vessel;
     }
 
+    public static List<Vessel> getVesselByAbbrVslM(String shortAbbrVslM) {
+        List<Vessel> vesselList = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
+            String query = "SELECT * FROM VESSEL WHERE abbrVslM like ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, shortAbbrVslM + "%");
+
+            ResultSet rs = stmt.executeQuery();
+
+//            String inVoyN = null;
+//            String fullVslM = null;
+//            String fullInVoyN = null;
+//            String outVoyN = null;
+//            String bthgDt = null;
+//            String unbthgDt = null;
+//            String berthN = null;
+//            String status = null;
+
+            while (rs.next()) {
+                String fullVslM = rs.getString("fullVslM");
+                String abbrVslM = rs.getString("abbrVslM");
+                String inVoyN = rs.getString("inVoyN");
+                String fullInVoyN = rs.getString("fullInVoyN");
+                String outVoyN = rs.getString("outVoyN");
+                String bthgDt = rs.getString("btrDt");
+                String unbthgDt = rs.getString("unbthgDt");
+                String berthN = rs.getString("berthN");
+                String status = rs.getString("status");
+
+                vesselList.add(new Vessel(fullVslM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vesselList;
+    }
+
     public static ArrayList<VesselDetails> getVesselsByDate(LocalDateTime date) {
         ArrayList<VesselDetails> queryList = new ArrayList<>();
 

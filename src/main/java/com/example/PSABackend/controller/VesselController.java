@@ -33,6 +33,13 @@ public class VesselController {
     }
 
     @PostMapping
+    @RequestMapping(path = "/get-vessel-by-shortAbbrVslM")
+    public List<Vessel> getVesselByAbbrVslM (@RequestBody Map<String, String> body) {
+        String shortAbbrVslM = body.get("abbrVslM");
+        return VesselService.getVesselByAbbrVslM(shortAbbrVslM);
+    }
+
+    @PostMapping
     @RequestMapping(path = "/getvesselsbydate")
     public ArrayList<VesselDetails> getVesselsByDate (@RequestBody Map<String, String> body) {
         String date = body.get("date");
