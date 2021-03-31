@@ -78,7 +78,7 @@ public class AlertDAO {
 
         for (User user : userList) {
             subbedVesselList = userDAS.getSubscribedVesselsPK(user.getUser_name());
-            alertList = VesselDAS.detectChangesVessel(user.getUser_name(), subbedVesselList);
+            alertList = VesselDAS.detectChangesVessel(user, subbedVesselList);
             insertAlerts(user.getUser_name(), alertList);
             sendAlerts(user, alertList);
         }

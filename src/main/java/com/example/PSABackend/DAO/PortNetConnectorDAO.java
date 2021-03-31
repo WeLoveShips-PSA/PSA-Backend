@@ -136,14 +136,16 @@ public class PortNetConnectorDAO {
                     }
                     updateStatement.setString(i, value);
                 }
-
-                String query = "SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = ?";
-                PreparedStatement stmt2 = conn.prepareStatement(query);
+                String getAvgSpeedQuery= "select avg_speed" +
+                        "vessel_extra" +
+                        "where vsl_voy = ?";
+                // String query = "SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = ?";
+                PreparedStatement stmt2 = conn.prepareStatement(getAvgSpeedQuery);
                 stmt2.setString(1, vsl_voy);
                 ResultSet rs = stmt2.executeQuery();
-                speed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
-                if(rs.next() && rs.getDouble("speed") > 0.0){
-                    if(rs.getDouble("speed") < speed){
+                Double currAvgSpeed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
+                if(rs.next() && rs.getDouble("avg_speed") > 0.0){
+                    if(rs.getDouble("avg_speed") < currAvgSpeed){
                         updateStatement.setString(9, "1");
                     }else{
                         updateStatement.setString(9, "0");
@@ -156,15 +158,15 @@ public class PortNetConnectorDAO {
                 updateStatement.executeUpdate();
 
                 // String queryInsert = "REPLACE INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
-                String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(?, ?)";
-                PreparedStatement stmt3 = conn.prepareStatement(queryInsert);
-                String vessel_avg_speed = vessel.get("AVG_SPEED").toString().replace("\"", "");
-                String vessel_vsl_voy = vessel.get("VSL_VOY").toString().replace("\"", "");
-
-                stmt3.setString(1, vessel_avg_speed);
-                stmt3.setString(2, vessel_vsl_voy);
-
-                stmt3.executeUpdate();
+                // String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(?, ?)";
+//                PreparedStatement stmt3 = conn.prepareStatement(queryInsert);
+//                String vessel_avg_speed = vessel.get("AVG_SPEED").toString().replace("\"", "");
+//                String vessel_vsl_voy = vessel.get("VSL_VOY").toString().replace("\"", "");
+//
+//                stmt3.setString(1, vessel_avg_speed);
+//                stmt3.setString(2, vessel_vsl_voy);
+//
+//                stmt3.executeUpdate();
 
             }else{
                 String replace = "INSERT INTO VESSEL_EXTRA VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";

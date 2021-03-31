@@ -16,6 +16,7 @@ public class User {
 
     @NotBlank
     private boolean btrDtAlert = false;
+
     @NotBlank
     private boolean berthNAlert = false;
     @NotBlank
@@ -31,6 +32,19 @@ public class User {
         this.password = password;
         this.user_name = user_name;
         this.email = email;
+    }
+
+
+    public User(@NotBlank String password, @NotBlank String user_name, @NotBlank String email, @NotBlank boolean btrDtAlert, @NotBlank boolean berthNAlert, @NotBlank boolean statusAlert, @NotBlank boolean avgSpeedAlert, @NotBlank boolean distanceToGoAlert, @NotBlank boolean maxSpeedAlert) {
+        this.password = password;
+        this.user_name = user_name;
+        this.email = email;
+        this.btrDtAlert = btrDtAlert;
+        this.berthNAlert = berthNAlert;
+        this.statusAlert = statusAlert;
+        this.avgSpeedAlert = avgSpeedAlert;
+        this.distanceToGoAlert = distanceToGoAlert;
+        this.maxSpeedAlert = maxSpeedAlert;
     }
 
     public String getPassword() {
