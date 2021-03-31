@@ -34,6 +34,7 @@ public class User {
         this.email = email;
     }
 
+
     public User(@NotBlank String password, @NotBlank String user_name, @NotBlank String email, @NotBlank boolean btrDtAlert, @NotBlank boolean berthNAlert, @NotBlank boolean statusAlert, @NotBlank boolean avgSpeedAlert, @NotBlank boolean distanceToGoAlert, @NotBlank boolean maxSpeedAlert) {
         this.password = password;
         this.user_name = user_name;

@@ -145,7 +145,7 @@ public class PortNetConnectorDAO {
                 ResultSet rs = stmt2.executeQuery();
                 Double currAvgSpeed = Double.parseDouble(vessel.get("AVG_SPEED").toString());
                 if(rs.next() && rs.getDouble("avg_speed") > 0.0){
-                    if(rs.getDouble("avg_speed") < speed){
+                    if(rs.getDouble("avg_speed") < currAvgSpeed){
                         updateStatement.setString(9, "1");
                     }else{
                         updateStatement.setString(9, "0");
