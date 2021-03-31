@@ -102,6 +102,47 @@ public class VesselDAS {
         return vessel;
     }
 
+    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) {
+        List<VesselDetails> vesselDetailsList = new ArrayList<>();
+
+        try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
+            String query = "SELECT fullVslM, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN where VESSEL.ABBRVSLM like ?";
+
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, shortAbbrVslM + "%");
+
+            ResultSet rs = stmt.executeQuery();
+
+//            String inVoyN = null;
+//            String fullVslM = null;
+//            String fullInVoyN = null;
+//            String outVoyN = null;
+//            String bthgDt = null;
+//            String unbthgDt = null;
+//            String berthN = null;
+//            String status = null;
+
+            while (rs.next()) {
+                String fullVslM = rs.getString("fullVslM");
+//                String abbrVslM = rs.getString("abbrVslM");
+                String inVoyN = rs.getString("inVoyN");
+                String outVoyN = rs.getString("outVoyN");
+                LocalDateTime bthgDt = rs.getTimestamp("btrDt").toLocalDateTime();
+                LocalDateTime unbthgDt = rs.getTimestamp("unbthgDt").toLocalDateTime();
+                String berthN = rs.getString("berthN");
+                String status = rs.getString("status");
+                double avg_speed = rs.getDouble("avg_speed");
+                boolean is_increasing = rs.getBoolean("is_increasing");
+                int max_speed = rs.getInt("max_speed");
+                int distance_to_go = rs.getInt("distance_to_go");
+                vesselDetailsList.add(new VesselDetails(fullVslM, inVoyN, outVoyN, avg_speed, max_speed, distance_to_go, bthgDt, unbthgDt, berthN, status, is_increasing));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return vesselDetailsList;
+    }
+
     public static ArrayList<VesselDetails> getVesselsByDate(LocalDateTime date) {
         ArrayList<VesselDetails> queryList = new ArrayList<>();
 

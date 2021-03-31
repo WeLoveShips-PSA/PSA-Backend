@@ -6,6 +6,7 @@ import com.example.PSABackend.classes.VesselDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class VesselService {
@@ -16,5 +17,9 @@ public class VesselService {
 
     public static Vessel getVesselById (String abbrVslM, String inVoyN){
         return VesselDAS.selectVesselById(abbrVslM, inVoyN);
+    }
+
+    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) {
+        return VesselDAS.getVesselByAbbrVslM(shortAbbrVslM);
     }
 }
