@@ -19,7 +19,7 @@ public class VesselService {
         return VesselDAS.selectVesselById(abbrVslM, inVoyN);
     }
 
-    public static List<Vessel> getVesselByAbbrVslM(String shortAbbrVslM) {
+    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) {
         return VesselDAS.getVesselByAbbrVslM(shortAbbrVslM);
     }
 }
