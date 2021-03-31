@@ -176,7 +176,8 @@ public class VesselDAS {
         return queryList;
     }
 
-    public static List<Alert> detectChangesVessel(String username, List<FavAndSubVessel> subbedVesselList) {
+    public static List<Alert> detectChangesVessel(User user, List<FavAndSubVessel> subbedVesselList) {
+
 //        UserDAS userDas = new UserDAS();
 //        ArrayList<User> allUsers = (ArrayList<User>) userDas.selectAllUsers();
 //        for (User user : allUsers) {
@@ -226,35 +227,35 @@ public class VesselDAS {
                 newStatement.setString(1, vesselPK.getAbbrVslM());
                 newStatement.setString(2, vesselPK.getInVoyN());
 
-                ResultSet oldrs = oldStatement.executeQuery();
-                ResultSet newrs = newStatement.executeQuery();
+                ResultSet oldRs = oldStatement.executeQuery();
+                ResultSet newRs = newStatement.executeQuery();
 
-                if (oldrs.next() && newrs.next()) {
+                if (oldRs.next() && newRs.next()) {
                     Alert alert = new Alert();
                     alert.setAbbrVslM(vesselPK.getAbbrVslM());
                     boolean hasChange = false;
-                    if (newrs.getString("btrdt") != null && !(newrs.getString("btrdt").equals(oldrs.getString("btrdt")))) {
-                        alert.setNewBerthTime(Timestamp.valueOf(newrs.getString("btrdt")).toLocalDateTime());
+                    if (needAddAlert(newRs, oldRs, "btrdt", user.isBtrDtAlert())) {
+                        alert.setNewBerthTime(Timestamp.valueOf(newRs.getString("btrdt")).toLocalDateTime());
                         hasChange = true;
                     }
-                    if (newrs.getString("berthn") != null && !(newrs.getString("berthn").equals(oldrs.getString("berthn")))) {
-                        alert.setNewBerthNo(newrs.getString("berthn"));
+                    if (needAddAlert(newRs, oldRs, "berthn", user.isBerthNAlert())) {
+                        alert.setNewBerthNo(newRs.getString("berthn"));
                         hasChange = true;
                     }
-                    if (newrs.getString("status") != null && !(newrs.getString("status").equals(oldrs.getString("status")))) {
-                        alert.setNewStatus(newrs.getString("status"));
+                    if (needAddAlert(newRs, oldRs, "status", user.isStatusAlert())) {
+                        alert.setNewStatus(newRs.getString("status"));
                         hasChange = true;
                     }
-                    if (newrs.getString("avg_speed") != null && !(newrs.getString("avg_speed").equals(oldrs.getString("avg_speed")))) {
-                        alert.setNewAvgSpeed(Double.parseDouble(newrs.getString("avg_speed")));
+                    if (needAddAlert(newRs, oldRs, "avg_speed", user.isAvgSpeedAlert())) {
+                        alert.setNewAvgSpeed(Double.parseDouble(newRs.getString("avg_speed")));
                         hasChange = true;
                     }
-                    if (newrs.getString("distance_to_go") != null && !(newrs.getString("distance_to_go").equals(oldrs.getString("distance_to_go")))) {
-                        alert.setNewDistanceToGo(Integer.parseInt(newrs.getString("distance_to_go")));
+                    if (needAddAlert(newRs, oldRs, "distance_to_go", user.isDistanceToGoAlert())) {
+                        alert.setNewDistanceToGo(Integer.parseInt(newRs.getString("distance_to_go")));
                         hasChange = true;
                     }
-                    if (newrs.getString("max_speed") != null && !(newrs.getString("max_speed").equals(oldrs.getString("max_speed")))) {
-                        alert.setNewMaxSpeed(Integer.parseInt(newrs.getString("max_speed")));
+                    if (needAddAlert(newRs, oldRs, "max_speed", user.isMaxSpeedAlert())) {
+                        alert.setNewMaxSpeed(Integer.parseInt(newRs.getString("max_speed")));
                         hasChange = true;
                     }
                     if (hasChange) {
@@ -266,5 +267,18 @@ public class VesselDAS {
             e.printStackTrace();
         }
         return alertList;
+    }
+
+    public static boolean needAddAlert(ResultSet newRs, ResultSet oldRs, String alertAttribute, boolean alertOpt) throws SQLException {
+        if (!alertOpt) {
+            return false;
+        }
+        if (newRs.getString(alertAttribute) == null) {
+            return false;
+        }
+        if (newRs.getString(alertAttribute).equals(oldRs.getString(alertAttribute))) {
+            return false;
+        }
+        return true;
     }
 }

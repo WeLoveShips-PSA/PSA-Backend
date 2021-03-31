@@ -105,7 +105,7 @@ public class UserDAS {
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(changeUserConfigQuery);) {
 
-            stmt.setString(1, String.valueOf(btrDtAlert).equals("true") ? "0" : "1")    ;
+            stmt.setString(1, String.valueOf(btrDtAlert).equals("true") ? "0" : "1") ;
             stmt.setString(2, String.valueOf(berthNAlert).equals("true") ? "0" : "1");
             stmt.setString(3, String.valueOf(statusAlert).equals("true") ? "0" : "1");
             stmt.setString(4, String.valueOf(avgSpeedAlert).equals("true") ? "0" : "1");
@@ -154,8 +154,14 @@ public class UserDAS {
                 String password = rs.getString("password");
                 String user_name = rs.getString("username");
                 String email = rs.getString("email");
+                boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
+                boolean isBerthNAlert = rs.getString("berthNAlert").equals("0") ? true : false;
+                boolean isStatusAlert = rs.getString("statusAlert").equals("0") ? true : false;
+                boolean isAvgSpeedAlert = rs.getString("avgSpeedAlert").equals("0") ? true : false;
+                boolean isDistanceToGoAlert = rs.getString("distanceToGoAlert").equals("0") ? true : false;
+                boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
 
-                userList.add(new User(password, user_name, email));
+                userList.add(new User(password, user_name, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert));
             }
         } catch (SQLException e) {
             System.out.println(e);
