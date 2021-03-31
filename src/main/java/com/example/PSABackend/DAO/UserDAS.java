@@ -89,7 +89,17 @@ public class UserDAS {
 
         } catch (SQLException e) {
             System.out.println(e);
+            System.out.println("Not emailer got problem");
             return false;
+        }
+
+        try {
+            String newUserMessage = "Thank you for joining us";
+            Emailer.sendEmail(user.getEmail(), newUserMessage, "Welcome to PSA", user.getUser_name());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("Emailer got problem");
+            // throw EmailerException or smth
         }
         return true;
     }
@@ -241,7 +251,7 @@ public class UserDAS {
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(changePasswordQuery);) {
             stmt.setString(1, username);
-            stmt.executeUpdate(changePasswordQuery);
+            stmt.executeUpdate();
 
         } catch (SQLException e) {
             System.out.println(e);
@@ -260,13 +270,29 @@ public class UserDAS {
     //@Override
     public boolean resetUserPassword(String username) {
         String newPassword = RandomStringUtils.randomAlphanumeric(15);
+        User user = selectUserById(username);
 
-        if(changeUserPassword(username, "", newPassword, true)) {
-            // TODO link emailer
-            // if (sendemail) {}
-            return true;
+        String resetPasswordQuery = "UPDATE user SET password = ? where username = ?";
+
+        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
+             PreparedStatement stmt = conn.prepareStatement(resetPasswordQuery);) {
+            stmt.setString(1, newPassword);
+            stmt.setString(2, username);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.out.println(e);
+            return false;
         }
-        return false;
+
+        try {
+            String resetPasswordMessage = String.format("Your new password is %s. ", newPassword);
+            Emailer.sendEmail(user.getEmail(), resetPasswordMessage, "Request for resetting password", username);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            // throw EmailerException or smth
+        }
+        return true;
     }
 
     public boolean checkUsernameExists(String username) {
