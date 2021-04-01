@@ -1,13 +1,11 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.*;
-import com.example.PSABackend.exceptions.InvalidEmailException;
-import com.example.PSABackend.exceptions.UserAlreadyExistAuthenticationException;
+import com.example.PSABackend.exceptions.*;
+import com.example.PSABackend.service.EmailService;
 import com.example.PSABackend.service.VesselService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Repository;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -22,7 +20,6 @@ public class UserDAS {
     private static String dbURL;
     private static String username;
     private static String password;
-    private static String allowedEmails;
 
     @Value("${spring.datasource.url}")
     public void setdbURL(String value) {
@@ -39,37 +36,12 @@ public class UserDAS {
         UserDAS.password = value;
     }
 
-    @Value("${spring.users.allowed}")
-    public void setdbAllowedEmails(String value) {
-        UserDAS.allowedEmails = value;
-    }
 
     private static List<User> DB = new ArrayList<User>();
 
     // UUID id, Integer active, String password, String roles, String user_name, String email
     //@Override
-    public boolean addUser(User user) throws UserAlreadyExistAuthenticationException, InvalidEmailException {
-        boolean validEmail = false;
-        String[] emails = allowedEmails.split(",");
-        String userEmail = user.getEmail();
-
-        for (int i = 0; i < emails.length; i++) {
-            if (userEmail.endsWith(emails[i])) {
-                validEmail = true;
-            }
-        }
-
-        if (checkUsernameExists(user.getUser_name())) {
-            throw new UserAlreadyExistAuthenticationException("Username is already taken.");
-        }
-
-        if (checkEmailExists(userEmail)) {
-            throw new UserAlreadyExistAuthenticationException("Email is already used.");
-        }
-
-        if (!validEmail) {
-            throw new InvalidEmailException("Email not allowed.");
-        }
+    public boolean addUser(User user) throws LoginException, DataException {
 
         String addUserQuery = "INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?)";
 
@@ -88,28 +60,12 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
-            System.out.println("Not emailer got problem");
-            return false;
-        }
-
-        try {
-            String newUserMessage = "Thank you for joining us";
-            Emailer.sendEmail(user.getEmail(), newUserMessage, "Welcome to PSA", user.getUser_name());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("Emailer got problem");
-            // throw EmailerException or smth
+            throw new DataException("Could not access database");
         }
         return true;
     }
 
-    public boolean changeUserConfig(String username, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) {
-        try {
-            selectUserById(username);
-        } catch (UsernameNotFoundException e) {
-            throw new UsernameNotFoundException("Username not found. Cannot change user configurations.");
-        }
+    public boolean changeUserConfig(String username, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) throws DataException{
 
         String changeUserConfigQuery = "UPDATE user SET btrDtAlert = ?, berthNAlert = ?, statusAlert = ?, avgSpeedAlert = ?, distanceToGoAlert = ?, maxSpeedAlert = ? WHERE username = ?";
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
@@ -126,18 +82,13 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
-            return false;
+            throw new DataException("Could not access database");
         }
         return true;
     }
 
     //@Override
-    public boolean delUser(String username, String password) {
-        if (!userLogin(username, password)) {
-            return false;
-        }
-
+    public boolean delUser(String username, String password) throws DataException {
         String delUserQuery = "DELETE FROM user WHERE username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
@@ -147,13 +98,13 @@ public class UserDAS {
             return true;
 
         } catch (SQLException e) {
-            return false;
+            throw new DataException("Could not access database");
         }
     }
 
 
     //@Override
-    public List<User> selectAllUsers() {
+    public List<User> selectAllUsers() throws DataException {
         String getAllUserQuery = "SELECT * FROM USER";
         ArrayList<User> userList = new ArrayList<User>();
 
@@ -174,16 +125,13 @@ public class UserDAS {
                 userList.add(new User(password, user_name, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert));
             }
         } catch (SQLException e) {
-            System.out.println(e);
+            throw new DataException("Could not access database");
         }
-//        for (User user: userList) {
-//            System.out.println(user);
-//        }
         return userList;
     }
 
     //@Override
-    public User selectUserById(String username) {
+    public User selectUserById(String username) throws  DataException{
         String getUserQuery = "SELECT * FROM user where username = ?";
         User user = null;
 
@@ -195,21 +143,27 @@ public class UserDAS {
                 String name = rs.getString("username");
                 String password = rs.getString("password");
                 String email = rs.getString("email");
+                boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
+                boolean isBerthNAlert = rs.getString("berthNAlert").equals("0") ? true : false;
+                boolean isStatusAlert = rs.getString("statusAlert").equals("0") ? true : false;
+                boolean isAvgSpeedAlert = rs.getString("avgSpeedAlert").equals("0") ? true : false;
+                boolean isDistanceToGoAlert = rs.getString("distanceToGoAlert").equals("0") ? true : false;
+                boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
 
-                user = new User(password,  name, email);
+                user= new User(password, username, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
             } else {
-                throw new UsernameNotFoundException(String.format("%s not found", username));
+                throw new DataException(String.format("%s not found", username));
             }
 
         } catch (SQLException e){
-            throw new UsernameNotFoundException(String.format("%s not found", username)); // TODO find out what to do with this
+            throw new DataException(String.format("%s not found", username)); // TODO find out what to do with this
         }
         return user;
     }
 
 
     //@Override
-    public boolean userLogin(String username, String password) {
+    public boolean userLogin(String username, String password) throws LoginException, DataException{
         String getPasswordQuery = "SELECT password FROM user where username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
@@ -221,56 +175,34 @@ public class UserDAS {
                 if (password.equals(correctPassword)) {
                     return true;
                 } else {
-                    throw new BadCredentialsException("Password is incorrect");
+                    throw new LoginException("Password is incorrect");
                 }
             }
         } catch (SQLException e) {
-            throw new UsernameNotFoundException(String.format("%s not found", username));
+            throw new DataException(String.format("%s not found", username));
         }
         return false;
     }
 
     //@Override
-    public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) {
-        if (!reset && !userLogin(username, oldPassword)) {
-            return false;
-        }
+    public boolean changeUserPassword (String username, String oldPassword, String newPassword, boolean reset) throws LoginException, DataException {
 
-        if (newPassword.length() > 15) {
-            return false; // TODO passay password validator
-            // TODO throw a passwordvalidationexception
-        }
-
-        User oldUser = selectUserById(username);
-        if (oldUser == null) { throw new UsernameNotFoundException(String.format("%s not found", username)); } // TODO catch this outside
-
-        oldUser.setPassword(newPassword);
-
-        String changePasswordQuery = "DELETE FROM user WHERE username = ?";
+        String changePasswordQuery = "UPDATE user SET password = ? where username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(changePasswordQuery);) {
-            stmt.setString(1, username);
+            stmt.setString(1, newPassword);
+            stmt.setString(2, username);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
-            return false;
+            throw new DataException("Could not access database");
         }
-
-        try {
-            addUser(oldUser);
-            return true;
-        } catch (UserAlreadyExistAuthenticationException | InvalidEmailException e) {
-            System.out.println("Delete query something wrong"); // TODO
-            return false;
-        }
+        return true;
     }
 
     //@Override
-    public boolean resetUserPassword(String username) {
-        String newPassword = RandomStringUtils.randomAlphanumeric(15);
-        User user = selectUserById(username);
+    public boolean resetUserPassword(String username, String newPassword) throws DataException {
 
         String resetPasswordQuery = "UPDATE user SET password = ? where username = ?";
 
@@ -281,16 +213,7 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e);
-            return false;
-        }
-
-        try {
-            String resetPasswordMessage = String.format("Your new password is %s. ", newPassword);
-            Emailer.sendEmail(user.getEmail(), resetPasswordMessage, "Request for resetting password", username);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            // throw EmailerException or smth
+            throw new DataException("Could not access database");
         }
         return true;
     }
@@ -330,10 +253,7 @@ public class UserDAS {
     }
 
     //@Override
-    public boolean addFavourite(String username, String abbrVslM, String inVoyN) {
-        if (selectUserById(username) == null) {
-            return false;
-        }
+    public boolean addFavourite(String username, String abbrVslM, String inVoyN) throws DataException, LoginException {
 
         String addFavouritesQuery = "INSERT INTO liked_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)";
 
@@ -345,17 +265,14 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            return false;
+            throw new DataException("Could not access database");
         }
 
         return true;
     }
 
     //@Override
-    public boolean delFavourite(String username, String abbrVslM, String inVoyN) {
-        if (selectUserById(username) == null){
-            return false;
-        }
+    public boolean delFavourite(String username, String abbrVslM, String inVoyN) throws DataException {
 
         String delFavouritesQuery = "DELETE FROM liked_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?";
 
@@ -367,19 +284,15 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            return false;
+            throw new DataException("Could not access database");
         }
 
         return true;
     }
 
     //@Override
-    public ArrayList<Vessel> getFavourite(String username, String sort, String order) {
+    public ArrayList<FavAndSubVessel> getFavourite(String username) throws DataException {
         ArrayList<FavAndSubVessel> likedVesselsList = new ArrayList<FavAndSubVessel>();
-        ArrayList<Vessel> likedList = new ArrayList<Vessel>();
-        if (selectUserById(username) == null) {
-            return likedList;
-        }
 
         String getFavouriteQuery = "SELECT * FROM liked_vessel WHERE username = ? ORDER BY abbrVslM asc";
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
@@ -395,21 +308,15 @@ public class UserDAS {
             }
 
         } catch (SQLException e) {
-            return likedList;
-        }
-        for (FavAndSubVessel s: likedVesselsList) {
-            likedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
+            //TODO throw dataexception KIV
+            return null;
         }
 
-        sortVesselList(likedList, sort, order);
-        return likedList;
+        return likedVesselsList;
     }
 
     //@Override
-    public boolean addSubscribed(String username, String abbrVslM, String inVoyN) {
-        if (selectUserById(username) == null){
-            return false;
-        }
+    public boolean addSubscribed(String username, String abbrVslM, String inVoyN) throws DataException {
 
         String addSubscribedQuery = "INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)";
 
@@ -421,18 +328,14 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            return false;
+            throw new DataException("Could not access database");
         }
 
         return true;
     }
 
     //@Override
-    public boolean delSubscribed(String username, String abbrVslM, String inVoyN) {
-        if (selectUserById(username) == null){
-            return false;
-        }
-
+    public boolean delSubscribed(String username, String abbrVslM, String inVoyN) throws DataException {
         String delSubscribedQuery = "DELETE FROM subscribed_vessel WHERE username = ? AND abbrVslM = ? AND inVoyN = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
@@ -443,19 +346,16 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            return false;
+            throw new DataException("Could not access database");
         }
 
         return true;
     }
 
     //@Override
-    public ArrayList<Vessel> getSubscribed(String username, String sort, String order) {
+    public ArrayList<FavAndSubVessel> getSubscribed(String username) throws DataException {
         ArrayList<FavAndSubVessel> subscribedVesselsList = new ArrayList<FavAndSubVessel>();
-        ArrayList<Vessel> subscribedList = new ArrayList<Vessel>();
-        if (selectUserById(username) == null) {
-            return subscribedList;
-        }
+
         String getSubscribedQuery = "SELECT * FROM subscribed_vessel WHERE username = ?";
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
@@ -471,33 +371,14 @@ public class UserDAS {
             }
 
         } catch (SQLException e) {
-            return subscribedList;
+            //TODO throw dataexception or smth
+            return subscribedVesselsList;
         }
 
-        for (FavAndSubVessel s: subscribedVesselsList) {
-            subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
-        }
-        sortVesselList(subscribedList, sort, order);
-
-        return subscribedList;
+        return subscribedVesselsList;
     }
 
-    public void sortVesselList(ArrayList<Vessel> list, String sort, String order) {
-        Comparator<Vessel> compareByDate = Comparator.comparing(Vessel::getBthgDt).thenComparing(Vessel::getFullVslM);
-        Comparator<Vessel> compareByName = Comparator.comparing(Vessel::getFullVslM).thenComparing(Vessel::getBthgDt);
-
-        if (sort.equals("date") && order.equals("asc")) {
-            Collections.sort(list, compareByDate);
-        } else if (sort.equals("date") && order.equals("desc")) {
-            Collections.sort(list, compareByDate.reversed());
-        } else if (sort.equals("name") && order.equals("asc")) {
-            Collections.sort(list, compareByName);
-        } else {
-            Collections.sort(list, compareByName.reversed());
-        }
-    }
-
-    public List<String> getUsernameList() {
+    public List<String> getUsernameList() throws DataException {
         String getUsernameQuery = "SELECT username FROM user";
         List<String> usernameList = new ArrayList<>();
 
@@ -512,11 +393,12 @@ public class UserDAS {
             }
 
         } catch (SQLException e) {
+            throw new DataException("Could not access database");
         }
         return usernameList;
     }
 
-    public List<FavAndSubVessel> getSubscribedVesselsPK(String username) {
+    public List<FavAndSubVessel> getSubscribedVesselsPK(String username) throws DataException {
         ArrayList<FavAndSubVessel> subscribedVesselsList = new ArrayList<FavAndSubVessel>();
         String getSubscribedQuery = "SELECT * FROM subscribed_vessel WHERE username = ?";
 
@@ -533,6 +415,7 @@ public class UserDAS {
             }
 
         } catch (SQLException e) {
+            throw new DataException("Could not access database");
         }
         return subscribedVesselsList;
     }

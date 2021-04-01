@@ -2,31 +2,20 @@ package com.example.PSABackend;
 
 import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.DAO.PortNetConnectorDAO;
-import com.example.PSABackend.DAO.VesselDAS;
-import com.example.PSABackend.classes.Alert;
-import com.example.PSABackend.classes.Vessel;
-import com.example.PSABackend.classes.VesselExtra;
+import com.example.PSABackend.service.EmailService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.sql.*;
 import java.util.concurrent.TimeUnit;
-import com.google.gson.*;
-import java.time.format.DateTimeFormatter;
-import com.example.PSABackend.classes.VesselDetails;
-import com.example.PSABackend.classes.Emailer;
-import com.example.PSABackend.service.UserService;
-import com.example.PSABackend.classes.User;
 
+import com.example.PSABackend.service.UserService;
 
 
 @Component
@@ -44,7 +33,7 @@ public class PortNetConnector {
 
     private AlertDAO alertDAO = new AlertDAO();
     private UserService userService;
-    private Emailer emailer;
+    private EmailService emailService;
 
 
 
@@ -145,7 +134,7 @@ public class PortNetConnector {
 //
 //            User user= userService.getUserById(username);
 //            try {
-//                // emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+//                // emailService.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
 //            } catch(Exception e) {
 //                e.printStackTrace();
 //            }
@@ -166,7 +155,7 @@ public class PortNetConnector {
 //
 //            User user= userService.getUserById(username);
 //            try {
-//                emailer.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
+//                emailService.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
 //            } catch (Exception e) {
 //                e.printStackTrace();
 //            }
