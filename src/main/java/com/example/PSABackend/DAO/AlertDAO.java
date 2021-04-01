@@ -1,15 +1,15 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.Alert;
-import com.example.PSABackend.classes.Emailer;
+import com.example.PSABackend.service.EmailService;
 import com.example.PSABackend.classes.FavAndSubVessel;
 import com.example.PSABackend.classes.User;
+import com.example.PSABackend.exceptions.DataException;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,28 +47,10 @@ public class AlertDAO {
         return out;
     }
 
-//    public ArrayList<String> getAlertUSERS(){
-//        ArrayList<String> usersRequireAlert= new ArrayList<>();
-//        for (Alert a: alertList) {
-//            for (String u: a.getUsername()) {
-//
-//                if(!usersRequireAlert.contains(u)) {
-//                    usersRequireAlert.add(u);
-//                }
-//
-//
-//            }
-//        }
-//        return usersRequireAlert;
-//    }
-//
-//    public ArrayList<Alert> getList(){
-//        return alertList;
-//    }
+    public void getAlerts() throws DataException {
+        List<User> userList;
+         userList = userDAS.selectAllUsers();
 
-
-    public void getAlerts() {
-        List<User> userList = userDAS.selectAllUsers();
         List<Alert> alertList = new ArrayList<>();
         List<FavAndSubVessel> subbedVesselList = new ArrayList<>();
 
@@ -88,7 +70,7 @@ public class AlertDAO {
         String alertMessage = getMessage(user.getUser_name(), alertList);
         System.out.println(alertMessage);
         try {
-            Emailer.sendEmail(user.getEmail(), alertMessage, "Alerts for your subscribed Vessel", user.getUser_name());
+            EmailService.sendEmail(user.getEmail(), alertMessage, "Alerts for your subscribed Vessel", user.getUser_name());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             // throw EmailerException or smth

@@ -1,4 +1,4 @@
-package com.example.PSABackend.classes;
+package com.example.PSABackend.service;
 
 import java.io.IOException;
 import java.util.Date;
@@ -6,23 +6,7 @@ import java.util.Properties;
 import javax.mail.*;
 import javax.mail.internet.*;
 
-public class Emailer {
-
-    String msg;
-    User recipient;
-
-    public static void main(String[] args) {
-        try {
-//            System.out.println(sendEmail("rxtay.2020@sis.smu.edu.sg")); //recipient email
-        } catch (Exception e){
-            System.out.println("Error 404: Email not found");
-        }
-    }
-
-
-
-    //alert_type decides what kind of message is sent to the email
-    //(original)
+public class EmailService {
 
     public static String sendEmail(String email, String body, String head,String userName) throws AddressException, MessagingException, IOException {
         Properties props = new Properties();

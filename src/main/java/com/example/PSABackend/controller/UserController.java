@@ -1,9 +1,9 @@
 package com.example.PSABackend.controller;
 
 import com.example.PSABackend.classes.*;
-import com.example.PSABackend.exceptions.InvalidEmailException;
-import com.example.PSABackend.exceptions.UserAlreadyExistAuthenticationException;
+import com.example.PSABackend.exceptions.*;
 import com.example.PSABackend.service.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +39,7 @@ public class UserController {
         try {
             userService.addUser(new User(password, username, email));
             return ResponseEntity.status(HttpStatus.OK).body("ok");
-        } catch (UserAlreadyExistAuthenticationException | InvalidEmailException e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -57,7 +57,7 @@ public class UserController {
         try {
             userService.changeUserConfig(username, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
             return ResponseEntity.status(HttpStatus.OK).body("Configuration Changed Successfully");
-        } catch (Exception e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
             //TODO
         }
@@ -73,11 +73,13 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password does not match.");
         }
         try {
-            if(userService.delUser(username, password)) {
+            if (userService.delUser(username, password)) {
                 return ResponseEntity.status(HttpStatus.OK).body("ok");
             }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("not ok");
-        } catch (UsernameNotFoundException | BadCredentialsException e) {
+            else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("someting wrong ");
+            }
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -85,25 +87,24 @@ public class UserController {
     @GetMapping
     @RequestMapping(path = "/get-all")
     public List<User> getAllUsers() {
-        return userService.getAllUsers();
+        try {
+            return userService.getAllUsers();
+        } catch (PSAException e) {
+            return null;
+        }
     }
 
     @GetMapping
     @RequestMapping(path = "/get/{username}")
-    public ResponseEntity<User> getUserById(@PathVariable("username") String username) {
+    public ResponseEntity<Object> getUserById(@PathVariable("username") String username) {
         try {
             User user = userService.getUserById(username);
             return ResponseEntity.status(HttpStatus.OK).body(user);
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // no user found
+        } catch (PSAException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // no user found
+            //TODO check return type if can return object
         }
     }
-
-//    @PutMapping
-//    @RequestMapping(path = "/upd/{id}")
-//    public void updateUser(@PathVariable("id") UUID id,@Valid @NonNull @Re maquestBody User userToUpdate) {
-//        userService.updateUser(id, userToUpdate);
-//    }
 
     @PostMapping
     @RequestMapping(path = "/login")
@@ -113,8 +114,8 @@ public class UserController {
 
         try {
             userService.userLogin(username, password);
-            return ResponseEntity.status(HttpStatus.OK).body("");
-        } catch (BadCredentialsException | UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.OK).body("Login Successfully");
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -130,7 +131,7 @@ public class UserController {
         try {
             userService.changeUserPassword(username, oldPassword, newPassword, false);
             return ResponseEntity.status(HttpStatus.OK).body("");
-        } catch (UsernameNotFoundException | BadCredentialsException e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -142,7 +143,7 @@ public class UserController {
         try {
             userService.resetUserPassword(username);
             return ResponseEntity.status(HttpStatus.OK).body("New Password has be sent to your email");
-        } catch (Exception e) { // catch some emailer exception
+        } catch (PSAException e) { // catch some emailer exception
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -156,7 +157,7 @@ public class UserController {
         try {
             userService.addFavourite(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
-        } catch (UsernameNotFoundException e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -171,18 +172,23 @@ public class UserController {
         try {
             userService.delFavourite(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
-        } catch (UsernameNotFoundException e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @PostMapping
     @RequestMapping(path = "get-favourite")
+    //TODO can return Obejct?
     public List<Vessel> getFavourite(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         String sort = body.get("sort_by").toString(); // date
         String order = body.get("order").toString(); // asc
-        return userService.getFavourite(username, sort, order);
+        try {
+            return userService.getFavourite(username, sort, order);
+        } catch (PSAException e) {
+            return null;
+        }
     }
 
     @PostMapping
@@ -195,7 +201,7 @@ public class UserController {
         try {
             userService.addSubscribed(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
-        } catch (UsernameNotFoundException e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
@@ -210,7 +216,7 @@ public class UserController {
         try {
             userService.delSubscribed(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
-        } catch (UsernameNotFoundException e) {
+        } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
 
@@ -222,7 +228,11 @@ public class UserController {
         String username = body.get("username").toString();
         String sort = body.get("sort_by").toString(); // date
         String order = body.get("order").toString(); // asc
-        return userService.getSubscribed(username, sort, order);
+        try {
+            return userService.getSubscribed(username, sort, order);
+        } catch (PSAException e) {
+            return null;
+        }
     }
 
 

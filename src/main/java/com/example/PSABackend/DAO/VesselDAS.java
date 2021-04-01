@@ -1,10 +1,12 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.*;
+import com.example.PSABackend.exceptions.DataException;
 import com.example.PSABackend.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +34,7 @@ public class VesselDAS {
         VesselDAS.password = value;
     }
 
-    public static ArrayList<VesselDetails> selectAllVessels() {
+    public static ArrayList<VesselDetails> selectAllVessels() throws DataException {
         ArrayList<VesselDetails> queryList = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
@@ -58,15 +60,12 @@ public class VesselDAS {
                 queryList.add(vesselDetails);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataException("Could not access the database");
         }
-//        for(HashMap<String, String> m : queryList){
-//            System.out.println(m);
-//        }
         return queryList;
     }
 
-    public static Vessel selectVesselById(String abbrVslM, String inVoyN) {
+    public static Vessel selectVesselById(String abbrVslM, String inVoyN) throws DataException {
         Vessel vessel = null;
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             String query = String.format("SELECT * FROM VESSEL WHERE abbrVslM = '%s' AND inVoyN = '%s'", abbrVslM, inVoyN);
@@ -97,12 +96,12 @@ public class VesselDAS {
 
             vessel = new Vessel(fullVslM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataException("Could not access the database");
         }
         return vessel;
     }
 
-    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) {
+    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) throws DataException {
         List<VesselDetails> vesselDetailsList = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
@@ -138,12 +137,12 @@ public class VesselDAS {
                 vesselDetailsList.add(new VesselDetails(fullVslM, inVoyN, outVoyN, avg_speed, max_speed, distance_to_go, bthgDt, unbthgDt, berthN, status, is_increasing));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataException("Could not access the database");
         }
         return vesselDetailsList;
     }
 
-    public static ArrayList<VesselDetails> getVesselsByDate(LocalDateTime date) {
+    public static ArrayList<VesselDetails> getVesselsByDate(LocalDateTime date) throws DataException {
         ArrayList<VesselDetails> queryList = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
@@ -168,7 +167,7 @@ public class VesselDAS {
                 queryList.add(vesselDetails);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataException("Could not access the database");
         }
 //        for(HashMap<String, String> m : queryList){
 //            System.out.println(m);
@@ -176,7 +175,7 @@ public class VesselDAS {
         return queryList;
     }
 
-    public static List<Alert> detectChangesVessel(User user, List<FavAndSubVessel> subbedVesselList) {
+    public static List<Alert> detectChangesVessel(User user, List<FavAndSubVessel> subbedVesselList) throws DataException {
 
 //        UserDAS userDas = new UserDAS();
 //        ArrayList<User> allUsers = (ArrayList<User>) userDas.selectAllUsers();
@@ -264,7 +263,7 @@ public class VesselDAS {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new DataException("Could not access the database");
         }
         return alertList;
     }

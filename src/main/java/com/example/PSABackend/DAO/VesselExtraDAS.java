@@ -2,9 +2,11 @@ package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.Vessel;
 import com.example.PSABackend.classes.VesselExtra;
+import com.example.PSABackend.exceptions.DataException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,10 +32,10 @@ public class VesselExtraDAS {
     @Value("${spring.datasource.password}")
     public void setdbPass(String value) { VesselExtraDAS.password = value; }
 
-    public static ArrayList<VesselExtra> selectAllExtraVessels(){
+    public static ArrayList<VesselExtra> selectAllExtraVessels() throws DataException{
         ArrayList<VesselExtra> queryList = new ArrayList<>();
 
-        try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
+        try(Connection conn = DriverManager.getConnection(dbURL, username, password))  {
             String query = "SELECT * FROM VESSEL_EXTRA";
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(query);
@@ -66,12 +68,12 @@ public class VesselExtraDAS {
 
             }
         } catch (SQLException e){
-            e.printStackTrace();
+            throw new DataException("Could not access database");
         }
         return queryList;
     }
 
-    public static VesselExtra selectExtraVesselByVSLVoy (String VSLVoy){
+    public static VesselExtra selectExtraVesselByVSLVoy (String VSLVoy) throws DataException {
         VesselExtra vesselExtra = null;
 
         try(Connection conn = DriverManager.getConnection(dbURL, username, password)) {
@@ -107,7 +109,7 @@ public class VesselExtraDAS {
             vesselExtra = new VesselExtra(avgSpeed, distanceToGo, isPatchingActivated, maxSpeed, patchingPredictedBtr, predictedBtr, vesselName, voyageCodeInbound, VSLVoy);
 
         } catch (SQLException e){
-            e.printStackTrace();
+            throw new DataException("Could not access database");
         }
         return vesselExtra;
     }

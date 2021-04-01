@@ -1,8 +1,6 @@
 package com.example.PSABackend.exceptions;
 
-import javax.naming.AuthenticationException;
-
-public class InvalidEmailException extends AuthenticationException {
+public class InvalidEmailException extends PSAException {
     public InvalidEmailException(String msg) {
         super(msg);
     }
