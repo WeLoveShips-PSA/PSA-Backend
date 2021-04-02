@@ -288,7 +288,6 @@ public class VesselDAS {
         return true;
     }
 
-feature/get-vessel-speed-history
     public static List<TreeMap> getVesselSpeedHistory(String vsl_voy) throws DataException {
         List<TreeMap> speedHistory = new ArrayList<>();
         String getVesselSpeedQuery = "SELECT avg_speed, updatedate from vessel_extra_log where vsl_voy = ?";
