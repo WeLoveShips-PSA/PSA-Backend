@@ -236,6 +236,7 @@ public class VesselDAS {
                 if (oldRs.next() && newRs.next()) {
                     Alert alert = new Alert();
                     alert.setAbbrVslM(vesselPK.getAbbrVslM());
+                    alert.setInVoyN(vesselPK.getInVoyN());
                     boolean hasChange = false;
                     if (needAddAlert(newRs, oldRs, "btrdt", user.isBtrDtAlert())) {
                         alert.setNewBerthTime(Timestamp.valueOf(newRs.getString("btrdt")).toLocalDateTime());
