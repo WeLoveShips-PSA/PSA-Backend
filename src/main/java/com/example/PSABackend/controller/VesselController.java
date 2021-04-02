@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @RequestMapping(path = "vessel")
 @RestController
@@ -62,6 +63,17 @@ public class VesselController {
         LocalDateTime dateTime = LocalDateTime.parse(date);
         try {
             return VesselDAS.getVesselsByDate(dateTime);
+        } catch (PSAException e) {
+            return null;
+        }
+    }
+
+    @PostMapping
+    @RequestMapping(path= "/get-vessel-speed-history")
+    public TreeMap<LocalDateTime, Double> getVesselSpeedHistory (@RequestBody Map<String, String> body) {
+        String vsl_voy = body.get("vsl_voy").toString();
+        try {
+            return VesselService.getVesselSpeedHistory(vsl_voy);
         } catch (PSAException e) {
             return null;
         }

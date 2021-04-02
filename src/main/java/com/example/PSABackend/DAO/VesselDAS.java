@@ -8,10 +8,12 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.crypto.Data;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 @Component
 public class VesselDAS {
@@ -284,5 +286,35 @@ public class VesselDAS {
             return false;
         }
         return true;
+    }
+
+    public static TreeMap<LocalDateTime, Double> getVesselSpeedHistory(String vsl_voy) throws DataException {
+        String getVesselSpeedQuery = "SELECT avg_speed, updatedate from vessel_extra_log where vsl_voy = ?";
+        TreeMap<LocalDateTime, Double> speedMap = new TreeMap<>();
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL,  VesselDAS.username, VesselDAS.password);
+             PreparedStatement stmt = conn.prepareStatement(getVesselSpeedQuery);) {
+            stmt.setString(1, vsl_voy);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                LocalDateTime dateTime = Timestamp.valueOf(rs.getString("updatedate")).toLocalDateTime();
+                Double avgSpeed = rs.getDouble("avg_speed");
+                speedMap.put(dateTime, avgSpeed);
+            }
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
+        }
+        String getCurrentVesselSpeedQuery = "SELECT avg_speed from vessel_extra where vsl_voy = ?";
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL,  VesselDAS.username, VesselDAS.password);
+             PreparedStatement stmt = conn.prepareStatement(getVesselSpeedQuery);) {
+            stmt.setString(1, vsl_voy);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Double avgSpeed = rs.getDouble("avg_speed");
+                speedMap.put(LocalDateTime.now().withNano(0), avgSpeed);
+            }
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
+        }
+        return speedMap;
     }
 }

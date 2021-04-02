@@ -9,10 +9,8 @@ import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class VesselService {
@@ -44,6 +42,10 @@ public class VesselService {
             return false;
         }
         return true;
+    }
+
+    public static TreeMap<LocalDateTime, Double> getVesselSpeedHistory(String vsl_voy) throws DataException {
+        return VesselDAS.getVesselSpeedHistory(vsl_voy);
     }
 
     public static void sortVesselList(ArrayList<Vessel> list, String sort, String order) {
