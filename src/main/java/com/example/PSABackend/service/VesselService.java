@@ -6,6 +6,7 @@ import com.example.PSABackend.exceptions.DataException;
 import org.springframework.stereotype.Service;
 
 import javax.xml.crypto.Data;
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -44,7 +45,7 @@ public class VesselService {
         return true;
     }
 
-    public static TreeMap<LocalDateTime, Double> getVesselSpeedHistory(String vsl_voy) throws DataException {
+    public static List<TreeMap> getVesselSpeedHistory (String vsl_voy) throws DataException {
         return VesselDAS.getVesselSpeedHistory(vsl_voy);
     }
 
