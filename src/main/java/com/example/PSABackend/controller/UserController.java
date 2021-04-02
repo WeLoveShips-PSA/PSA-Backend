@@ -108,15 +108,15 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(path = "/login")
-    ResponseEntity<String> userLogin(@RequestBody Map<String, Object> body) {
+    ResponseEntity<User> userLogin(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         String password = body.get("password").toString();
 
         try {
-            userService.userLogin(username, password);
-            return ResponseEntity.status(HttpStatus.OK).body("Login Successfully");
+            User user = userService.userLogin(username, password);
+            return ResponseEntity.status(HttpStatus.OK).body(user);
         } catch (PSAException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
