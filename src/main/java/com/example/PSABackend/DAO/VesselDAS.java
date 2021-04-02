@@ -288,14 +288,17 @@ public class VesselDAS {
         return true;
     }
 
+feature/get-vessel-speed-history
     public static List<TreeMap> getVesselSpeedHistory(String vsl_voy) throws DataException {
         List<TreeMap> speedHistory = new ArrayList<>();
         String getVesselSpeedQuery = "SELECT avg_speed, updatedate from vessel_extra_log where vsl_voy = ?";
+
         try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL,  VesselDAS.username, VesselDAS.password);
              PreparedStatement stmt = conn.prepareStatement(getVesselSpeedQuery);) {
             stmt.setString(1, vsl_voy);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
+
                 TreeMap<String, String> timeAndSpeed = new TreeMap<>();
                 String dateTime = rs.getString("updatedate");
                 timeAndSpeed.put("Time", dateTime);
@@ -304,6 +307,7 @@ public class VesselDAS {
                 String avgSpeed = rs.getString("avg_speed");
                 timeAndSpeed.put("Average Speed", avgSpeed);
                 speedHistory.add(timeAndSpeed);
+
             }
         } catch (SQLException e) {
             throw new DataException("Database Error");
@@ -321,10 +325,12 @@ public class VesselDAS {
                 String avgSpeed = rs.getString("avg_speed");
                 timeAndSpeed.put("Average Speed", avgSpeed);
                 speedHistory.add(timeAndSpeed);
+
             }
         } catch (SQLException e) {
             throw new DataException("Database Error");
         }
         return speedHistory;
+
     }
 }

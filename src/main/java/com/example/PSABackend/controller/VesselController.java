@@ -71,6 +71,7 @@ public class VesselController {
     @PostMapping
     @RequestMapping(path= "/get-vessel-speed-history")
     public List<TreeMap> getVesselSpeedHistory (@RequestBody Map<String, String> body) {
+
         String vsl_voy = body.get("vsl_voy").toString();
         try {
             return VesselService.getVesselSpeedHistory(vsl_voy);
