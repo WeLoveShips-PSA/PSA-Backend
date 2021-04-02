@@ -288,17 +288,22 @@ public class VesselDAS {
         return true;
     }
 
-    public static TreeMap<LocalDateTime, Double> getVesselSpeedHistory(String vsl_voy) throws DataException {
+    public static List<TreeMap> getVesselSpeedHistory(String vsl_voy) throws DataException {
+        List<TreeMap> speedHistory = new ArrayList<>();
         String getVesselSpeedQuery = "SELECT avg_speed, updatedate from vessel_extra_log where vsl_voy = ?";
-        TreeMap<LocalDateTime, Double> speedMap = new TreeMap<>();
         try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL,  VesselDAS.username, VesselDAS.password);
              PreparedStatement stmt = conn.prepareStatement(getVesselSpeedQuery);) {
             stmt.setString(1, vsl_voy);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
-                LocalDateTime dateTime = Timestamp.valueOf(rs.getString("updatedate")).toLocalDateTime();
-                Double avgSpeed = rs.getDouble("avg_speed");
-                speedMap.put(dateTime, avgSpeed);
+                TreeMap<String, String> timeAndSpeed = new TreeMap<>();
+                String dateTime = rs.getString("updatedate");
+                timeAndSpeed.put("Time", dateTime);
+
+                TreeMap<String, String> speedMap = new TreeMap<>();
+                String avgSpeed = rs.getString("avg_speed");
+                timeAndSpeed.put("Average Speed", avgSpeed);
+                speedHistory.add(timeAndSpeed);
             }
         } catch (SQLException e) {
             throw new DataException("Database Error");
@@ -309,12 +314,17 @@ public class VesselDAS {
             stmt.setString(1, vsl_voy);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                Double avgSpeed = rs.getDouble("avg_speed");
-                speedMap.put(LocalDateTime.now().withNano(0), avgSpeed);
+                TreeMap<String, String> timeAndSpeed = new TreeMap<>();
+                String dateTime = LocalDateTime.now().withNano(0).toString().replace('T', ' ');
+                timeAndSpeed.put("Time", dateTime);
+
+                String avgSpeed = rs.getString("avg_speed");
+                timeAndSpeed.put("Average Speed", avgSpeed);
+                speedHistory.add(timeAndSpeed);
             }
         } catch (SQLException e) {
             throw new DataException("Database Error");
         }
-        return speedMap;
+        return speedHistory;
     }
 }
