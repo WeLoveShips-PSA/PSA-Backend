@@ -23,7 +23,4 @@ public class PsaBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PsaBackendApplication.class, args);
 	}
-
-	//Task Scheduler
-
 }

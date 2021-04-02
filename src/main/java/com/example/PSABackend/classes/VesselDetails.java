@@ -9,7 +9,9 @@ import java.util.Date;
 
 public class VesselDetails {
     @NotBlank
-    private final String Abbrvslm;
+    private final String fullVslM;
+    @NotBlank
+    private final String abbrvslm;
     @NotBlank
     private final String inVoyN;
     private final String outVoyN;
@@ -22,8 +24,9 @@ public class VesselDetails {
     private final String status;
     private final boolean isIncreasing;
 
-    public VesselDetails(@NotBlank String Abbrvslm, @NotBlank String inVoyN, String outVoyN, double avgSpeed, int maxSpeed, int distanceToGo, LocalDateTime berthTime, LocalDateTime unBerthTime, String berthNo, String status, boolean isIncreasing) {
-        this.Abbrvslm = Abbrvslm;
+    public VesselDetails(@NotBlank String fullVslM, @NotBlank String abbrvslm, @NotBlank String inVoyN, String outVoyN, double avgSpeed, int maxSpeed, int distanceToGo, LocalDateTime berthTime, LocalDateTime unBerthTime, String berthNo, String status, boolean isIncreasing) {
+        this.fullVslM = fullVslM;
+        this.abbrvslm = abbrvslm;
         this.inVoyN = inVoyN;
         this.outVoyN = outVoyN;
         this.avgSpeed = avgSpeed;
@@ -36,8 +39,12 @@ public class VesselDetails {
         this.isIncreasing = isIncreasing;
     }
 
-    public String getAbbrVslm() {// is this abbrvslm
-        return Abbrvslm;
+    public String getFullVslM() {
+        return fullVslM;
+    }
+
+    public String getAbbrvslm() {
+        return abbrvslm;
     }
 
     public String getInVoyN() {

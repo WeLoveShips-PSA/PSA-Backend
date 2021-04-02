@@ -5,6 +5,7 @@ import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.PortNetConnector;
 import com.example.PSABackend.classes.Student;
 import com.example.PSABackend.exceptions.PSAException;
+import com.example.PSABackend.service.AlertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,8 @@ import java.util.List;
 public class StudentManagementController {
     @Autowired
     PortNetConnector portNetConnector = new PortNetConnector();
-    AlertDAO alertDAO = new AlertDAO();
+    AlertService alertService = new AlertService();
+
     private final List<Student> STUDENTS = Arrays.asList(
             new Student(1, "James Bond"),
             new Student(2, "Maria Jones"),
@@ -28,9 +30,9 @@ public class StudentManagementController {
         portNetConnector.getUpdate("2021-01-05", "2021-01-05");
         portNetConnector.updateVessel();
         try {
-            alertDAO.getAlerts();
+            alertService.getAlerts();
         } catch (PSAException e) {
-
+            System.out.println(e.getMessage());
         }
 
         return STUDENTS;
