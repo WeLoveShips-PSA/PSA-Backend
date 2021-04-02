@@ -136,8 +136,8 @@ public class PortNetConnectorDAO {
                     }
                     updateStatement.setString(i, value);
                 }
-                String getAvgSpeedQuery= "select avg_speed" +
-                        "vessel_extra" +
+                String getAvgSpeedQuery= "select avg_speed from " +
+                        "vessel_extra " +
                         "where vsl_voy = ?";
                 // String query = "SELECT avg(AVG_SPEED) speed FROM VESSEL_SPEED WHERE VSL_VOY = ?";
                 PreparedStatement stmt2 = conn.prepareStatement(getAvgSpeedQuery);

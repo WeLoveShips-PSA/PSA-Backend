@@ -157,7 +157,7 @@ public class UserService {
         for (FavAndSubVessel s: likedVesselsList) {
             likedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
-        sortVesselList(likedList, sort, order);
+        VesselService.sortVesselList(likedList, sort, order);
         return likedList;
     }
 
@@ -186,24 +186,15 @@ public class UserService {
         for (FavAndSubVessel s: subscribedVesselsList) {
             subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
         }
-        sortVesselList(subscribedList, sort, order);
+        VesselService.sortVesselList(subscribedList, sort, order);
 
         return subscribedList;
 
     }
 
-    public void sortVesselList(ArrayList<Vessel> list, String sort, String order) {
-        Comparator<Vessel> compareByDate = Comparator.comparing(Vessel::getBthgDt).thenComparing(Vessel::getFullVslM);
-        Comparator<Vessel> compareByName = Comparator.comparing(Vessel::getFullVslM).thenComparing(Vessel::getBthgDt);
-
-        if (sort.equals("date") && order.equals("asc")) {
-            Collections.sort(list, compareByDate);
-        } else if (sort.equals("date") && order.equals("desc")) {
-            Collections.sort(list, compareByDate.reversed());
-        } else if (sort.equals("name") && order.equals("asc")) {
-            Collections.sort(list, compareByName);
-        } else {
-            Collections.sort(list, compareByName.reversed());
-        }
+    public List<FavAndSubVessel> getSubscribedVesselPK(String username) throws DataException {
+        return userDAS.getSubscribedVesselsPK(username);
     }
+
+
 }

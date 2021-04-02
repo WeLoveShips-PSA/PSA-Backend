@@ -112,15 +112,6 @@ public class VesselDAS {
 
             ResultSet rs = stmt.executeQuery();
 
-//            String inVoyN = null;
-//            String fullVslM = null;
-//            String fullInVoyN = null;
-//            String outVoyN = null;
-//            String bthgDt = null;
-//            String unbthgDt = null;
-//            String berthN = null;
-//            String status = null;
-
             while (rs.next()) {
                 String fullVslM = rs.getString("fullVslM");
 //                String abbrVslM = rs.getString("abbrVslM");
@@ -169,17 +160,48 @@ public class VesselDAS {
         } catch (SQLException e) {
             throw new DataException("Could not access the database");
         }
-//        for(HashMap<String, String> m : queryList){
-//            System.out.println(m);
-//        }
         return queryList;
     }
 
-    public static List<Alert> detectChangesVessel(User user, List<FavAndSubVessel> subbedVesselList) throws DataException {
+//    public static ResultSet getPreviousVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
+//        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
+//            String oldQuery = "select l.fullvslm, l.abbrvslm, l.invoyn, l.fullinvoyn, l.outvoyn, vsl_voy, btrdt, unbthgdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+//                    "from vessel_log l " +
+//                    "left outer join vessel_extra_log e " +
+//                    "on e.abbrvslm = l.abbrvslm " +
+//                    "and e.invoyn = l.invoyn " +
+//                    "where l.abbrvslm = ? and l.invoyn = ? " +
+//                    "order by abbrvslm asc, l.updatedate desc limit 1";
+//            PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
+//            oldStatement.setString(1, subbedVessel.getAbbrVslM());
+//            oldStatement.setString(2, subbedVessel.getInVoyN());
+//            ResultSet oldRs = oldStatement.executeQuery();
+//            if (oldRs.next()) {
+//
+//            }
+//        } catch (SQLException e) {
+//            throw new DataException("Database Error");
+//        }
+//    }
+//
+//    public static ResultSet getCurrentVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
+//        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
+//            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+//                    "from vessel l " +
+//                    "left outer join vessel_extra e " +
+//                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
+//                    "where l.abbrvslm  = ? and  l.invoyn = ? " +
+//                    "order by abbrvslm asc";
+//            PreparedStatement newStatement = conn.prepareStatement(newQuery);
+//            newStatement.setString(1, subbedVessel.getAbbrVslM());
+//            newStatement.setString(2, subbedVessel.getInVoyN());
+//            return newStatement.executeQuery();
+//        } catch (SQLException e) {
+//            throw new DataException("Database Error");
+//        }
+//    }
 
-//        UserDAS userDas = new UserDAS();
-//        ArrayList<User> allUsers = (ArrayList<User>) userDas.selectAllUsers();
-//        for (User user : allUsers) {
+    public static List<Alert> detectChangesVessel(User user, List<FavAndSubVessel> subbedVesselList) throws DataException {
         List<Alert> alertList = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
@@ -189,7 +211,6 @@ public class VesselDAS {
                     "on e.abbrvslm = l.abbrvslm " +
                     "and e.invoyn = l.invoyn " +
                     "where l.abbrvslm = ? and l.invoyn = ? " +
-//                "and extract(hour from l.updatedate) = extract(hour from now()) " +
                     "order by abbrvslm asc, l.updatedate desc limit 1";
             String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
                     "from vessel l " +
@@ -199,25 +220,7 @@ public class VesselDAS {
                     "order by abbrvslm asc";
             PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
             PreparedStatement newStatement = conn.prepareStatement(newQuery);
-//            String oldQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
-//                    "from vessel_log l " +
-//                    "inner join subscribed_vessel v " +
-//                    "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
-//                    "left outer join vessel_extra_log e " +
-//                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-//                    "where v.username = ? and " +
-//                    "extract(hour from l.updatedate) = extract(hour from now()) " +
-//                    "order by abbrvslm asc";
-//            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
-//                    "from vessel l " +
-//                    "inner join subscribed_vessel v " +
-//                    "on v.abbrvslm = l.abbrvslm and v.invoyn = l.invoyn " +
-//                    "left outer join vessel_extra e " +
-//                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-//                    "where v.username = ? " +
-//                    "order by abbrvslm asc";
-//            PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
-//            PreparedStatement newStatement = conn.prepareStatement(newQuery);
+
             for (FavAndSubVessel vesselPK : subbedVesselList) {
 
 

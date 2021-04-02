@@ -116,14 +116,6 @@ public class PortNetConnector {
     }
 
 
-    public AlertDAO getAlertDAO(){
-        return alertDAO;
-    }
-
-        //CHANGES WITHIN VESSEL(ORDINARY)
-
-
-
     @Scheduled(cron = "0 0 0 * * *")
     public void daily() {
         LocalDate localDate = LocalDate.now();
