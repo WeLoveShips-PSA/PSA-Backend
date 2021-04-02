@@ -84,7 +84,7 @@ public class UserService {
         return userDAS.changeUserConfig(username, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
     }
     public boolean delUser(String username, String password) throws DataException, LoginException {
-        if (!userLogin(username, password)) {
+        if (userLogin(username, password) == null) {
             return false;
         }
         return userDAS.delUser(username, password);
@@ -98,10 +98,10 @@ public class UserService {
         return userDAS.selectUserById(username);
     }
 
-    public boolean userLogin(String username, String password) throws LoginException, DataException { return userDAS.userLogin(username, password); }
+    public User userLogin(String username, String password) throws LoginException, DataException { return userDAS.userLogin(username, password); }
 
     public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) throws LoginException, DataException {
-        if (!reset && !userLogin(username, oldPassword)) {
+        if (!reset && userLogin(username, oldPassword) == null) {
             return false;
         }
 

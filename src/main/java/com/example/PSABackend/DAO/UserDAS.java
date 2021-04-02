@@ -163,25 +163,33 @@ public class UserDAS {
 
 
     //@Override
-    public boolean userLogin(String username, String password) throws LoginException, DataException{
-        String getPasswordQuery = "SELECT password FROM user where username = ?";
+    public User userLogin(String username, String password) throws LoginException, DataException{
+        String getPasswordQuery = "SELECT * FROM user where username = ?";
+        User user = null;
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
         PreparedStatement stmt = conn.prepareStatement(getPasswordQuery);) {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
+                String name = rs.getString("username");
                 String correctPassword = rs.getString("password");
+                String email = rs.getString("email");
+                boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
+                boolean isBerthNAlert = rs.getString("berthNAlert").equals("0") ? true : false;
+                boolean isStatusAlert = rs.getString("statusAlert").equals("0") ? true : false;
+                boolean isAvgSpeedAlert = rs.getString("avgSpeedAlert").equals("0") ? true : false;
+                boolean isDistanceToGoAlert = rs.getString("distanceToGoAlert").equals("0") ? true : false;
+                boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
+
                 if (password.equals(correctPassword)) {
-                    return true;
-                } else {
-                    throw new LoginException("Password is incorrect");
+                    user= new User(password, username, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
                 }
             }
         } catch (SQLException e) {
             throw new DataException(String.format("%s not found", username));
         }
-        return false;
+        return user;
     }
 
     //@Override
