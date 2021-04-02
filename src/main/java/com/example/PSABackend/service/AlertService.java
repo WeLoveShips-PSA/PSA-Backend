@@ -18,6 +18,10 @@ public class AlertService {
 
     private AlertDAO alertDAO = new AlertDAO();
 
+    public List<Alert> getAlertsByUsername(String username) throws DataException {
+        return alertDAO.getAlertsByUsername(username);
+    }
+
     public String getMessage(String username, List<Alert> alertList) {
         String message = "Dear " + username + ",\n";
         for (Alert a: alertList) {
@@ -57,7 +61,7 @@ public class AlertService {
         }
     }
 
-    public void insertAlerts(String username, List<Alert> alertList) {
+    public void insertAlerts(String username, List<Alert> alertList) throws DataException {
         alertDAO.insertAlerts(username, alertList);
     }
 
