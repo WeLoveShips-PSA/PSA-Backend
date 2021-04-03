@@ -97,6 +97,7 @@ public class AlertDAO {
 //                stmt.setString(9, alert.getNewStatus());
 //            }
             while (rs.next()) {
+                String datetime = rs.getString("date_time");
                 String abbrVslM = rs.getString("abbrVslm");
                 String inVoyn = rs.getString("inVoyn");
                 String newAvgSpeed = rs.getString("newAvgSpeed");
@@ -109,6 +110,7 @@ public class AlertDAO {
 
                 alert.setAbbrVslM(abbrVslM);
                 alert.setInVoyN(inVoyn);
+                alert.setAlertDateTime(datetime);
                 if (newAvgSpeed != null) {
                     alert.setNewAvgSpeed(Double.valueOf(newAvgSpeed));
                 }

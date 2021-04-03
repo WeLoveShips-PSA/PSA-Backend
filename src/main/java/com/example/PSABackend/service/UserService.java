@@ -75,13 +75,13 @@ public class UserService {
         return userDAS.checkEmailExists(email);
     }
 
-    public boolean changeUserConfig(String username, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) throws DataException {
+    public boolean changeUserConfig(String username,boolean emailOptIn, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) throws DataException {
         try {
             getUserById(username);
         } catch (DataException e) {
             // throw new UsernameNotFoundException("Username not found. Cannot change user configurations.");
         }
-        return userDAS.changeUserConfig(username, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
+        return userDAS.changeUserConfig(username,emailOptIn, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
     }
     public boolean delUser(String username, String password) throws DataException, LoginException {
         if (userLogin(username, password) == null) {

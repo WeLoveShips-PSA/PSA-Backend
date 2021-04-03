@@ -65,19 +65,19 @@ public class UserDAS {
         return true;
     }
 
-    public boolean changeUserConfig(String username, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) throws DataException{
+    public boolean changeUserConfig(String username,boolean emailOptIn, boolean btrDtAlert,boolean berthNAlert, boolean statusAlert, boolean avgSpeedAlert, boolean distanceToGoAlert, boolean maxSpeedAlert) throws DataException{
 
-        String changeUserConfigQuery = "UPDATE user SET btrDtAlert = ?, berthNAlert = ?, statusAlert = ?, avgSpeedAlert = ?, distanceToGoAlert = ?, maxSpeedAlert = ? WHERE username = ?";
+        String changeUserConfigQuery = "UPDATE user SET emailOptIn = ?, btrDtAlert = ?, berthNAlert = ?, statusAlert = ?, avgSpeedAlert = ?, distanceToGoAlert = ?, maxSpeedAlert = ? WHERE username = ?";
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(changeUserConfigQuery);) {
-
-            stmt.setString(1, String.valueOf(btrDtAlert).equals("true") ? "0" : "1") ;
-            stmt.setString(2, String.valueOf(berthNAlert).equals("true") ? "0" : "1");
-            stmt.setString(3, String.valueOf(statusAlert).equals("true") ? "0" : "1");
-            stmt.setString(4, String.valueOf(avgSpeedAlert).equals("true") ? "0" : "1");
-            stmt.setString(5, String.valueOf(distanceToGoAlert).equals("true") ? "0" : "1");
-            stmt.setString(6, String.valueOf(maxSpeedAlert).equals("true") ? "0" : "1");
-            stmt.setString(7, username);
+            stmt.setString(1, String.valueOf(emailOptIn).equals("true") ? "0" : "1") ;
+            stmt.setString(2, String.valueOf(btrDtAlert).equals("true") ? "0" : "1") ;
+            stmt.setString(3, String.valueOf(berthNAlert).equals("true") ? "0" : "1");
+            stmt.setString(4, String.valueOf(statusAlert).equals("true") ? "0" : "1");
+            stmt.setString(5, String.valueOf(avgSpeedAlert).equals("true") ? "0" : "1");
+            stmt.setString(6, String.valueOf(distanceToGoAlert).equals("true") ? "0" : "1");
+            stmt.setString(7, String.valueOf(maxSpeedAlert).equals("true") ? "0" : "1");
+            stmt.setString(8, username);
             System.out.println(stmt);
             stmt.executeUpdate();
 
@@ -115,6 +115,7 @@ public class UserDAS {
                 String password = rs.getString("password");
                 String user_name = rs.getString("username");
                 String email = rs.getString("email");
+                boolean emailOptIn = rs.getString("emailOptIn").equals("0") ? true : false;
                 boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
                 boolean isBerthNAlert = rs.getString("berthNAlert").equals("0") ? true : false;
                 boolean isStatusAlert = rs.getString("statusAlert").equals("0") ? true : false;
@@ -122,7 +123,7 @@ public class UserDAS {
                 boolean isDistanceToGoAlert = rs.getString("distanceToGoAlert").equals("0") ? true : false;
                 boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
 
-                userList.add(new User(password, user_name, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert));
+                userList.add(new User(password, user_name, email, emailOptIn, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert));
             }
         } catch (SQLException e) {
             throw new DataException("Could not access database");
@@ -140,9 +141,10 @@ public class UserDAS {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                String name = rs.getString("username");
+                String user_name = rs.getString("username");
                 String password = rs.getString("password");
                 String email = rs.getString("email");
+                boolean emailOptIn = rs.getString("emailOptIn").equals("0") ? true : false;
                 boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
                 boolean isBerthNAlert = rs.getString("berthNAlert").equals("0") ? true : false;
                 boolean isStatusAlert = rs.getString("statusAlert").equals("0") ? true : false;
@@ -150,7 +152,7 @@ public class UserDAS {
                 boolean isDistanceToGoAlert = rs.getString("distanceToGoAlert").equals("0") ? true : false;
                 boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
 
-                user= new User(password, username, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
+                user = new User(password, user_name, email, emailOptIn, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
             } else {
                 throw new DataException(String.format("%s not found", username));
             }
@@ -172,9 +174,10 @@ public class UserDAS {
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                String name = rs.getString("username");
+                String user_name = rs.getString("username");
                 String correctPassword = rs.getString("password");
                 String email = rs.getString("email");
+                boolean emailOptIn = rs.getString("emailOptIn").equals("0") ? true : false;
                 boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
                 boolean isBerthNAlert = rs.getString("berthNAlert").equals("0") ? true : false;
                 boolean isStatusAlert = rs.getString("statusAlert").equals("0") ? true : false;
@@ -183,7 +186,7 @@ public class UserDAS {
                 boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
 
                 if (password.equals(correctPassword)) {
-                    user= new User(password, username, email, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
+                    user = new User(password, user_name, email, emailOptIn, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
                 }
             }
         } catch (SQLException e) {

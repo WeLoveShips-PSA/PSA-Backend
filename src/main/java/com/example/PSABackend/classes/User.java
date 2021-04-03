@@ -27,6 +27,8 @@ public class User {
     private boolean distanceToGoAlert = true;
     @NotBlank
     private boolean maxSpeedAlert = false;
+    @NotBlank
+    private boolean emailOptIn = true;
 
     public User(@JsonProperty("password") String password, @JsonProperty("user_name") String user_name, @JsonProperty("email") String email) {
         this.password = password;
@@ -35,10 +37,11 @@ public class User {
     }
 
 
-    public User(@NotBlank String password, @NotBlank String user_name, @NotBlank String email, @NotBlank boolean btrDtAlert, @NotBlank boolean berthNAlert, @NotBlank boolean statusAlert, @NotBlank boolean avgSpeedAlert, @NotBlank boolean distanceToGoAlert, @NotBlank boolean maxSpeedAlert) {
+    public User(@NotBlank String password, @NotBlank String user_name, @NotBlank String email, @NotBlank boolean emailOptIn, @NotBlank boolean btrDtAlert, @NotBlank boolean berthNAlert, @NotBlank boolean statusAlert, @NotBlank boolean avgSpeedAlert, @NotBlank boolean distanceToGoAlert, @NotBlank boolean maxSpeedAlert) {
         this.password = password;
         this.user_name = user_name;
         this.email = email;
+        this.emailOptIn = emailOptIn;
         this.btrDtAlert = btrDtAlert;
         this.berthNAlert = berthNAlert;
         this.statusAlert = statusAlert;
@@ -109,6 +112,14 @@ public class User {
 
     public boolean isBtrDtAlert() {
         return btrDtAlert;
+    }
+
+    public boolean isEmailOptIn() {
+        return emailOptIn;
+    }
+
+    public void setEmailOptIn(boolean emailOptIn) {
+        this.emailOptIn = emailOptIn;
     }
 }
 

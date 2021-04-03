@@ -166,43 +166,64 @@ public class VesselDAS {
         return queryList;
     }
 
-//    public static ResultSet getPreviousVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
-//        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
-//            String oldQuery = "select l.fullvslm, l.abbrvslm, l.invoyn, l.fullinvoyn, l.outvoyn, vsl_voy, btrdt, unbthgdt, berthn, status, avg_speed, distance_to_go, max_speed " +
-//                    "from vessel_log l " +
-//                    "left outer join vessel_extra_log e " +
-//                    "on e.abbrvslm = l.abbrvslm " +
-//                    "and e.invoyn = l.invoyn " +
-//                    "where l.abbrvslm = ? and l.invoyn = ? " +
-//                    "order by abbrvslm asc, l.updatedate desc limit 1";
-//            PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
-//            oldStatement.setString(1, subbedVessel.getAbbrVslM());
-//            oldStatement.setString(2, subbedVessel.getInVoyN());
-//            ResultSet oldRs = oldStatement.executeQuery();
-//            if (oldRs.next()) {
-//
-//            }
-//        } catch (SQLException e) {
-//            throw new DataException("Database Error");
-//        }
-//    }
-//
-//    public static ResultSet getCurrentVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
-//        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
-//            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
-//                    "from vessel l " +
-//                    "left outer join vessel_extra e " +
-//                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
-//                    "where l.abbrvslm  = ? and  l.invoyn = ? " +
-//                    "order by abbrvslm asc";
-//            PreparedStatement newStatement = conn.prepareStatement(newQuery);
-//            newStatement.setString(1, subbedVessel.getAbbrVslM());
-//            newStatement.setString(2, subbedVessel.getInVoyN());
-//            return newStatement.executeQuery();
-//        } catch (SQLException e) {
-//            throw new DataException("Database Error");
-//        }
-//    }
+    public static HashMap<String, String> getPreviousVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
+        HashMap<String, String> oldRsMap= new HashMap<>();
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
+            String oldQuery = "select l.fullvslm, l.abbrvslm, l.invoyn, l.fullinvoyn, l.outvoyn, vsl_voy, btrdt, unbthgdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+                    "from vessel_log l " +
+                    "left outer join vessel_extra_log e " +
+                    "on e.abbrvslm = l.abbrvslm " +
+                    "and e.invoyn = l.invoyn " +
+                    "where l.abbrvslm = ? and l.invoyn = ? " +
+                    "order by abbrvslm asc, l.updatedate desc limit 1";
+            PreparedStatement oldStatement = conn.prepareStatement(oldQuery);
+            oldStatement.setString(1, subbedVessel.getAbbrVslM());
+            oldStatement.setString(2, subbedVessel.getInVoyN());
+            ResultSet oldRs = oldStatement.executeQuery();
+            if (oldRs.next()) {
+                oldRsMap.put("brtdt", oldRs.getString("btrDt"));
+                oldRsMap.put("berthn", oldRs.getString("berthn"));
+                oldRsMap.put("status", oldRs.getString("status"));
+                oldRsMap.put("avg_speed", oldRs.getString("avg_speed"));
+                oldRsMap.put("distance_to_go", oldRs.getString("distance_to_go"));
+                oldRsMap.put("max_speed", oldRs.getString("max_speed"));
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
+        }
+        return oldRsMap;
+    }
+
+    public static HashMap<String, String> getCurrentVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
+        HashMap<String, String> newRsMap= new HashMap<>();
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
+            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+                    "from vessel l " +
+                    "left outer join vessel_extra e " +
+                    "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
+                    "where l.abbrvslm  = ? and  l.invoyn = ? " +
+                    "order by abbrvslm asc";
+            PreparedStatement newStatement = conn.prepareStatement(newQuery);
+            newStatement.setString(1, subbedVessel.getAbbrVslM());
+            newStatement.setString(2, subbedVessel.getInVoyN());
+            ResultSet newRs = newStatement.executeQuery();
+            if (newRs.next()) {
+                newRsMap.put("brtdt", newRs.getString("btrDt"));
+                newRsMap.put("berthn", newRs.getString("berthn"));
+                newRsMap.put("status", newRs.getString("status"));
+                newRsMap.put("avg_speed", newRs.getString("avg_speed"));
+                newRsMap.put("distance_to_go", newRs.getString("distance_to_go"));
+                newRsMap.put("max_speed", newRs.getString("max_speed"));
+            } else {
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
+        }
+        return newRsMap;
+    }
 
     public static List<Alert> detectChangesVessel(User user, List<FavAndSubVessel> subbedVesselList) throws DataException {
         List<Alert> alertList = new ArrayList<>();

@@ -48,6 +48,7 @@ public class UserController {
     @RequestMapping(path = "/config")
     ResponseEntity<String> changeUserConfig(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
+        boolean emailOptIn = body.get("emailOptIn").toString().equals("true");
         boolean btrDtAlert = body.get("btrDtAlert").toString().equals("true");
         boolean berthNAlert = body.get("berthNAlert").toString().equals("true");
         boolean statusAlert = body.get("statusAlert").toString().equals("true");
@@ -55,7 +56,7 @@ public class UserController {
         boolean distanceToGoAlert = body.get("distanceToGoAlert").toString().equals("true");
         boolean maxSpeedAlert = body.get("maxSpeedAlert").toString().equals("true");
         try {
-            userService.changeUserConfig(username, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
+            userService.changeUserConfig(username, emailOptIn, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
             return ResponseEntity.status(HttpStatus.OK).body("Configuration Changed Successfully");
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
