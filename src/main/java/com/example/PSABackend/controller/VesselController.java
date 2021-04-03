@@ -56,13 +56,13 @@ public class VesselController {
 
     @PostMapping
     @RequestMapping(path = "/getvesselsbydate")
-    public ArrayList<VesselDetails> getVesselsByDate (@RequestBody Map<String, String> body) {
+    public List<VesselDetails> getVesselsByDate (@RequestBody Map<String, String> body) {
         String date = body.get("date");
         //sort by
         //order
         LocalDateTime dateTime = LocalDateTime.parse(date);
         try {
-            return VesselDAS.getVesselsByDate(dateTime);
+            return VesselService.getVesselsByDate(dateTime);
         } catch (PSAException e) {
             return null;
         }
