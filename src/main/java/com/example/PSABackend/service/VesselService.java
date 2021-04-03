@@ -24,22 +24,64 @@ public class VesselService {
         return VesselDAS.selectVesselById(abbrVslM, inVoyN);
     }
 
+    public static List<VesselDetails> getVesselsByDate(LocalDateTime dateTime) throws DataException {
+        return VesselDAS.getVesselsByDate(dateTime);
+    }
+
     public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) throws DataException {
         return VesselDAS.getVesselByAbbrVslM(shortAbbrVslM);
     }
 
     public static List<Alert> detectVesselChanges(User user, List<FavAndSubVessel> subbedVesselList) throws DataException {
-        return VesselDAS.detectChangesVessel(user, subbedVesselList);
+        List<Alert> alertList = new ArrayList<>();
+
+        for (FavAndSubVessel vessel : subbedVesselList) {
+            HashMap<String, String> newRs = VesselDAS.getCurrentVesselDetails(user.getUser_name(), vessel);
+            HashMap<String, String> oldRs = VesselDAS.getPreviousVesselDetails(user.getUser_name(), vessel);
+
+            Alert alert = new Alert();
+            alert.setAbbrVslM(vessel.getAbbrVslM());
+            alert.setInVoyN(vessel.getInVoyN());
+            boolean hasChange = false;
+            if (needAddAlert(newRs, oldRs, "btrdt", user.isBtrDtAlert())) {
+                alert.setNewBerthTime(Timestamp.valueOf(newRs.get("btrdt")).toLocalDateTime());
+                hasChange = true;
+            }
+            if (needAddAlert(newRs, oldRs, "berthn", user.isBerthNAlert())) {
+                alert.setNewBerthNo(newRs.get("berthn"));
+                hasChange = true;
+            }
+            if (needAddAlert(newRs, oldRs, "status", user.isStatusAlert())) {
+                alert.setNewStatus(newRs.get("status"));
+                hasChange = true;
+            }
+            if (needAddAlert(newRs, oldRs, "avg_speed", user.isAvgSpeedAlert())) {
+                alert.setNewAvgSpeed(Double.parseDouble(newRs.get("avg_speed")));
+                hasChange = true;
+            }
+            if (needAddAlert(newRs, oldRs, "distance_to_go", user.isDistanceToGoAlert())) {
+                alert.setNewDistanceToGo(Integer.parseInt(newRs.get("distance_to_go")));
+                hasChange = true;
+            }
+            if (needAddAlert(newRs, oldRs, "max_speed", user.isMaxSpeedAlert())) {
+                alert.setNewMaxSpeed(Integer.parseInt(newRs.get("max_speed")));
+                hasChange = true;
+            }
+            if (hasChange) {
+                alertList.add(alert);
+            }
+        }
+        return alertList;
     }
 
-    public static boolean needAddAlert(ResultSet newRs, ResultSet oldRs, String alertAttribute, boolean alertOpt) throws SQLException {
+    public static boolean needAddAlert(HashMap<String, String> newRs, HashMap<String, String> oldRs, String alertAttribute, boolean alertOpt) {
         if (!alertOpt) {
             return false;
         }
-        if (newRs.getString(alertAttribute) == null) {
+        if (newRs.get(alertAttribute) == null) {
             return false;
         }
-        if (newRs.getString(alertAttribute).equals(oldRs.getString(alertAttribute))) {
+        if (newRs.get(alertAttribute).equals(oldRs.get(alertAttribute))) {
             return false;
         }
         return true;

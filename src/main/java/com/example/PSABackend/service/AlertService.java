@@ -42,6 +42,9 @@ public class AlertService {
         }
 
         for (User user : userList) {
+            if (!user.isEmailOptIn()) {
+                continue;
+            }
             subbedVesselList = userService.getSubscribedVesselPK(user.getUser_name());
             alertList = VesselService.detectVesselChanges(user, subbedVesselList);
             insertAlerts(user.getUser_name(), alertList);

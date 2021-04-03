@@ -11,6 +11,8 @@ public class Alert {
     private String abbrVslM;
     @NotBlank
     private String inVoyN;
+    @NotBlank
+    private String alertDateTime;
 
     private String outVoyN;
     private double newAvgSpeed; //consider making an avgspeed object
@@ -146,4 +148,11 @@ public class Alert {
     }
 
 
+    public String getAlertDateTime() {
+        return alertDateTime;
+    }
+
+    public void setAlertDateTime(String alertDateTime) {
+        this.alertDateTime = alertDateTime;
+    }
 }
