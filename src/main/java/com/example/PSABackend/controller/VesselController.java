@@ -5,7 +5,6 @@ import com.example.PSABackend.classes.Vessel;
 import com.example.PSABackend.classes.VesselDetails;
 import com.example.PSABackend.exceptions.PSAException;
 import com.example.PSABackend.service.VesselService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
