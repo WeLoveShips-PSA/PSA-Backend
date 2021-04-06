@@ -107,7 +107,7 @@ public class VesselDAS {
         List<VesselDetails> vesselDetailsList = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = "SELECT fullVslM, abbrvslm, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN where VESSEL.ABBRVSLM like ?";
+            String query = "SELECT fullVslM, vessel.abbrvslm, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN where VESSEL.ABBRVSLM like ?";
 
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, shortAbbrVslM + "%");
