@@ -2,6 +2,8 @@ package com.example.PSABackend;
 
 import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.DAO.PortNetConnectorDAO;
+import com.example.PSABackend.exceptions.PSAException;
+import com.example.PSABackend.service.AlertService;
 import com.example.PSABackend.service.EmailService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -31,7 +33,7 @@ public class PortNetConnector {
     private String password;
 
 
-    private AlertDAO alertDAO = new AlertDAO();
+    private AlertService alertService = new AlertService();
     private UserService userService;
     private EmailService emailService;
 
@@ -122,17 +124,12 @@ public class PortNetConnector {
         String todaydate = localDate.toString();
         System.out.println(todaydate);
         getUpdate(todaydate, todaydate);
-//        for(String username:alertDAO.getAlertUSERS()){
-//
-//            User user= userService.getUserById(username);
-//            try {
-//                // emailService.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
-//            } catch(Exception e) {
-//                e.printStackTrace();
-//            }
-//    }
-//        AlertDAO alertDAO=new AlertDAO();
-
+        updateVessel();
+        try {
+            alertService.getAlerts();
+        } catch (PSAException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Scheduled(cron = "0 0 0 * * *")
@@ -141,23 +138,21 @@ public class PortNetConnector {
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
         getUpdate(todayDate, nextWeekDate);
-        // VesselDAS.detectChangesVessel();
-
-//        for(String username:alertDAO.getAlertUSERS()){
-//
-//            User user= userService.getUserById(username);
-//            try {
-//                emailService.sendEmail(user.getEmail(), alertDAO.toString(username), "UPDATE",username);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-        AlertDAO alertDAO=new AlertDAO();
+        updateVessel();
+        try {
+            alertService.getAlerts();
+        } catch (PSAException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Scheduled(cron = "* * 1 * * *")
     public void hourly(){
         updateVessel();
-        // VesselDAS.detectChangesVessel();
+        try {
+            alertService.getAlerts();
+        } catch (PSAException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
