@@ -183,7 +183,7 @@ public class VesselDAS {
             oldStatement.setString(2, subbedVessel.getInVoyN());
             ResultSet oldRs = oldStatement.executeQuery();
             if (oldRs.next()) {
-                oldRsMap.put("brtdt", oldRs.getString("btrDt"));
+                oldRsMap.put("btrdt", oldRs.getString("btrDt"));
                 oldRsMap.put("berthn", oldRs.getString("berthn"));
                 oldRsMap.put("status", oldRs.getString("status"));
                 oldRsMap.put("avg_speed", oldRs.getString("avg_speed"));

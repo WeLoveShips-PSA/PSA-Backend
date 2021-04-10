@@ -118,7 +118,7 @@ public class PortNetConnector {
     }
 
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 */1 * *")
     public void daily() {
         LocalDate localDate = LocalDate.now();
         String todaydate = localDate.toString();
@@ -132,7 +132,7 @@ public class PortNetConnector {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 */7 * *")
     public void nextWeek(){
         LocalDate localDate = LocalDate.now();
         String todayDate = localDate.toString();
@@ -146,9 +146,10 @@ public class PortNetConnector {
         }
     }
 
-    @Scheduled(cron = "* * 1 * * *")
+    @Scheduled(cron = "0 0 */1 * * *")
     public void hourly(){
         updateVessel();
+        System.out.println("Hourly update: " + LocalDate.now());
         try {
             alertService.getAlerts();
         } catch (PSAException e) {
