@@ -47,7 +47,7 @@ public class UserController {
     @PostMapping
     @RequestMapping(path = "/config")
     ResponseEntity<String> changeUserConfig(@RequestBody Map<String, Object> body) {
-        String username = body.get("username").toString();
+        String username = body.get("user_name").toString();
         boolean emailOptIn = body.get("emailOptIn").toString().equals("true");
         boolean btrDtAlert = body.get("btrDtAlert").toString().equals("true");
         boolean berthNAlert = body.get("berthNAlert").toString().equals("true");
