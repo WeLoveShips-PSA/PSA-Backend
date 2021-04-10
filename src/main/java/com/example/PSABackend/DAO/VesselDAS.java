@@ -71,6 +71,8 @@ public class VesselDAS {
         Vessel vessel = null;
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             String query = String.format("SELECT * FROM VESSEL WHERE abbrVslM = '%s' AND inVoyN = '%s'", abbrVslM, inVoyN);
+
+
             PreparedStatement queryStatement = conn.prepareStatement(query);
 
 
@@ -210,7 +212,7 @@ public class VesselDAS {
             newStatement.setString(2, subbedVessel.getInVoyN());
             ResultSet newRs = newStatement.executeQuery();
             if (newRs.next()) {
-                newRsMap.put("brtdt", newRs.getString("btrDt"));
+                newRsMap.put("btrdt", newRs.getString("btrDt"));
                 newRsMap.put("berthn", newRs.getString("berthn"));
                 newRsMap.put("status", newRs.getString("status"));
                 newRsMap.put("avg_speed", newRs.getString("avg_speed"));

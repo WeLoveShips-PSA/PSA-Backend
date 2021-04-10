@@ -6,10 +6,9 @@ import com.example.PSABackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.crypto.Data;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +37,8 @@ public class UserController {
         try {
             userService.addUser(new User(password, username, email));
             return ResponseEntity.status(HttpStatus.OK).body("ok");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -57,6 +58,8 @@ public class UserController {
         try {
             userService.changeUserConfig(username, emailOptIn, btrDtAlert, berthNAlert, statusAlert, avgSpeedAlert, distanceToGoAlert, maxSpeedAlert);
             return ResponseEntity.status(HttpStatus.OK).body("Configuration Changed Successfully");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
             //TODO
@@ -77,8 +80,10 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.OK).body("ok");
             }
             else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("someting wrong ");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unable to delete user");
             }
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -86,37 +91,46 @@ public class UserController {
 
     @GetMapping
     @RequestMapping(path = "/get-all")
-    public List<User> getAllUsers() {
+    public ResponseEntity<?> getAllUsers() {
         try {
-            return userService.getAllUsers();
+            List<User> userList = userService.getAllUsers();
+            return ResponseEntity.status(HttpStatus.OK).body(userList);
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
-            return null;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
     @GetMapping
     @RequestMapping(path = "/get/{username}")
-    public ResponseEntity<Object> getUserById(@PathVariable("username") String username) {
+    public ResponseEntity<?> getUserById(@PathVariable("username") String username) {
         try {
             User user = userService.getUserById(username);
             return ResponseEntity.status(HttpStatus.OK).body(user);
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // no user found
-            //TODO check return type if can return object
         }
     }
 
     @PostMapping
     @RequestMapping(path = "/login")
-    ResponseEntity<User> userLogin(@RequestBody Map<String, Object> body) {
+    ResponseEntity<?> userLogin(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         String password = body.get("password").toString();
 
         try {
             User user = userService.userLogin(username, password);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password does not match");
+            }
             return ResponseEntity.status(HttpStatus.OK).body(user);
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password does not match");
         }
     }
 
@@ -130,7 +144,9 @@ public class UserController {
 
         try {
             userService.changeUserPassword(username, oldPassword, newPassword, false);
-            return ResponseEntity.status(HttpStatus.OK).body("");
+            return ResponseEntity.status(HttpStatus.OK).body("Password Changed Successfully");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -143,6 +159,8 @@ public class UserController {
         try {
             userService.resetUserPassword(username);
             return ResponseEntity.status(HttpStatus.OK).body("New Password has be sent to your email");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) { // catch some emailer exception
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -157,6 +175,8 @@ public class UserController {
         try {
             userService.addFavourite(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -172,6 +192,8 @@ public class UserController {
         try {
             userService.delFavourite(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -180,14 +202,17 @@ public class UserController {
     @PostMapping
     @RequestMapping(path = "get-favourite")
     //TODO can return Obejct?
-    public List<Vessel> getFavourite(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> getFavourite(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         String sort = body.get("sort_by").toString(); // date
         String order = body.get("order").toString(); // asc
         try {
-            return userService.getFavourite(username, sort, order);
+            List<Vessel> list =  userService.getFavourite(username, sort, order);
+            return ResponseEntity.status(HttpStatus.OK).body(list);
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
-            return null;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
@@ -201,6 +226,8 @@ public class UserController {
         try {
             userService.addSubscribed(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -216,6 +243,8 @@ public class UserController {
         try {
             userService.delSubscribed(username, abbrVsim, inVoyn);
             return ResponseEntity.status(HttpStatus.OK).body("");
+        } catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
@@ -224,14 +253,17 @@ public class UserController {
 
     @PostMapping
     @RequestMapping(path = "get-subscribed")
-    public List<Vessel> getSubscribed(@RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> getSubscribed(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
         String sort = body.get("sort_by").toString(); // date
         String order = body.get("order").toString(); // asc
         try {
-            return userService.getSubscribed(username, sort, order);
+            List<Vessel> subscribedList = userService.getSubscribed(username, sort, order);
+            return ResponseEntity.status(HttpStatus.OK).body(subscribedList);
+        }  catch (DataException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
-            return null;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 

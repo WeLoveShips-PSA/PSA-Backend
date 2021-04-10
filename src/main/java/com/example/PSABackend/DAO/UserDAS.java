@@ -45,6 +45,8 @@ public class UserDAS {
 
         String addUserQuery = "INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?)";
 
+
+        // camelCasing
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addUserQuery);) {
 
@@ -187,10 +189,14 @@ public class UserDAS {
 
                 if (password.equals(correctPassword)) {
                     user = new User(password, user_name, email, emailOptIn, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
+                } else {
+                    throw new LoginException("Username or password is incorrect");
                 }
             }
         } catch (SQLException e) {
             throw new DataException(String.format("%s not found", username));
+        } catch (LoginException e) {
+            throw e;
         }
         return user;
     }

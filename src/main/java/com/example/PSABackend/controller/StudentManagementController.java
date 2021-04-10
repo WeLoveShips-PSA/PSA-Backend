@@ -27,8 +27,8 @@ public class StudentManagementController {
 
     @GetMapping(path = "all")
     public List<Student> getSTUDENTS() {
-        portNetConnector.getUpdate("2021-01-05", "2021-01-05");
-        portNetConnector.updateVessel();
+//        portNetConnector.getUpdate("2021-01-05", "2021-01-05");
+//        portNetConnector.updateVessel();
         try {
             alertService.getAlerts();
         } catch (PSAException e) {

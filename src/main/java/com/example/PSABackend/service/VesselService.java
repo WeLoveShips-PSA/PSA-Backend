@@ -70,8 +70,8 @@ public class VesselService {
             if (hasChange) {
                 alertList.add(alert);
             }
-        }
-        return alertList;
+        }return alertList;
+
     }
 
     public static boolean needAddAlert(HashMap<String, String> newRs, HashMap<String, String> oldRs, String alertAttribute, boolean alertOpt) {
