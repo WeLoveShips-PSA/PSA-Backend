@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -120,6 +121,9 @@ public class PortNetConnector {
 
     @Scheduled(cron = "0 0 0 */1 * *")
     public void daily() {
+        System.out.println("Daily update: " + LocalDateTime.now());
+
+
         LocalDate localDate = LocalDate.now();
         String todaydate = localDate.toString();
         System.out.println(todaydate);
@@ -134,6 +138,8 @@ public class PortNetConnector {
 
     @Scheduled(cron = "0 0 0 */7 * *")
     public void nextWeek(){
+        System.out.println("Weekly update: " + LocalDateTime.now());
+
         LocalDate localDate = LocalDate.now();
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
@@ -148,8 +154,8 @@ public class PortNetConnector {
 
     @Scheduled(cron = "0 0 */1 * * *")
     public void hourly(){
+        System.out.println("Hourly update: " + LocalDateTime.now());
         updateVessel();
-        System.out.println("Hourly update: " + LocalDate.now());
         try {
             alertService.getAlerts();
         } catch (PSAException e) {
