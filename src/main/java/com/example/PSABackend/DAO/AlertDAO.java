@@ -40,44 +40,6 @@ public class AlertDAO {
     public AlertDAO() {
     }
 
-//    public String getMessage(String username, List<Alert> alertList) {
-//        String out = "Dear " + username + ",\n";
-//        for (Alert a: alertList) {
-//            out += a + "\n";
-//        }
-//        return out;
-//    }
-//
-//    public void getAlerts() throws DataException {
-//        List<User> userList;
-//        userList = userDAS.selectAllUsers();
-//
-//        List<Alert> alertList = new ArrayList<>();
-//        List<FavAndSubVessel> subbedVesselList = new ArrayList<>();
-//
-//        if (userList == null) {
-//            return;
-//        }
-//
-//        for (User user : userList) {
-//            subbedVesselList = userDAS.getSubscribedVesselsPK(user.getUser_name());
-//            alertList = VesselDAS.detectChangesVessel(user, subbedVesselList);
-//            insertAlerts(user.getUser_name(), alertList);
-//            sendAlerts(user, alertList);
-//        }
-//    }
-//
-//    public void sendAlerts(User user, List<Alert> alertList) {
-//        String alertMessage = getMessage(user.getUser_name(), alertList);
-//        System.out.println(alertMessage);
-//        try {
-//            EmailService.sendEmail(user.getEmail(), alertMessage, "Alerts for your subscribed Vessel", user.getUser_name());
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//            // throw EmailerException or smth
-//        }
-//    }
-
     public List<Alert> getAlertsByUsername(String username) throws DataException {
         ArrayList<Alert> alertList = new ArrayList<>();
         String getAlertsQuery = "SELECT * FROM alert where username = ?";
