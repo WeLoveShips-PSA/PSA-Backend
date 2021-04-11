@@ -66,12 +66,10 @@ public class AlertService {
     }
     public void sendAlerts(User user, List<Alert> alertList) {
         String alertMessage = getMessage(user.getUser_name(), alertList);
-        System.out.println(alertMessage);
         try {
             EmailService.sendEmail(user.getEmail(), alertMessage, "Alerts for your subscribed Vessel", user.getUser_name());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            // throw EmailerException or smth
+
         }
     }
 
@@ -84,7 +82,7 @@ public class AlertService {
         try {
             AlertDAO.deleteExpiredAlerts();
         } catch (PSAException e) {
-            System.out.println("as");
+
         }
     }
 

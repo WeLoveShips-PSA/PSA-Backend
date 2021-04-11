@@ -32,8 +32,7 @@ public class StudentManagementController {
             //portNetConnector.updateVessel();
             alertService.getAlerts();
         } catch (Exception e) {
-            System.out.println("caight in smc");
-            e.printStackTrace();
+
         }
         return STUDENTS;
     }

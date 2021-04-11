@@ -80,7 +80,6 @@ public class VesselExtraDAS {
             String query = "SELECT * FROM VESSEL_EXTRA WHERE (VSL_VOY = ?)";
             PreparedStatement queryStatement = conn.prepareStatement(query);
             queryStatement.setString(1, VSLVoy);
-            System.out.println(queryStatement.toString());
 
             ResultSet rs = queryStatement.executeQuery();
 

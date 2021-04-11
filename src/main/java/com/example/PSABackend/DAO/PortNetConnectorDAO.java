@@ -90,7 +90,6 @@ public class PortNetConnectorDAO {
                     }
                     updateStatement.setString(arr.length+1, vesselObject.get("abbrVslM").toString().replace("\"", ""));
                     updateStatement.setString(arr.length+2, vesselObject.get("inVoyN").toString().replace("\"", ""));
-                    System.out.println(updateStatement.toString());
                     updateStatement.executeUpdate();
                 }else{
                     String insert = "INSERT INTO VESSEL VALUES(?,?,?,?,?,?,?,?,?,?,0)";
@@ -107,7 +106,6 @@ public class PortNetConnectorDAO {
                         }
                         insertStatement.setString(i+1, str);
                     }
-                    System.out.println(insertStatement.toString());
                     insertStatement.executeUpdate();
                 }
             }catch(SQLException ex){
@@ -183,8 +181,7 @@ public class PortNetConnectorDAO {
                 try {
                     updateStatement.executeUpdate();
                 } catch (SQLException e) {
-                    System.out.println(e.getMessage());
-                    System.out.println(updateStatement);
+
                 }
 
                 // String queryInsert = "REPLACE INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
@@ -227,7 +224,6 @@ public class PortNetConnectorDAO {
                 replaceStatement.setString(11, abbrVslM);
                 replaceStatement.setString(12, inVoyN);
                 replaceStatement.setString(13, "0");
-                System.out.println(replaceStatement.toString());
                 replaceStatement.executeUpdate();
 //                String queryInsert = "INSERT INTO VESSEL_SPEED VALUES(" + vessel.get("AVG_SPEED").toString().replace("\"", "") + ", " + vessel.get("VSL_VOY").toString() + ")";
 
@@ -246,7 +242,6 @@ public class PortNetConnectorDAO {
 
 
         } catch(Exception ex) {
-            System.out.println(ex.getMessage());
         }
     }
 

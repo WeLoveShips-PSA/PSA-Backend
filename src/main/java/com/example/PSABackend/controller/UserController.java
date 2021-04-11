@@ -139,7 +139,6 @@ public class UserController {
         String username = body.get("username").toString();
         String oldPassword = body.get("oldPassword").toString();
         String newPassword = body.get("newPassword").toString();
-        System.out.println(username + " " + oldPassword + " " + newPassword);
 
         try {
             userService.changeUserPassword(username, oldPassword, newPassword, false);
