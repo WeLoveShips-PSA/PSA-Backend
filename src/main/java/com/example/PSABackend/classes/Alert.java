@@ -13,20 +13,14 @@ public class Alert {
     private String inVoyN;
     @NotBlank
     private String alertDateTime;
-
     private String outVoyN;
-    private double newAvgSpeed; //consider making an avgspeed object
+    private double newAvgSpeed;
     private int newMaxSpeed;
     private int newDistanceToGo;
-
-
-
     private LocalDateTime newBerthTime;
     private LocalDateTime newUnBerthTime;
     private String newBerthNo;
     private String newStatus;
-
-
 
     public Alert() {
     }
@@ -104,6 +98,7 @@ public class Alert {
     public String getNewStatus() {
         return newStatus;
     }
+
     public String getInVoyN() {
         return inVoyN;
     }

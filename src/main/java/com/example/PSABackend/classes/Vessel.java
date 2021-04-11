@@ -12,7 +12,6 @@ import java.util.Date;
 public class Vessel implements Comparable<Vessel>{
 
 
-    // {"fullVslM", "abbrVslM", "inVoyN", "fullOutVoyN", "outVoyN", "bthgDt", "unbthgDt", "berthN", "status", "abbrTerminalM"};
     @NotBlank
     private final String fullVslM;
     @NotBlank
@@ -23,13 +22,10 @@ public class Vessel implements Comparable<Vessel>{
     private final String fullInVoyN;
     @NotBlank
     private final String outVoyN;
-
     private final LocalDateTime bthgDt;
     private final LocalDateTime unbthgDt;
     private final String berthNo;
     private final String status;
-
-
 
     public Vessel(@NotBlank String fullVslM, @NotBlank String abbrVslM, @NotBlank String inVoyN, @NotBlank String fullInVoyN, @NotBlank String outVoyN, String bthgDt, String unbthgDt, String berthNo, String status) {
         this.fullVslM = fullVslM;

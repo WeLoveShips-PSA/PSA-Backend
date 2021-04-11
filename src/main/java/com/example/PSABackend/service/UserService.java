@@ -6,13 +6,8 @@ import com.example.PSABackend.exceptions.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -28,6 +23,9 @@ public class UserService {
 
     @Autowired
     public UserService(UserDAS userDAS) { this.userDAS = userDAS; }
+
+
+
 
     public boolean addUser(User user) throws LoginException, DataException {
         boolean validEmail = false;
@@ -52,6 +50,9 @@ public class UserService {
             throw new LoginException("Email is already used.");
         }
 
+        if (user.getPassword().length() > 15 || user.getPassword().length() < 8) {
+            throw new LoginException("Password is not between 8 to 15 characters");
+        }
 
         if (userDAS.addUser(user)) {
             try {
@@ -101,22 +102,21 @@ public class UserService {
 
     public boolean changeUserPassword(String username, String oldPassword, String newPassword, boolean reset) throws LoginException, DataException {
         if (!reset && userLogin(username, oldPassword) == null) {
-            return false;
+            throw new LoginException("Invalid username or password");
         }
 
-        if (newPassword.length() > 15) {
-            return false; // TODO passay password validator
-            // TODO throw a passwordvalidationexception
+        if (newPassword.length() > 15 || newPassword.length() < 8) {
+            throw new LoginException("Password is not between 8 to 15 characters");
         }
 
-        return userDAS.changeUserPassword(username, oldPassword, newPassword, reset);
+        return userDAS.changeUserPassword(username, newPassword);
     }
 
     public boolean resetUserPassword(String username) throws DataException {
         String newPassword = RandomStringUtils.randomAlphanumeric(15);
         User user = getUserById(username);
 
-        if (!userDAS.resetUserPassword(username, newPassword)) {
+        if (!userDAS.changeUserPassword(username, newPassword)) {
             return false;
         }
 

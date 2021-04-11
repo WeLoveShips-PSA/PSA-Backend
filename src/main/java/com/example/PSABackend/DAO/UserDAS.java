@@ -4,8 +4,13 @@ import com.example.PSABackend.classes.*;
 import com.example.PSABackend.exceptions.*;
 import com.example.PSABackend.service.EmailService;
 import com.example.PSABackend.service.VesselService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -20,6 +25,14 @@ public class UserDAS {
     private static String dbURL;
     private static String username;
     private static String password;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Value("${spring.datasource.url}")
     public void setdbURL(String value) {
@@ -45,13 +58,14 @@ public class UserDAS {
 
         String addUserQuery = "INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?,?)";
 
+        String securePass = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
 
         // camelCasing
         try (Connection conn = DriverManager.getConnection(this.dbURL,  this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(addUserQuery);) {
 
             stmt.setString(1, user.getUser_name());
-            stmt.setString(2, user.getPassword());
+            stmt.setString(2, securePass);
             stmt.setString(3, user.getEmail());
             stmt.setString(4, String.valueOf(user.isBtrDtAlert()).equals("true") ? "0" : "1");
             stmt.setString(5, String.valueOf(user.isBerthNAlert()).equals("true") ? "0" : "1");
@@ -64,6 +78,7 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             throw new DataException("Could not access database");
         }
         return true;
@@ -116,7 +131,7 @@ public class UserDAS {
              PreparedStatement stmt = conn.prepareStatement(getAllUserQuery);) {
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
-                String password = rs.getString("password");
+                String password = null;
                 String user_name = rs.getString("username");
                 String email = rs.getString("email");
                 boolean emailOptIn = rs.getString("emailOptIn").equals("0") ? true : false;
@@ -146,7 +161,7 @@ public class UserDAS {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 String user_name = rs.getString("username");
-                String password = rs.getString("password");
+                String password = null;
                 String email = rs.getString("email");
                 boolean emailOptIn = rs.getString("emailOptIn").equals("0") ? true : false;
                 boolean isBtrDtAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
@@ -189,8 +204,8 @@ public class UserDAS {
                 boolean isDistanceToGoAlert = rs.getString("distanceToGoAlert").equals("0") ? true : false;
                 boolean isMaxSpeedAlert = rs.getString("btrDtAlert").equals("0") ? true : false;
 
-                if (password.equals(correctPassword)) {
-                    user = new User(password, user_name, email, emailOptIn, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
+                if (BCrypt.checkpw(password, correctPassword)) {
+                    user = new User(null, user_name, email, emailOptIn, isBtrDtAlert, isBerthNAlert, isStatusAlert, isAvgSpeedAlert, isDistanceToGoAlert, isMaxSpeedAlert);
                 } else {
                     throw new LoginException("Username or password is incorrect");
                 }
@@ -204,30 +219,15 @@ public class UserDAS {
     }
 
     //@Override
-    public boolean changeUserPassword (String username, String oldPassword, String newPassword, boolean reset) throws LoginException, DataException {
-
+    public boolean changeUserPassword (String username,String newPassword) throws DataException {
         String changePasswordQuery = "UPDATE user SET password = ? where username = ?";
+
+        String securePass = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+
 
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(changePasswordQuery);) {
-            stmt.setString(1, newPassword);
-            stmt.setString(2, username);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new DataException("Could not access database");
-        }
-        return true;
-    }
-
-    //@Override
-    public boolean resetUserPassword(String username, String newPassword) throws DataException {
-
-        String resetPasswordQuery = "UPDATE user SET password = ? where username = ?";
-
-        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
-             PreparedStatement stmt = conn.prepareStatement(resetPasswordQuery);) {
-            stmt.setString(1, newPassword);
+            stmt.setString(1, securePass);
             stmt.setString(2, username);
             stmt.executeUpdate();
 

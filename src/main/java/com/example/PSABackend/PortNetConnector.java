@@ -45,8 +45,6 @@ public class PortNetConnector {
 
 
 
-//    PortNetConnectorDAO portNetConnectorDAO = new PortNetConnectorDAO(dbURL, username, password);
-
     // Calls the vessel api to get all the berthing time and status of the vessels
     public void getUpdate(String dateFrom, String dateTo) {
         PortNetConnectorDAO portNetConnectorDAO = new PortNetConnectorDAO();
@@ -93,8 +91,7 @@ public class PortNetConnector {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity entity = new HttpEntity(headers);
 
-        // PortNetConnectorDAO.getAllShipName() returns an array of hashmaps containing the
-        // Jsonobject of the vessel, and the abbrvslm and invoyn of the vessel
+
         queryArray = portNetConnectorDAO.getAllShipName();
         int i = 0;
         int ind = 1;
@@ -108,7 +105,6 @@ public class PortNetConnector {
                 e.printStackTrace();
             }
 
-            // The structure of v is such that these are the keys 0: vsl_voy, 1: abbrVslM, 2: inVoyN
             StringBuilder queryParam = new StringBuilder();
             queryParam.append(url);
             queryParam.append(v.get("vsl_voy"));
@@ -125,7 +121,6 @@ public class PortNetConnector {
             try {
                 if (jsonObject.get("Error") == null) {
                     portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
-                    // portNetConnectorDAO.setVesselIsUpdated(v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"), true);
                 } else {
                     portNetConnectorDAO.setVesselIsUpdated(v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"), false);
                 }
@@ -136,14 +131,10 @@ public class PortNetConnector {
     }
 
 
-    @Scheduled(cron = "0 0 0,12 * * *")
+    @Scheduled(cron = "0 0 8,20 * * *")
     public void daily() {
         System.out.println("Daily update: " + LocalDateTime.now());
 
-        LocalDate localDate = LocalDate.now();
-        String todaydate = localDate.toString();
-        System.out.println(todaydate);
-        getUpdate(todaydate, todaydate);
         try {
             updateVessel();
             alertService.getAlerts();
@@ -152,7 +143,7 @@ public class PortNetConnector {
         }
     }
 
-    @Scheduled(cron = "0 0 0 */7 * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void nextWeek(){
         System.out.println("Weekly update: " + LocalDateTime.now());
 
@@ -168,14 +159,14 @@ public class PortNetConnector {
         }
     }
 
-    @Scheduled(cron = "0 0 1-11,13-23 * * *")
-    public void hourly(){
-        System.out.println("Hourly update: " + LocalDateTime.now());
-        try {
-            updateVessel();
-            alertService.getAlerts();
-        } catch (PSAException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+//    @Scheduled(cron = "0 0 1-11,13-23 * * *")
+//    public void hourly(){
+//        System.out.println("Hourly update: " + LocalDateTime.now());
+//        try {
+//            updateVessel();
+//            alertService.getAlerts();
+//        } catch (PSAException e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 }
