@@ -42,7 +42,7 @@ public class VesselController {
         String abbrVslM = body.get("abbrVslM");
         String inVoyN = body.get("inVoyN");
         try {
-            Vessel vessel = VesselService.getVesselById(abbrVslM, inVoyN);
+            VesselDetails vessel = VesselService.getVesselById(abbrVslM, inVoyN);
             return ResponseEntity.status(HttpStatus.OK).body(vessel);
         } catch (DataException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -55,8 +55,9 @@ public class VesselController {
     @RequestMapping(path = "/get-vessel-by-shortAbbrVslM")
     public ResponseEntity<?> getVesselByAbbrVslM (@RequestBody Map<String, String> body) {
         String shortAbbrVslM = body.get("abbrVslM");
+        String date= body.get("date");
         try {
-            List<VesselDetails> vesselList = VesselService.getVesselByAbbrVslM(shortAbbrVslM);
+            List<VesselDetails> vesselList = VesselService.getVesselByAbbrVslM(shortAbbrVslM, date);
             return ResponseEntity.status(HttpStatus.OK).body(vesselList);
         } catch (DataException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -85,7 +86,6 @@ public class VesselController {
     @PostMapping
     @RequestMapping(path= "/get-vessel-speed-history")
     public ResponseEntity<?> getVesselSpeedHistory (@RequestBody Map<String, String> body) {
-
         String vsl_voy = body.get("vsl_voy").toString();
         try {
             List<TreeMap> vesselSpeedHistory =  VesselService.getVesselSpeedHistory(vsl_voy);
@@ -94,6 +94,38 @@ public class VesselController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         } catch (PSAException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    @RequestMapping(path = "/get-vessel-current-details")
+    public ResponseEntity<?> getVesselCurrentDetails (@RequestBody Map<String, String> body) {
+        String abbrVslM = body.get("abbrVslM").toString();
+        String inVoyN = body.get("inVoyN").toString();
+
+        try {
+            Map<String, String> currentDetails = VesselService.getCurrentVesselDetails(abbrVslM, inVoyN);
+            return ResponseEntity.status(HttpStatus.OK).body(currentDetails);
+        } catch (PSAException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    @RequestMapping(path = "/get-vessel-previous-details")
+    public ResponseEntity<?> getVesselPreviousDetails (@RequestBody Map<String, String> body) {
+        String abbrVslM = body.get("abbrVslM").toString();
+        String inVoyN = body.get("inVoyN").toString();
+
+        try {
+            Map<String, String> previousDetails = VesselService.getPreviousVesselDetails(abbrVslM, inVoyN);
+            if (previousDetails == null) {
+                return ResponseEntity.status(HttpStatus.OK).body(null);
+
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(previousDetails);
+        } catch (PSAException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

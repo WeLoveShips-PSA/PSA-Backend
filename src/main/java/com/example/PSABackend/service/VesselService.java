@@ -22,7 +22,7 @@ public class VesselService {
         return VesselDAS.selectAllVessels();
     }
 
-    public static Vessel getVesselById (String abbrVslM, String inVoyN) throws DataException{
+    public static VesselDetails getVesselById (String abbrVslM, String inVoyN) throws DataException{
         return VesselDAS.selectVesselById(abbrVslM, inVoyN);
     }
 
@@ -30,16 +30,16 @@ public class VesselService {
         return VesselDAS.getVesselsByDate(dateTime);
     }
 
-    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) throws DataException {
-        return VesselDAS.getVesselByAbbrVslM(shortAbbrVslM);
+    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM, String date) throws DataException {
+        return VesselDAS.getVesselByAbbrVslM(shortAbbrVslM, date);
     }
 
     public static List<Alert> detectVesselChanges(User user, List<FavAndSubVessel> subbedVesselList) throws DataException {
         List<Alert> alertList = new ArrayList<>();
 
         for (FavAndSubVessel vessel : subbedVesselList) {
-            HashMap<String, String> newRs = VesselDAS.getCurrentVesselDetails(user.getUser_name(), vessel);
-            HashMap<String, String> oldRs = VesselDAS.getPreviousVesselDetails(user.getUser_name(), vessel);
+            HashMap<String, String> newRs = VesselDAS.getCurrentVesselDetails(vessel);
+            HashMap<String, String> oldRs = VesselDAS.getPreviousVesselDetails(vessel);
 
             Alert alert = new Alert();
             alert.setAbbrVslM(vessel.getAbbrVslM());
@@ -79,6 +79,16 @@ public class VesselService {
 
     }
 
+    public static Map<String, String> getPreviousVesselDetails(String abbrVslM, String inVoyN) throws DataException {
+        FavAndSubVessel favAndSubVessel = new FavAndSubVessel(abbrVslM, inVoyN);
+        return VesselDAS.getPreviousVesselDetails(favAndSubVessel);
+    }
+
+    public static Map<String, String> getCurrentVesselDetails(String abbrVslM, String inVoyN) throws DataException {
+        FavAndSubVessel favAndSubVessel = new FavAndSubVessel(abbrVslM, inVoyN);
+        return VesselDAS.getCurrentVesselDetails(favAndSubVessel);
+    }
+
     public static boolean needAddAlert(HashMap<String, String> newRs, HashMap<String, String> oldRs, String alertAttribute, boolean alertOpt) {
         if (!alertOpt) {
             return false;
@@ -107,9 +117,9 @@ public class VesselService {
         return VesselDAS.getVesselSpeedHistory(vsl_voy);
     }
 
-    public static void sortVesselList(ArrayList<Vessel> list, String sort, String order) {
-        Comparator<Vessel> compareByDate = Comparator.comparing(Vessel::getBthgDt).thenComparing(Vessel::getFullVslM);
-        Comparator<Vessel> compareByName = Comparator.comparing(Vessel::getFullVslM).thenComparing(Vessel::getBthgDt);
+    public static void sortVesselList(ArrayList<VesselDetails> list, String sort, String order) {
+        Comparator<VesselDetails> compareByDate = Comparator.comparing(VesselDetails::getBerthTime).thenComparing(VesselDetails::getFullVslM);
+        Comparator<VesselDetails> compareByName = Comparator.comparing(VesselDetails::getFullVslM).thenComparing(VesselDetails::getBerthTime);
 
         if (sort.equals("date") && order.equals("asc")) {
             Collections.sort(list, compareByDate);

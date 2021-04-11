@@ -200,23 +200,6 @@ public class UserController {
     }
 
     @PostMapping
-    @RequestMapping(path = "get-favourite")
-    //TODO can return Obejct?
-    public ResponseEntity<?> getFavourite(@RequestBody Map<String, Object> body) {
-        String username = body.get("username").toString();
-        String sort = body.get("sort_by").toString(); // date
-        String order = body.get("order").toString(); // asc
-        try {
-            List<Vessel> list =  userService.getFavourite(username, sort, order);
-            return ResponseEntity.status(HttpStatus.OK).body(list);
-        } catch (DataException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        } catch (PSAException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-    }
-
-    @PostMapping
     @RequestMapping(path = "add-subscribed")
     ResponseEntity<String> addSubscribed(@RequestBody Map<String, Object> body) {
         String username = body.get("username").toString();
@@ -258,7 +241,7 @@ public class UserController {
         String sort = body.get("sort_by").toString(); // date
         String order = body.get("order").toString(); // asc
         try {
-            List<Vessel> subscribedList = userService.getSubscribed(username, sort, order);
+            List<VesselDetails> subscribedList = userService.getSubscribed(username, sort, order);
             return ResponseEntity.status(HttpStatus.OK).body(subscribedList);
         }  catch (DataException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

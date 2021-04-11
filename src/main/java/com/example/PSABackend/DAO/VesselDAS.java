@@ -67,52 +67,47 @@ public class VesselDAS {
         return queryList;
     }
 
-    public static Vessel selectVesselById(String abbrVslM, String inVoyN) throws DataException {
-        Vessel vessel = null;
+    public static VesselDetails selectVesselById(String abbrVslM, String inVoyN) throws DataException {
+        VesselDetails vessel = null;
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = String.format("SELECT * FROM VESSEL WHERE abbrVslM = '%s' AND inVoyN = '%s'", abbrVslM, inVoyN);
+            String query = "SELECT fullVslM, vessel.abbrvslm, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN where VESSEL.ABBRVSLM = ? and VESSEL.INVOYN = ?";
 
 
             PreparedStatement queryStatement = conn.prepareStatement(query);
 
-
+            queryStatement.setString(1, abbrVslM);
+            queryStatement.setString(2, inVoyN);
             ResultSet rs = queryStatement.executeQuery();
 
-            String fullVslM = null;
-            String fullInVoyN = null;
-            String outVoyN = null;
-            String bthgDt = null;
-            String unbthgDt = null;
-            String berthN = null;
-            String status = null;
-
             if (rs.next()) {
-                fullVslM = rs.getString("fullVslM");
-                //            String abbrVslM = rs.getString("abbrVslM");
-                //            String inVoyN = rs.getString("inVoyN");
-                fullInVoyN = rs.getString("fullInVoyN");
-                outVoyN = rs.getString("outVoyN");
-                bthgDt = rs.getString("btrDt");
-                unbthgDt = rs.getString("unbthgDt");
-                berthN = rs.getString("berthN");
-                status = rs.getString("status");
+                String fullVslM = rs.getString("fullVslM");
+                String outVoyN = rs.getString("outVoyN");
+                LocalDateTime bthgDt = rs.getTimestamp("btrDt").toLocalDateTime();
+                LocalDateTime unbthgDt = rs.getTimestamp("unbthgDt").toLocalDateTime();
+                String berthN = rs.getString("berthN");
+                String status = rs.getString("status");
+                double avg_speed = rs.getDouble("avg_speed");
+                boolean is_increasing = rs.getBoolean("is_increasing");
+                int max_speed = rs.getInt("max_speed");
+                int distance_to_go = rs.getInt("distance_to_go");
+                vessel = new VesselDetails(fullVslM, abbrVslM, inVoyN, outVoyN, avg_speed, max_speed, distance_to_go, bthgDt, unbthgDt, berthN, status, is_increasing);
             }
 
-            vessel = new Vessel(fullVslM, abbrVslM, inVoyN, fullInVoyN, outVoyN, bthgDt, unbthgDt, berthN, status);
         } catch (SQLException e) {
             throw new DataException("Could not access the database");
         }
         return vessel;
     }
 
-    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM) throws DataException {
+    public static List<VesselDetails> getVesselByAbbrVslM(String shortAbbrVslM, String date) throws DataException {
         List<VesselDetails> vesselDetailsList = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
-            String query = "SELECT fullVslM, vessel.abbrvslm, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN where VESSEL.ABBRVSLM like ?";
+            String query = "SELECT fullVslM, vessel.abbrvslm, vessel.inVoyN inVoyN, outVoyN, btrDt, unbthgDt,berthN, status, avg_speed, is_increasing, max_speed, distance_to_go  FROM VESSEL LEFT OUTER JOIN VESSEL_EXTRA ON VESSEL.ABBRVSLM = VESSEL_EXTRA.ABBRVSLM AND VESSEL.INVOYN = VESSEL_EXTRA.INVOYN where VESSEL.ABBRVSLM like ? and btrDt like ?";
 
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setString(1, shortAbbrVslM + "%");
+            stmt.setString(2, date + "%");
 
             ResultSet rs = stmt.executeQuery();
 
@@ -168,7 +163,7 @@ public class VesselDAS {
         return queryList;
     }
 
-    public static HashMap<String, String> getPreviousVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
+    public static HashMap<String, String> getPreviousVesselDetails(FavAndSubVessel subbedVessel) throws DataException {
         HashMap<String, String> oldRsMap= new HashMap<>();
         try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
             String oldQuery = "select l.fullvslm, l.abbrvslm, l.invoyn, l.fullinvoyn, l.outvoyn, vsl_voy, btrdt, unbthgdt, berthn, status, avg_speed, distance_to_go, max_speed " +
@@ -198,7 +193,7 @@ public class VesselDAS {
         return oldRsMap;
     }
 
-    public static HashMap<String, String> getCurrentVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
+    public static HashMap<String, String> getCurrentVesselDetails(FavAndSubVessel subbedVessel) throws DataException {
         HashMap<String, String> newRsMap= new HashMap<>();
         try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
             String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed, l.is_updated " +
