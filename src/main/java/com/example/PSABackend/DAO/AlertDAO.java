@@ -43,7 +43,7 @@ public class AlertDAO {
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getAlertsQuery)) {
             stmt.setString(1, username);
-            LocalDate today = LocalDate.now();
+            LocalDate today = LocalDate.now().plusDays(1);
             stmt.setString(2, today.minusDays(7).toString());
             stmt.setString(3, today.toString());
             ResultSet rs = stmt.executeQuery();
