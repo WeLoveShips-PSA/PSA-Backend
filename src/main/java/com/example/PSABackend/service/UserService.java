@@ -63,8 +63,7 @@ public class UserService {
                 EmailService.sendEmail(user.getEmail(), newUserMessage, "Welcome to PSA", user.getUser_name());
                 return true;
             } catch (Exception e) {
-                System.out.println(e.getMessage());
-                // throw EmailerException or smth
+
             }
         }
         return false;
@@ -127,8 +126,7 @@ public class UserService {
             String resetPasswordMessage = String.format("Your new password is %s. ", newPassword);
             EmailService.sendEmail(user.getEmail(), resetPasswordMessage, "Request for resetting password", username);
         } catch (MessagingException | IOException e) {
-            System.out.println(e.getMessage());
-            //TODO throw EmailerException or smth
+
         }
         return true;
     }

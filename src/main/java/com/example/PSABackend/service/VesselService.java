@@ -110,8 +110,7 @@ public class VesselService {
         if (newInfo.equals(oldInfo)) {
             return false;
         }
-        System.out.println("newRs " + newRs.get(alertAttribute));
-        System.out.println("oldRs " + oldRs.get(alertAttribute));
+
         return true;
     }
 
@@ -140,7 +139,7 @@ public class VesselService {
             VesselDAS.deleteExpiredVessels();
             VesselDAS.deleteExpiredVesselLogs();
         } catch (PSAException e) {
-            System.out.println("vs");
+
         }
 
     }

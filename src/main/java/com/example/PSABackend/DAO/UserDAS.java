@@ -78,7 +78,6 @@ public class UserDAS {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
             throw new DataException("Could not access database");
         }
         return true;
@@ -97,7 +96,6 @@ public class UserDAS {
             stmt.setString(6, String.valueOf(distanceToGoAlert).equals("true") ? "0" : "1");
             stmt.setString(7, String.valueOf(maxSpeedAlert).equals("true") ? "0" : "1");
             stmt.setString(8, username);
-            System.out.println(stmt);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -249,7 +247,6 @@ public class UserDAS {
                 usernameExist = true;
             }
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return usernameExist;
     }
@@ -266,7 +263,6 @@ public class UserDAS {
                 emailExist = true;
             }
         } catch (SQLException e) {
-            System.out.println(e);
         }
         return emailExist;
     }

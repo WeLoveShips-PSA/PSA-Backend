@@ -67,10 +67,6 @@ public class Alert {
         return null;
     }
 
-    public static void main (String[] args) {
-        System.out.println(new Alert());
-    }
-
     public String getAbbrVslM() {
         return abbrVslM;
     }

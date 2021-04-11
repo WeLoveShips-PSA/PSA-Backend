@@ -97,11 +97,9 @@ public class PortNetConnector {
         int i = 0;
         int ind = 1;
         for (HashMap<String, String> v : queryArray) {
-            System.out.println("Looking for extra changes " + ind ++);
             // Program waits for 1 second
             try {
                 TimeUnit.SECONDS.sleep(1);
-                System.out.println(++i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -109,16 +107,13 @@ public class PortNetConnector {
             StringBuilder queryParam = new StringBuilder();
             queryParam.append(url);
             queryParam.append(v.get("vsl_voy"));
-            System.out.println(queryParam.toString());
             ResponseEntity<String> response = null;
             try {
                 response = restTemplate.exchange(queryParam.toString(), HttpMethod.GET, entity, String.class);
             } catch (RestClientResponseException | ResourceAccessException e) {
-                System.out.println("Failed to get remote resource because: " + e.getMessage());
                 continue;
             }
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
-            System.out.println(jsonObject.toString());
             try {
                 if (jsonObject.get("Error") == null) {
                     portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
@@ -140,7 +135,6 @@ public class PortNetConnector {
             updateVessel();
             alertService.getAlerts();
         } catch (PSAException e) {
-            System.out.println(e.getMessage());
         }
     }
 
@@ -156,7 +150,6 @@ public class PortNetConnector {
             updateVessel();
             alertService.getAlerts();
         } catch (PSAException e) {
-            System.out.println(e.getMessage());
         }
     }
 
