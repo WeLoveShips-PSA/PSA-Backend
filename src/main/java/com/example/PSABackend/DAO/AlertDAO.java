@@ -1,9 +1,6 @@
 package com.example.PSABackend.DAO;
 
 import com.example.PSABackend.classes.Alert;
-import com.example.PSABackend.service.EmailService;
-import com.example.PSABackend.classes.FavAndSubVessel;
-import com.example.PSABackend.classes.User;
 import com.example.PSABackend.exceptions.DataException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -42,10 +39,13 @@ public class AlertDAO {
 
     public List<Alert> getAlertsByUsername(String username) throws DataException {
         ArrayList<Alert> alertList = new ArrayList<>();
-        String getAlertsQuery = "SELECT * FROM alert where username = ?";
+        String getAlertsQuery = "SELECT * FROM alert where username = ? and date_time between ? and ?";
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getAlertsQuery)) {
             stmt.setString(1, username);
+            LocalDate today = LocalDate.now();
+            stmt.setString(2, today.minusDays(7).toString());
+            stmt.setString(3, today.toString());
             ResultSet rs = stmt.executeQuery();
 //            for (Alert alert : alertList) {
 //                stmt.setString(2, alert.getAbbrVslM());

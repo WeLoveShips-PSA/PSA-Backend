@@ -144,21 +144,6 @@ public class UserService {
         }
         return userDAS.delFavourite(username, abbrVsim, inVoyn) ; }
 
-    public ArrayList<Vessel> getFavourite(String username, String sort, String order) throws DataException {
-        if (getUserById(username) == null) {
-            return null;
-        }
-        ArrayList<FavAndSubVessel> likedVesselsList = userDAS.getFavourite(username);
-        ArrayList<Vessel> likedList = new ArrayList<Vessel>();
-        if (likedVesselsList == null) {
-            return null;
-        }
-        for (FavAndSubVessel s: likedVesselsList) {
-            likedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
-        }
-        VesselService.sortVesselList(likedList, sort, order);
-        return likedList;
-    }
 
     public boolean addSubscribed(String username, String abbrVsim, String inVoyn) throws DataException
     {
@@ -175,12 +160,12 @@ public class UserService {
         return userDAS.delSubscribed(username, abbrVsim, inVoyn) ; }
 
 
-    public ArrayList<Vessel> getSubscribed(String username, String sort, String order) throws DataException {
+    public ArrayList<VesselDetails> getSubscribed(String username, String sort, String order) throws DataException {
         if (getUserById(username) == null) {
             return null;
         }
         ArrayList<FavAndSubVessel> subscribedVesselsList = userDAS.getSubscribed(username);
-        ArrayList<Vessel> subscribedList = new ArrayList<Vessel>();
+        ArrayList<VesselDetails> subscribedList = new ArrayList<VesselDetails>();
 
         for (FavAndSubVessel s: subscribedVesselsList) {
             subscribedList.add(VesselService.getVesselById(s.getAbbrVslM(), s.getInVoyN()));
