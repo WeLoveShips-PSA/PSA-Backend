@@ -7,6 +7,8 @@ import com.example.PSABackend.classes.Alert;
 import com.example.PSABackend.classes.FavAndSubVessel;
 import com.example.PSABackend.classes.User;
 import com.example.PSABackend.exceptions.DataException;
+import com.example.PSABackend.exceptions.PSAException;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,7 +34,7 @@ public class AlertService {
     }
 
     public String getMessage(String username, List<Alert> alertList) {
-        String message = "Dear " + username + ",\n";
+        String message = "<h3>Dear " + username + ", these are the changes for your subscribed vessels</h3>";
         for (Alert a: alertList) {
             message += a + "\n";
         }
@@ -75,6 +77,15 @@ public class AlertService {
 
     public void insertAlerts(String username, List<Alert> alertList) throws DataException {
         alertDAO.insertAlerts(username, alertList);
+    }
+
+    @Scheduled(cron = "0 0 1 */7 * *")
+    public static void deleteExpiredAlerts() {
+        try {
+            AlertDAO.deleteExpiredAlerts();
+        } catch (PSAException e) {
+            System.out.println("as");
+        }
     }
 
 }

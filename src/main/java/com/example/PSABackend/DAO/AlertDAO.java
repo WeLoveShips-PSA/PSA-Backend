@@ -43,7 +43,7 @@ public class AlertDAO {
         try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
              PreparedStatement stmt = conn.prepareStatement(getAlertsQuery)) {
             stmt.setString(1, username);
-            LocalDate today = LocalDate.now();
+            LocalDate today = LocalDate.now().plusDays(1);
             stmt.setString(2, today.minusDays(7).toString());
             stmt.setString(3, today.toString());
             ResultSet rs = stmt.executeQuery();
@@ -135,6 +135,17 @@ public class AlertDAO {
             } catch (SQLException e) {
                 throw new DataException("Database error");
             }
+        }
+    }
+
+    public static void deleteExpiredAlerts() throws DataException {
+        String delQuery = "DELETE FROM alert WHERE date_time < ?";
+        try (Connection conn = DriverManager.getConnection(AlertDAO.dbURL, AlertDAO.username, AlertDAO.password);
+             PreparedStatement stmt = conn.prepareStatement(delQuery );) {
+            stmt.setString(1, LocalDate.now().minusDays(7).toString());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
         }
     }
 }

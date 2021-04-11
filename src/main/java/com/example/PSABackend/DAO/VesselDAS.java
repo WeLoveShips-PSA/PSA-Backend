@@ -351,4 +351,28 @@ public class VesselDAS {
         return speedHistory;
 
     }
+
+    public static void deleteExpiredVessels() throws DataException {
+        String delQuery = "DELETE FROM vessel WHERE unbthgDt < ?";
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL,  VesselDAS.username, VesselDAS.password);
+             PreparedStatement stmt = conn.prepareStatement(delQuery );) {
+            stmt.setString(1, LocalDate.now().minusDays(7).toString());
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
+        }
+
+    }
+
+    public static void deleteExpiredVesselLogs() throws DataException {
+        String delQuery = "DELETE FROM vessel_log WHERE unbthgDt < ?";
+        try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL,  VesselDAS.username, VesselDAS.password);
+             PreparedStatement stmt = conn.prepareStatement(delQuery );) {
+            stmt.setString(1, LocalDate.now().minusDays(7).toString());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataException("Database Error");
+        }
+    }
 }

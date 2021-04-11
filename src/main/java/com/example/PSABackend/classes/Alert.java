@@ -31,38 +31,38 @@ public class Alert {
         if (newBerthTime != null) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String time = newBerthTime.format(formatter);
-            alert += "\tnewETA: " + time + "\n";
+            alert += "<div>newETA: " + time + "</div>";
 
             hasChange = true;
         }
 
         if (newAvgSpeed != 0.0) {
-            alert += "\tAverage Speed: " + newAvgSpeed + "km/hr\n";
+            alert += "<div>Average Speed: " + newAvgSpeed + "km/hr</div>";
             hasChange = true;
         }
 
         if (newMaxSpeed != 0) {
-            alert += "\tMax Speed: " + newMaxSpeed + "km/hr\n";
+            alert += "<div>Max Speed: " + newMaxSpeed + "km/hr</div>";
             hasChange = true;
         }
 
         if (newDistanceToGo != 0) {
-            alert += "\tDistance To Go: " + newDistanceToGo + "km\n ";
+            alert += "<div>Distance To Go: " + newDistanceToGo + "km</div> ";
             hasChange = true;
         }
 
         if (newBerthNo != null) {
-            alert += "\tBerthing Number: " + newBerthNo + "\n";
+            alert += "<div>Berthing Number: " + newBerthNo + "</div>";
             hasChange = true;
         }
 
         if (newStatus != null) {
-            alert += "\tStatus: " + newStatus + "\n";
+            alert += "<div>Status: " + newStatus + "</div>";
             hasChange = true;
         }
 
         if (hasChange) {
-            return String.format("Below are the changes for vessel %s:\n %s", abbrVslM, alert);
+            return String.format("<h4>%s</h4>%s", abbrVslM, alert);
         }
         return null;
     }

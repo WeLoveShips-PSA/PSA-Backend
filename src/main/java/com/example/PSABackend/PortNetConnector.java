@@ -6,6 +6,7 @@ import com.example.PSABackend.exceptions.DataException;
 import com.example.PSABackend.exceptions.PSAException;
 import com.example.PSABackend.service.AlertService;
 import com.example.PSABackend.service.EmailService;
+import com.example.PSABackend.service.VesselService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -169,4 +170,11 @@ public class PortNetConnector {
 //            System.out.println(e.getMessage());
 //        }
 //    }
+
+    public static void cleanDB() {
+        System.out.println("Weekly database cleaning");
+        VesselService.deleteExpiredVessels();
+        AlertService.deleteExpiredAlerts();
+    }
+
 }
