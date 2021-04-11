@@ -201,7 +201,7 @@ public class VesselDAS {
     public static HashMap<String, String> getCurrentVesselDetails(String username, FavAndSubVessel subbedVessel) throws DataException {
         HashMap<String, String> newRsMap= new HashMap<>();
         try (Connection conn = DriverManager.getConnection(VesselDAS.dbURL, VesselDAS.username, VesselDAS.password)) {
-            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed " +
+            String newQuery = "select l.abbrvslm, l.invoyn, btrdt, berthn, status, avg_speed, distance_to_go, max_speed, l.is_updated " +
                     "from vessel l " +
                     "left outer join vessel_extra e " +
                     "on e.abbrvslm = l.abbrvslm and e.invoyn = l.invoyn " +
@@ -218,6 +218,7 @@ public class VesselDAS {
                 newRsMap.put("avg_speed", newRs.getString("avg_speed"));
                 newRsMap.put("distance_to_go", newRs.getString("distance_to_go"));
                 newRsMap.put("max_speed", newRs.getString("max_speed"));
+                newRsMap.put("is_updated", newRs.getString("is_updated"));
             } else {
                 return null;
             }

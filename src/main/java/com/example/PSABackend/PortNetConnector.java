@@ -2,6 +2,7 @@ package com.example.PSABackend;
 
 import com.example.PSABackend.DAO.AlertDAO;
 import com.example.PSABackend.DAO.PortNetConnectorDAO;
+import com.example.PSABackend.exceptions.DataException;
 import com.example.PSABackend.exceptions.PSAException;
 import com.example.PSABackend.service.AlertService;
 import com.example.PSABackend.service.EmailService;
@@ -10,9 +11,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -75,7 +80,7 @@ public class PortNetConnector {
 
     // Calls the api for the individual vessels and calls PortNetConnectorDAO.insertIndividualVessels
     // to update the individual vessels in the database
-    public void updateVessel() {
+    public void updateVessel() throws DataException {
         PortNetConnectorDAO portNetConnectorDAO = new PortNetConnectorDAO();
         String url = "https://api.portnet.com/extapi/vessels/predictedbtr/?vslvoy=";
         String getQuery = "";
@@ -108,28 +113,39 @@ public class PortNetConnector {
             queryParam.append(url);
             queryParam.append(v.get("vsl_voy"));
             System.out.println(queryParam.toString());
-            ResponseEntity<String> response = restTemplate.exchange(queryParam.toString(), HttpMethod.GET, entity, String.class);
+            ResponseEntity<String> response = null;
+            try {
+                response = restTemplate.exchange(queryParam.toString(), HttpMethod.GET, entity, String.class);
+            } catch (RestClientResponseException | ResourceAccessException e) {
+                System.out.println("Failed to get remote resource because: " + e.getMessage());
+                continue;
+            }
             JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
             System.out.println(jsonObject.toString());
-            if (jsonObject.get("Error") == null) {
-
-                portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
+            try {
+                if (jsonObject.get("Error") == null) {
+                    portNetConnectorDAO.insertIndividualVessels(jsonObject, v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"));
+                    // portNetConnectorDAO.setVesselIsUpdated(v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"), true);
+                } else {
+                    portNetConnectorDAO.setVesselIsUpdated(v.get("abbrVslM"), v.get("inVoyN"), v.get("vsl_voy"), false);
+                }
+            } catch (DataException e) {
+                throw e;
             }
         }
     }
 
 
-    @Scheduled(cron = "0 0 0 */1 * *")
+    @Scheduled(cron = "0 0 0,12 * * *")
     public void daily() {
         System.out.println("Daily update: " + LocalDateTime.now());
-
 
         LocalDate localDate = LocalDate.now();
         String todaydate = localDate.toString();
         System.out.println(todaydate);
         getUpdate(todaydate, todaydate);
-        updateVessel();
         try {
+            updateVessel();
             alertService.getAlerts();
         } catch (PSAException e) {
             System.out.println(e.getMessage());
@@ -144,19 +160,19 @@ public class PortNetConnector {
         String todayDate = localDate.toString();
         String nextWeekDate = localDate.plusDays(7).toString();
         getUpdate(todayDate, nextWeekDate);
-        updateVessel();
         try {
+            updateVessel();
             alertService.getAlerts();
         } catch (PSAException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    @Scheduled(cron = "0 0 */1 * * *")
+    @Scheduled(cron = "0 0 1-11,13-23 * * *")
     public void hourly(){
         System.out.println("Hourly update: " + LocalDateTime.now());
-        updateVessel();
         try {
+            updateVessel();
             alertService.getAlerts();
         } catch (PSAException e) {
             System.out.println(e.getMessage());

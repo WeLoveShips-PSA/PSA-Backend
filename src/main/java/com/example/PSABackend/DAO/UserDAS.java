@@ -43,7 +43,7 @@ public class UserDAS {
     //@Override
     public boolean addUser(User user) throws LoginException, DataException {
 
-        String addUserQuery = "INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?)";
+        String addUserQuery = "INSERT INTO user VALUES (?,?,?,?,?,?,?,?,?,?)";
 
 
         // camelCasing
@@ -59,6 +59,8 @@ public class UserDAS {
             stmt.setString(7, String.valueOf(user.isAvgSpeedAlert()).equals("true") ? "0" : "1");
             stmt.setString(8, String.valueOf(user.isDistanceToGoAlert()).equals("true") ? "0" : "1");
             stmt.setString(9, String.valueOf(user.isMaxSpeedAlert()).equals("true") ? "0" : "1");
+            stmt.setString(10, String.valueOf(user.isEmailOptIn()).equals("true") ? "0" : "1") ;
+
             stmt.executeUpdate();
 
         } catch (SQLException e) {

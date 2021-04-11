@@ -4,6 +4,7 @@ import com.example.PSABackend.DAO.VesselDAS;
 import com.example.PSABackend.classes.*;
 import com.example.PSABackend.exceptions.DataException;
 import jdk.swing.interop.SwingInterOpUtils;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.xml.crypto.Data;
@@ -44,6 +45,9 @@ public class VesselService {
             alert.setAbbrVslM(vessel.getAbbrVslM());
             alert.setInVoyN(vessel.getInVoyN());
             boolean hasChange = false;
+            if (newRs != null && newRs.get("is_updated").equals("0")) {
+                continue;
+            }
             if (needAddAlert(newRs, oldRs, "btrdt", user.isBtrDtAlert())) {
                 alert.setNewBerthTime(Timestamp.valueOf(newRs.get("btrdt")).toLocalDateTime());
                 hasChange = true;
@@ -71,19 +75,25 @@ public class VesselService {
             if (hasChange) {
                 alertList.add(alert);
             }
-        }return alertList;
+        } return alertList;
 
     }
 
     public static boolean needAddAlert(HashMap<String, String> newRs, HashMap<String, String> oldRs, String alertAttribute, boolean alertOpt) {
-        String newInfo = newRs.get(alertAttribute);
-        String oldInfo = oldRs.get(alertAttribute);
-
         if (!alertOpt) {
             return false;
         }
+        String newInfo = newRs.get(alertAttribute);
+        String oldInfo = null;
+        if (oldRs != null) {
+            oldInfo = oldRs.get(alertAttribute);
+        }
+
         if (newInfo == null) {
             return false;
+        }
+        if (oldInfo == null) {
+            return true;
         }
         if (newInfo.equals(oldInfo)) {
             return false;
