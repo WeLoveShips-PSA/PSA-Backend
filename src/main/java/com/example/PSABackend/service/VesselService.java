@@ -3,7 +3,9 @@ package com.example.PSABackend.service;
 import com.example.PSABackend.DAO.VesselDAS;
 import com.example.PSABackend.classes.*;
 import com.example.PSABackend.exceptions.DataException;
+import com.example.PSABackend.exceptions.PSAException;
 import jdk.swing.interop.SwingInterOpUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
@@ -130,5 +132,16 @@ public class VesselService {
         } else {
             Collections.sort(list, compareByName.reversed());
         }
+    }
+
+    @Scheduled(cron = "0 0 1 */7 * *")
+    public static void deleteExpiredVessels() {
+        try {
+            VesselDAS.deleteExpiredVessels();
+            VesselDAS.deleteExpiredVesselLogs();
+        } catch (PSAException e) {
+            System.out.println("vs");
+        }
+
     }
  }

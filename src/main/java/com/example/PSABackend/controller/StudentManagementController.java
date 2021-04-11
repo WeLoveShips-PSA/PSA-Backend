@@ -27,15 +27,14 @@ public class StudentManagementController {
 
     @GetMapping(path = "all")
     public List<Student> getSTUDENTS() {
-        // portNetConnector.getUpdate("2021-04-11", "2021-04-17");
+        //portNetConnector.getUpdate("2021-04-11", "2021-04-17");
         try {
-            portNetConnector.updateVessel();
+            //portNetConnector.updateVessel();
             alertService.getAlerts();
         } catch (Exception e) {
             System.out.println("caight in smc");
             e.printStackTrace();
         }
-
         return STUDENTS;
     }
 

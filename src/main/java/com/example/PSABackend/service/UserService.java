@@ -7,6 +7,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,7 +126,7 @@ public class UserService {
         try {
             String resetPasswordMessage = String.format("Your new password is %s. ", newPassword);
             EmailService.sendEmail(user.getEmail(), resetPasswordMessage, "Request for resetting password", username);
-        } catch (Exception e) {
+        } catch (MessagingException | IOException e) {
             System.out.println(e.getMessage());
             //TODO throw EmailerException or smth
         }
