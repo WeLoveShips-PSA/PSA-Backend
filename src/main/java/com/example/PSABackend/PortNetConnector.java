@@ -171,10 +171,5 @@ public class PortNetConnector {
 //        }
 //    }
 
-    public static void cleanDB() {
-        System.out.println("Weekly database cleaning");
-        VesselService.deleteExpiredVessels();
-        AlertService.deleteExpiredAlerts();
-    }
 
 }

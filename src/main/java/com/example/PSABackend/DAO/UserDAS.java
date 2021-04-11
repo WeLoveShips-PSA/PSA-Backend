@@ -310,31 +310,6 @@ public class UserDAS {
     }
 
     //@Override
-    public ArrayList<FavAndSubVessel> getFavourite(String username) throws DataException {
-        ArrayList<FavAndSubVessel> likedVesselsList = new ArrayList<FavAndSubVessel>();
-
-        String getFavouriteQuery = "SELECT * FROM liked_vessel WHERE username = ? ORDER BY abbrVslM asc";
-        try (Connection conn = DriverManager.getConnection(this.dbURL, this.username, this.password);
-             PreparedStatement stmt = conn.prepareStatement(getFavouriteQuery);) {
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-
-            while(rs.next()) {
-                String abbrVslM = rs.getString("abbrVslM");
-                String inVoyN = rs.getString("inVoyN");
-
-                likedVesselsList.add(new FavAndSubVessel(abbrVslM, inVoyN));
-            }
-
-        } catch (SQLException e) {
-            //TODO throw dataexception KIV
-            return null;
-        }
-
-        return likedVesselsList;
-    }
-
-    //@Override
     public boolean addSubscribed(String username, String abbrVslM, String inVoyN) throws DataException {
 
         String addSubscribedQuery = "INSERT INTO subscribed_vessel(username, abbrVslM, inVoyN) VALUES (?,?,?)";
