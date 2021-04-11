@@ -60,7 +60,6 @@ public class UserService {
                 return true;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
-                System.out.println("EmailService got problem");
                 // throw EmailerException or smth
             }
         }

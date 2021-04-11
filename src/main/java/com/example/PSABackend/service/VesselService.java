@@ -3,6 +3,7 @@ package com.example.PSABackend.service;
 import com.example.PSABackend.DAO.VesselDAS;
 import com.example.PSABackend.classes.*;
 import com.example.PSABackend.exceptions.DataException;
+import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.stereotype.Service;
 
 import javax.xml.crypto.Data;
@@ -70,20 +71,25 @@ public class VesselService {
             if (hasChange) {
                 alertList.add(alert);
             }
-        }
-        return alertList;
+        }return alertList;
+
     }
 
     public static boolean needAddAlert(HashMap<String, String> newRs, HashMap<String, String> oldRs, String alertAttribute, boolean alertOpt) {
+        String newInfo = newRs.get(alertAttribute);
+        String oldInfo = oldRs.get(alertAttribute);
+
         if (!alertOpt) {
             return false;
         }
-        if (newRs.get(alertAttribute) == null) {
+        if (newInfo == null) {
             return false;
         }
-        if (newRs.get(alertAttribute).equals(oldRs.get(alertAttribute))) {
+        if (newInfo.equals(oldInfo)) {
             return false;
         }
+        System.out.println("newRs " + newRs.get(alertAttribute));
+        System.out.println("oldRs " + oldRs.get(alertAttribute));
         return true;
     }
 

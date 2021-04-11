@@ -9,6 +9,7 @@ import com.example.PSABackend.classes.User;
 import com.example.PSABackend.exceptions.DataException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AlertService {
@@ -19,6 +20,14 @@ public class AlertService {
     private AlertDAO alertDAO = new AlertDAO();
 
     public List<Alert> getAlertsByUsername(String username) throws DataException {
+        try {
+            User user = userService.getUserById(username);
+            if (user == null) {
+                throw new DataException("No user found");
+            }
+        } catch (DataException e) {
+            throw e;
+        }
         return alertDAO.getAlertsByUsername(username);
     }
 
